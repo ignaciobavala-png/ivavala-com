@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset=utf-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<title>Ignacio Vavala — webs y sistemas que no se rompen</title>
+<meta content="Desarrollador web full-stack. Next.js, Supabase, Astro, Cloudflare." name=description>
+<script>
+(function(){try{var t=localStorage.getItem('theme');document.documentElement.setAttribute('data-theme',t||'dark')}catch(e){document.documentElement.setAttribute('data-theme','dark')}})();
+</script>
+<style>
+:root{
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"avenir next",avenir,helvetica,"helvetica neue",ubuntu,roboto,noto,"segoe ui",arial,sans-serif;
+  --bg:#0a0a0a;
+  --card:#101010;
+  --text:#e0e0e0;
+  --dim:#777;
+  --accent:#6ee7b7;
+  --accent2:#a78bfa;
+  --link:#6ee7b7;
+  --border:#222;
+  --input-bg:#0a0a0a;
+  --btn-text:#0a0a0a;
+  --rail:#fff;
+  --rail-glow:rgba(255,255,255,.9);
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --bg:#f7f6f3;
+  --card:#fff;
+  --text:#1b1b1b;
+  --dim:#5c5c5c;
+  --accent:#089e7e;
+  --accent2:#6b3fd4;
+  --link:#089e7e;
+  --border:#e3e3e0;
+  --input-bg:#fff;
+  --btn-text:#fff;
+  --rail:#1b1b1b;
+  --rail-glow:rgba(0,0,0,.45);
+  color-scheme:light;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;line-height:1.7;font-size:1rem;font-family:var(--sans)}
+a{color:var(--link);text-decoration:none;font-weight:500}a:hover{text-decoration:underline}
+ul{padding:0}li{list-style:none}
+hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
+
+.page{position:relative}
+
+.main{max-width:640px;margin:0 auto;padding:60px 20px 140px;position:relative;z-index:2}
+.main>*{max-width:600px}
+
+.header{display:flex;align-items:center;gap:1.2rem}
+.avatar{width:88px;height:88px;border-radius:50%;object-fit:cover;border:1px solid var(--border);flex-shrink:0}
+h1{font-family:var(--mono);font-size:2rem;font-weight:700;letter-spacing:-.04em;line-height:1.1;color:var(--text)}
+h1::after{content:"_";color:var(--accent);animation:blink 1.1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.sub{font-size:1.1rem;color:var(--dim);margin-top:.4rem;font-weight:400;line-height:1.5}
+.sub b{color:var(--accent);font-weight:600}
+.punch{color:var(--text)}
+
+h2{font-family:var(--mono);margin:2.5rem 0 .6rem;font-size:.7rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+
+.tag{font-family:var(--mono);font-size:.65rem;color:var(--accent2);letter-spacing:.03em}
+.note{color:var(--dim);font-size:.9rem;line-height:1.7}
+
+/* ── formulario ── */
+.form-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.4rem 1.4rem 1.2rem;margin-top:1rem}
+.form-card p{color:var(--dim);font-size:.9rem;line-height:1.6}
+.form-card label{display:block;font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin:1.1rem 0 .3rem}
+.form-card input,.form-card textarea,.form-card select{width:100%;box-sizing:border-box;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:.55rem .7rem;font-family:var(--sans);font-size:.95rem;outline:none;transition:border-color .15s}
+.form-card select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%23777'/></svg>");background-repeat:no-repeat;background-position:right .7rem center}
+.form-card input:focus,.form-card textarea:focus,.form-card select:focus{border-color:var(--accent)}
+.form-card textarea{resize:vertical;min-height:84px}
+.form-card .btn{display:block;width:100%;margin-top:1.2rem;background:var(--accent);color:var(--btn-text);border:none;border-radius:6px;padding:.7rem;font-family:var(--mono);font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:filter .15s}
+.form-card .btn:hover{filter:brightness(1.15)}
+.form-card .btn:active{filter:brightness(.9)}
+.form-card .btn[disabled]{opacity:.5;cursor:wait}
+.alt-contact{margin-top:.9rem;font-size:.85rem;color:var(--dim)}
+.alt-contact a{margin-right:.6rem}
+
+.now{display:inline-block;font-family:var(--mono);font-size:.7rem;color:var(--accent);border:1px solid var(--accent);padding:.15rem .5rem;border-radius:2px;margin-bottom:.5rem;letter-spacing:.06em;text-transform:uppercase}
+
+.work{display:grid;grid-template-columns:1fr auto;gap:0 1.2rem}
+.work div{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:5px 0;border-bottom:1px solid var(--border)}
+.work time{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--dim);letter-spacing:-.012em;white-space:nowrap;text-align:right;padding:5px 0;border-bottom:1px solid var(--border);font-size:.8rem}
+
+.lang{position:fixed;top:20px;right:60px;font-family:var(--mono);font-size:.8rem;display:flex;gap:8px;align-items:center;z-index:20;background:var(--bg);padding:4px 10px;border:1px solid var(--border);border-radius:3px}
+@media (max-width:640px){.lang{right:20px}}
+.lang a{color:var(--dim);font-weight:400}.lang a:hover{color:var(--accent)}
+.theme-toggle{background:none;border:none;color:var(--dim);font-family:var(--mono);font-size:.8rem;cursor:pointer;padding:0;line-height:1}
+.theme-toggle:hover{color:var(--accent)}
+
+/* ── líneas verticales ── */
+.rail{position:fixed;top:0;bottom:0;width:48px;overflow:hidden;pointer-events:none;z-index:1}
+.rail.l{left:0}.rail.r{right:0}
+.rail svg{position:absolute;left:0;top:0;width:100%;height:200%;animation:rail-fall linear infinite}
+.rail svg path{fill:none;stroke:var(--rail)}
+.rail .b{stroke-width:1.6;opacity:.55;filter:drop-shadow(0 0 5px var(--rail-glow))}
+.rail .e{stroke-width:1;opacity:.12}
+.rail.l .b{animation-duration:9s}
+.rail.l .e{animation-duration:14s}
+.rail.r .b{animation-duration:12s}
+.rail.r .e{animation-duration:17s}
+@keyframes rail-fall{from{transform:translateY(0)}to{transform:translateY(-50%)}}
+@media (max-width:640px){
+  .rail{width:24px;opacity:.4}
+}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="lang"><button class="theme-toggle" id="theme-toggle" aria-label="Cambiar tema">&#9681;</button><a href="en/index.html">EN</a></div>
+<div class="main">
+
+<div class="header">
+<img class="avatar" src="yo.jpg" alt="Ignacio Vavala">
+<div>
+<h1>Ignacio Vavala</h1>
+<p class="sub">hago <b>webs y sistemas que no se rompen</b>.<br>Tu proyecto no necesita alguien que tira c&#243;digo y reza.</p>
+</div>
+</div>
+
+<p class="punch">Necesita uno que lo hace andar, lo deja andando, y si alg&#250;n d&#237;a se rompe a las 3am, ya estaba arreglado antes de que te des cuenta.</p>
+
+<hr>
+
+<div class="now">ahora</div>
+<p class="note">Escuela S&#243;nica (web de escuela de m&#250;sica), Escriban&#237;a Tocagni (automatizaciones del estudio).</p>
+
+<h2>&#9889; Servicios</h2>
+<ul>
+<li>Webs con panel de admin: public&#225;s vos, sin llamar a nadie</li>
+<li>Tiendas online con pagos (MercadoPago, WhatsApp checkout)</li>
+<li>Apps internas para eventos: barra, entradas, finanzas en vivo</li>
+<li>Registro y onboarding con c&#243;digo de invitaci&#243;n</li>
+<li>Migraciones de correo sin que el servicio se entere</li>
+</ul>
+
+<h2>&#x1f6e0; Trabajo</h2>
+<div class="work">
+<div><a href="https://escuelasonica.com.ar">Escuela S&#243;nica</a> <span class="tag">Next.js</span></div><time>2026</time>
+<div><a href="https://arqgonzalezoliva.com">GonzalezOliva</a> <span class="tag">Astro + Cloudflare</span></div><time>2026</time>
+<div><a href="https://malasana.ethoslogliberty.workers.dev">Malasa&#241;a Boutique</a> <span class="tag">Cloudflare Workers</span></div><time>2026</time>
+<div><a href="https://umf.ethoslogliberty.workers.dev">UMF Records</a> <span class="tag">Astro + Cloudflare</span></div><time>2026</time>
+<div><a href="https://cosmic-eagle.vercel.app">Cosmic Eagle Journey</a> <span class="tag">Next.js</span></div><time>2026</time>
+<div><a href="https://santiagoazcuy.com">Santiago Azcuy</a> <span class="tag">Next.js</span></div><time>2026</time>
+<div><a href="https://www.productoracalafate.com">Torres del Paine Summit</a> <span class="tag">Next.js</span></div><time>2026</time>
+<div><a href="https://www.labitconf.com">LABITCONF 26</a> <span class="tag">Next.js + Realtime</span></div><time>2026</time>
+<div><a href="https://manso.club">Manso Club</a> <span class="tag">Next.js</span></div><time>2026</time>
+<div><a href="https://manso-gestion.vercel.app">Manso Gesti&#243;n</a> <span class="tag">React + Vite</span></div><time>2026</time>
+<div><a href="https://pampaestudio.com">Pampa Estudio</a> <span class="tag">Next.js</span></div><time>2026</time>
+<div>Escriban&#237;a Tocagni <span class="tag">Astro + Cloudflare</span></div><time>2026</time>
+<div>Ohana Holding &#8212; migraci&#243;n Google Workspace <span class="tag">infra</span></div><time>2026</time>
+</div>
+
+<h2>&#x1f9f0; Stack</h2>
+<p class="note">Next.js 16 &#183; Supabase &#183; Tailwind CSS v4 &#183; Astro &#183; Cloudflare Workers &#183; TypeScript</p>
+
+<h2>&#9993; Contacto</h2>
+<p class="note">Si llegaste hasta ac&#225;, ya es m&#225;s que yo ten&#237;a hace un a&#241;o. Contame tu proyecto en 3 l&#237;neas: qu&#233; es, para cu&#225;ndo, y qu&#233; esper&#225;s que haga. Con eso alcanza para empezar.</p>
+
+<div class="form-card">
+<p>Complet&#225; esto y te llega a mi WhatsApp como mensaje directo. Sin formularios que se pierden en un mail.</p>
+<form id="contact-form">
+<label>Nombre</label>
+<input type="text" name="nombre" placeholder="Tu nombre" required>
+<label>Tu contacto</label>
+<input type="text" name="contacto" placeholder="WhatsApp o mail" required>
+<label>Qu&#233; necesit&#225;s</label>
+<select name="tipo">
+<option>Web para mi negocio</option>
+<option>Tienda online con pagos</option>
+<option>App o sistema interno</option>
+<option>Evento: registro, barra, entradas</option>
+<option>Migraci&#243;n de correo</option>
+<option>Todav&#237;a no s&#233;, arranc&#225; vos</option>
+</select>
+<label>Contame un poco</label>
+<textarea name="mensaje" placeholder="Idea, deadline, lo que sea. Sin vueltas."></textarea>
+<button class="btn" type="submit">Enviar por WhatsApp &#8594;</button>
+</form>
+<p class="alt-contact">O directo: <a href="https://wa.me/5491162459508">WhatsApp</a> <a href="mailto:ignacio@bavala.dev">mail</a></p>
+</div>
+
+</div>
+</div>
+<div class="rail l">
+<svg class="b" viewBox="0 0 60 1200" preserveAspectRatio="none"><path d="M30 0 Q6 150 30 300 Q54 450 30 600 Q6 750 30 900 Q54 1050 30 1200"/></svg>
+<svg class="e" viewBox="0 0 60 1200" preserveAspectRatio="none"><path d="M30 0 Q6 150 30 300 Q54 450 30 600 Q6 750 30 900 Q54 1050 30 1200"/></svg>
+</div>
+<div class="rail r">
+<svg class="b" viewBox="0 0 60 1200" preserveAspectRatio="none"><path d="M30 0 Q6 150 30 300 Q54 450 30 600 Q6 750 30 900 Q54 1050 30 1200"/></svg>
+<svg class="e" viewBox="0 0 60 1200" preserveAspectRatio="none"><path d="M30 0 Q6 150 30 300 Q54 450 30 600 Q6 750 30 900 Q54 1050 30 1200"/></svg>
+</div>
+<script>
+var toggle=document.getElementById('theme-toggle');
+var syncToggle=function(){toggle.innerHTML=document.documentElement.getAttribute('data-theme')==='light'?'&#9680;':'&#9681;'};
+toggle.addEventListener('click',function(){
+  var cur=document.documentElement.getAttribute('data-theme');
+  var next=cur==='light'?'dark':'light';
+  document.documentElement.setAttribute('data-theme',next);
+  try{localStorage.setItem('theme',next)}catch(e){}
+  syncToggle();
+});
+syncToggle();
+var form=document.getElementById('contact-form');
+form.addEventListener('submit',function(e){
+  e.preventDefault();
+  var btn=form.querySelector('.btn');
+  var v=function(n){return form.elements[n].value.trim()};
+  var msg='Hola Ignacio, soy '+v('nombre')+'. ('+v('contacto')+')'
+    +'\nNecesito: '+v('tipo')
+    + (v('mensaje')?'\n\n'+v('mensaje'):'');
+  btn.disabled=true;btn.textContent='Abriendo WhatsApp...';
+  window.location.href='https://wa.me/5491162459508?text='+encodeURIComponent(msg);
+  setTimeout(function(){btn.disabled=false;btn.textContent='Enviar por WhatsApp \u2192'},3000);
+});
+</script>
+</body>
+</html>
