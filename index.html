@@ -3,8 +3,35 @@
 <head>
 <meta charset=utf-8>
 <meta content="width=device-width,initial-scale=1" name=viewport>
-<title>Ignacio Vavala — webs y sistemas que no se rompen</title>
-<meta content="Desarrollador web full-stack. Next.js, Supabase, Astro, Cloudflare." name=description>
+<title>Ignacio Vavala — Desarrollador web full-stack</title>
+<meta content="Desarrollo webs, tiendas online y sistemas a medida con Next.js, Supabase y Cloudflare. Trabajo remoto para clientes de cualquier país, mantenimiento incluido." name=description>
+<link rel="canonical" href="https://ivavala.com/">
+<link rel="alternate" hreflang="es" href="https://ivavala.com/">
+<link rel="alternate" hreflang="en" href="https://ivavala.com/en/">
+<link rel="alternate" hreflang="x-default" href="https://ivavala.com/">
+<meta property="og:site_name" content="Ignacio Vavala">
+<meta property="og:title" content="Ignacio Vavala — Desarrollador web full-stack">
+<meta property="og:description" content="Desarrollo webs, tiendas online y sistemas a medida con Next.js, Supabase y Cloudflare. Trabajo remoto para clientes de cualquier país, mantenimiento incluido.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ivavala.com/">
+<meta property="og:image" content="https://ivavala.com/og.png">
+<meta property="og:image:alt" content="Ignacio Vavala — desarrollo web full-stack">
+<meta property="og:locale" content="es_AR">
+<meta property="og:locale:alternate" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"Person","@id":"https://ivavala.com/#ignacio","name":"Ignacio Vavala",
+"url":"https://ivavala.com/","image":"https://ivavala.com/yo.jpg","jobTitle":"Desarrollador web full-stack",
+"email":"mailto:ignacio@ivavala.com","knowsLanguage":["es","en"],
+"knowsAbout":["Next.js","Supabase","Astro","Cloudflare Workers","TypeScript","Tailwind CSS"]},
+{"@type":"ProfessionalService","@id":"https://ivavala.com/#servicio","name":"Ignacio Vavala",
+"url":"https://ivavala.com/","image":"https://ivavala.com/og.png",
+"provider":{"@id":"https://ivavala.com/#ignacio"},"areaServed":"Worldwide",
+"availableLanguage":["es","en"],"serviceType":["Desarrollo web", "Tiendas online", "Aplicaciones a medida", "Paneles de administracion", "Mantenimiento web"]}
+]}</script>
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <script>
 (function(){try{var t=localStorage.getItem('theme');document.documentElement.setAttribute('data-theme',t||'dark')}catch(e){document.documentElement.setAttribute('data-theme','dark')}})();
 </script>
@@ -54,14 +81,16 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
 
 .header{display:flex;align-items:center;gap:1.2rem}
 .avatar{width:88px;height:88px;border-radius:50%;object-fit:cover;border:1px solid var(--border);flex-shrink:0}
-h1{font-family:var(--mono);font-size:2rem;font-weight:700;letter-spacing:-.04em;line-height:1.1;color:var(--text)}
+h1{font-family:var(--mono);font-size:clamp(2.4rem,7vw,3.5rem);font-weight:700;letter-spacing:-.04em;line-height:1;color:var(--text)}
 h1::after{content:"_";color:var(--accent);animation:blink 1.1s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
 .sub{font-size:1.1rem;color:var(--dim);margin-top:.4rem;font-weight:400;line-height:1.5}
 .sub b{color:var(--accent);font-weight:600}
 .punch{color:var(--text)}
 
-h2{font-family:var(--mono);margin:2.5rem 0 .6rem;font-size:.7rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+h2{font-family:var(--mono);margin:.35rem 0 1rem;font-size:clamp(1.9rem,5.5vw,2.9rem);font-weight:700;letter-spacing:-.03em;line-height:1;text-transform:uppercase;color:var(--text)}
+.sect{font-family:var(--mono);font-size:.7rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:.5rem;margin:3rem 0 0}
+.sect::after{content:"";flex:0 0 28px;height:1px;background:var(--border)}
 
 .tag{font-family:var(--mono);font-size:.65rem;color:var(--accent2);letter-spacing:.03em}
 .note{color:var(--dim);font-size:.9rem;line-height:1.7}
@@ -83,15 +112,27 @@ h2{font-family:var(--mono);margin:2.5rem 0 .6rem;font-size:.7rem;font-weight:600
 
 .now{display:inline-block;font-family:var(--mono);font-size:.7rem;color:var(--accent);border:1px solid var(--accent);padding:.15rem .5rem;border-radius:2px;margin-bottom:.5rem;letter-spacing:.06em;text-transform:uppercase}
 
-.work{display:grid;grid-template-columns:1fr auto;gap:0 1.2rem}
-.work div{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:5px 0;border-bottom:1px solid var(--border)}
-.work time{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--dim);letter-spacing:-.012em;white-space:nowrap;text-align:right;padding:5px 0;border-bottom:1px solid var(--border);font-size:.8rem}
+.group{font-family:var(--mono);font-size:.65rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin:2rem 0 .5rem}
+.group::after{content:" —";color:var(--dim)}
 
-.lang{position:fixed;top:20px;right:60px;font-family:var(--mono);font-size:.8rem;display:flex;gap:8px;align-items:center;z-index:20;background:var(--bg);padding:4px 10px;border:1px solid var(--border);border-radius:3px}
-@media (max-width:640px){.lang{right:20px}}
-.lang a{color:var(--dim);font-weight:400}.lang a:hover{color:var(--accent)}
-.theme-toggle{background:none;border:none;color:var(--dim);font-family:var(--mono);font-size:.8rem;cursor:pointer;padding:0;line-height:1}
-.theme-toggle:hover{color:var(--accent)}
+.work-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1rem;margin-top:.6rem}
+.work-card{display:block;background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;text-decoration:none;color:var(--text);transition:border-color .15s,transform .15s}
+.work-card:hover{border-color:var(--accent);text-decoration:none;transform:translateY(-2px)}
+.work-card img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;background:#000;border-bottom:1px solid var(--border)}
+.work-card .meta{padding:.75rem .9rem .85rem}
+.work-card h4{font-family:var(--mono);font-size:.85rem;font-weight:700;letter-spacing:-.01em;color:var(--text)}
+.work-card p{font-size:.82rem;color:var(--dim);line-height:1.5;margin-top:.2rem}
+.work-card .tag{display:inline-block;margin-top:.55rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.05em;color:var(--accent2);border:1px solid var(--border);padding:.12rem .5rem;border-radius:3px}
+@media (max-width:640px){
+  .work-grid{grid-template-columns:1fr}
+}
+
+.lang{position:fixed;top:20px;right:60px;display:flex;gap:10px;align-items:center;z-index:20}
+@media (max-width:640px){.lang{right:20px;gap:8px}}
+.lang a,.theme-toggle{display:flex;align-items:center;justify-content:center;min-width:40px;height:36px;padding:0 11px;box-sizing:border-box;background:var(--bg);border:1px solid var(--border);border-radius:3px;color:var(--dim);font-family:var(--mono);font-size:.95rem;font-weight:400;line-height:1;cursor:pointer;transition:color .15s,border-color .15s}
+.lang a{text-decoration:none}
+.lang a:hover,.theme-toggle:hover{color:var(--accent);border-color:var(--accent);text-decoration:none}
+.theme-toggle{font-size:1.15rem}
 
 /* ── líneas verticales ── */
 .rail{position:fixed;top:0;bottom:0;width:48px;overflow:hidden;pointer-events:none;z-index:1}
@@ -112,25 +153,26 @@ h2{font-family:var(--mono);margin:2.5rem 0 .6rem;font-size:.7rem;font-weight:600
 </head>
 <body>
 <div class="page">
-<div class="lang"><button class="theme-toggle" id="theme-toggle" aria-label="Cambiar tema">&#9681;</button><a href="en/index.html">EN</a></div>
+<div class="lang"><button class="theme-toggle" id="theme-toggle" aria-label="Cambiar tema">&#9681;</button><a href="/en/">EN</a></div>
 <div class="main">
 
 <div class="header">
 <img class="avatar" src="yo.jpg" alt="Ignacio Vavala">
 <div>
 <h1>Ignacio Vavala</h1>
-<p class="sub">hago <b>webs y sistemas que no se rompen</b>.<br>Tu proyecto no necesita alguien que tira c&#243;digo y reza.</p>
+<p class="sub">Desarrollador web full-stack. Hago <b>webs y sistemas que no se rompen</b>.<br>Sitios y sistemas que funcionan solos, con mantenimiento incluido.</p>
 </div>
 </div>
 
-<p class="punch">Necesita uno que lo hace andar, lo deja andando, y si alg&#250;n d&#237;a se rompe a las 3am, ya estaba arreglado antes de que te des cuenta.</p>
+<p class="punch">Los construyo, me hago cargo de que sigan funcionando y, si algo falla, ya est&#225; resuelto antes de que lo notes.</p>
 
 <hr>
 
 <div class="now">ahora</div>
 <p class="note">Escuela S&#243;nica (web de escuela de m&#250;sica), Escriban&#237;a Tocagni (automatizaciones del estudio).</p>
 
-<h2>&#9889; Servicios</h2>
+<p class="sect">&#9889; 01</p>
+<h2>Servicios</h2>
 <ul>
 <li>Webs con panel de admin: public&#225;s vos, sin llamar a nadie</li>
 <li>Tiendas online con pagos (MercadoPago, WhatsApp checkout)</li>
@@ -139,38 +181,110 @@ h2{font-family:var(--mono);margin:2.5rem 0 .6rem;font-size:.7rem;font-weight:600
 <li>Migraciones de correo sin que el servicio se entere</li>
 </ul>
 
-<h2>&#x1f6e0; Trabajo</h2>
-<div class="work">
-<div><a href="https://escuelasonica.com.ar">Escuela S&#243;nica</a> <span class="tag">Next.js</span></div><time>2026</time>
-<div><a href="https://arqgonzalezoliva.com">GonzalezOliva</a> <span class="tag">Astro + Cloudflare</span></div><time>2026</time>
-<div><a href="https://malasana.ethoslogliberty.workers.dev">Malasa&#241;a Boutique</a> <span class="tag">Cloudflare Workers</span></div><time>2026</time>
-<div><a href="https://umf.ethoslogliberty.workers.dev">UMF Records</a> <span class="tag">Astro + Cloudflare</span></div><time>2026</time>
-<div><a href="https://cosmic-eagle.vercel.app">Cosmic Eagle Journey</a> <span class="tag">Next.js</span></div><time>2026</time>
-<div><a href="https://santiagoazcuy.com">Santiago Azcuy</a> <span class="tag">Next.js</span></div><time>2026</time>
-<div><a href="https://www.productoracalafate.com">Torres del Paine Summit</a> <span class="tag">Next.js</span></div><time>2026</time>
-<div><a href="https://www.labitconf.com">LABITCONF 26</a> <span class="tag">Next.js + Realtime</span></div><time>2026</time>
-<div><a href="https://manso.club">Manso Club</a> <span class="tag">Next.js</span></div><time>2026</time>
-<div><a href="https://manso-gestion.vercel.app">Manso Gesti&#243;n</a> <span class="tag">React + Vite</span></div><time>2026</time>
-<div><a href="https://pampaestudio.com">Pampa Estudio</a> <span class="tag">Next.js</span></div><time>2026</time>
-<div>Escriban&#237;a Tocagni <span class="tag">Astro + Cloudflare</span></div><time>2026</time>
-<div>Ohana Holding &#8212; migraci&#243;n Google Workspace <span class="tag">infra</span></div><time>2026</time>
+<p class="sect">&#x1f6e0; 02</p>
+<h2>Trabajo</h2>
+
+<h3 class="group">Plataformas</h3>
+<div class="work-grid">
+<a class="work-card" target="_blank" rel="noopener" href="https://www.labitconf.com/">
+<img src="img/trabajos/labitconf.webp" alt="LABITCONF 26 — Landing del evento con speakers y contenido en vivo" loading="lazy">
+<div class="meta">
+<h4>LABITCONF 26</h4>
+<p>Landing del evento con speakers y contenido en vivo.</p>
+<span class="tag">Next.js + Realtime</span>
+</div>
+</a>
+<a class="work-card" target="_blank" rel="noopener" href="https://mansoclub.com.ar/">
+<img src="img/trabajos/manso-club.webp" alt="Manso Club — Apps de evento: barra, entradas y finanzas en vivo" loading="lazy">
+<div class="meta">
+<h4>Manso Club</h4>
+<p>Apps de evento: barra, entradas y finanzas en vivo.</p>
+<span class="tag">Next.js + Supabase</span>
+</div>
+</a>
 </div>
 
-<h2>&#x1f9f0; Stack</h2>
+<h3 class="group">E-commerce</h3>
+<div class="work-grid">
+<a class="work-card" target="_blank" rel="noopener" href="https://malasanaboutique.com/">
+<img src="img/trabajos/malasana.webp" alt="Malasaña Boutique — Tienda online con cierre de compra por WhatsApp" loading="lazy">
+<div class="meta">
+<h4>Malasaña Boutique</h4>
+<p>Tienda online con cierre de compra por WhatsApp.</p>
+<span class="tag">Cloudflare Workers</span>
+</div>
+</a>
+<a class="work-card" target="_blank" rel="noopener" href="https://www.reunata.com.ar/">
+<img src="img/trabajos/reunata.webp" alt="Reunata — E-commerce mayorista con precios por usuario" loading="lazy">
+<div class="meta">
+<h4>Reunata</h4>
+<p>E-commerce mayorista con precios por usuario.</p>
+<span class="tag">Next.js + Supabase</span>
+</div>
+</a>
+</div>
+
+<h3 class="group">Landing</h3>
+<div class="work-grid">
+<a class="work-card" target="_blank" rel="noopener" href="https://www.productoracalafate.com/torres-del-paine-2026">
+<img src="img/trabajos/torres-del-paine.webp" alt="Torres del Paine Summit — Registro y onboarding de la expedición con códigos de invitación y pagos" loading="lazy">
+<div class="meta">
+<h4>Torres del Paine Summit</h4>
+<p>Registro y onboarding de la expedición con códigos de invitación y pagos.</p>
+<span class="tag">Next.js</span>
+</div>
+</a>
+<a class="work-card" target="_blank" rel="noopener" href="https://arqgonzalezoliva.com/">
+<img src="img/trabajos/gonzalezoliva.webp" alt="GonzalezOliva — Portfolio de estudio de arquitectura con galería y carga rápida" loading="lazy">
+<div class="meta">
+<h4>GonzalezOliva</h4>
+<p>Portfolio de estudio de arquitectura con galería y carga rápida.</p>
+<span class="tag">Astro + Cloudflare</span>
+</div>
+</a>
+<a class="work-card" target="_blank" rel="noopener" href="https://elementosdeseguridadlp.com/">
+<img src="img/trabajos/elementos-seguridad.webp" alt="Elementos de Seguridad — Landing de seguridad e higiene laboral con cierre por WhatsApp" loading="lazy">
+<div class="meta">
+<h4>Elementos de Seguridad</h4>
+<p>Landing de seguridad e higiene laboral con cierre por WhatsApp.</p>
+<span class="tag">Astro + Cloudflare</span>
+</div>
+</a>
+<a class="work-card" target="_blank" rel="noopener" href="https://seguridadnuevosaires.com/">
+<img src="img/trabajos/seguridad-nuevos-aires.webp" alt="Seguridad Nuevos Aires — Landing de cámaras y alarmas pensada para búsquedas locales" loading="lazy">
+<div class="meta">
+<h4>Seguridad Nuevos Aires</h4>
+<p>Landing de cámaras y alarmas pensada para búsquedas locales.</p>
+<span class="tag">HTML + Cloudflare</span>
+</div>
+</a>
+<a class="work-card" target="_blank" rel="noopener" href="https://escribaniatocagni.com/">
+<img src="img/trabajos/escribania-tocagni.webp" alt="Escribanía Tocagni — Landing institucional de estudio notarial" loading="lazy">
+<div class="meta">
+<h4>Escribanía Tocagni</h4>
+<p>Landing institucional de estudio notarial.</p>
+<span class="tag">Astro + Cloudflare</span>
+</div>
+</a>
+</div>
+
+<p class="sect">&#x1f9f0; 03</p>
+<h2>Stack</h2>
 <p class="note">Next.js 16 &#183; Supabase &#183; Tailwind CSS v4 &#183; Astro &#183; Cloudflare Workers &#183; TypeScript</p>
 
-<h2>&#9993; Contacto</h2>
-<p class="note">Si llegaste hasta ac&#225;, ya es m&#225;s que yo ten&#237;a hace un a&#241;o. Contame tu proyecto en 3 l&#237;neas: qu&#233; es, para cu&#225;ndo, y qu&#233; esper&#225;s que haga. Con eso alcanza para empezar.</p>
+<p class="sect">&#9993; 04</p>
+<h2>Contacto</h2>
+<p class="note">Contame tu proyecto en tres l&#237;neas: qu&#233; es, para cu&#225;ndo lo necesit&#225;s y qu&#233; esper&#225;s que haga. Con eso alcanza para arrancar.</p>
 
 <div class="form-card">
 <p>Complet&#225; esto y te llega a mi WhatsApp como mensaje directo. Sin formularios que se pierden en un mail.</p>
 <form id="contact-form">
-<label>Nombre</label>
-<input type="text" name="nombre" placeholder="Tu nombre" required>
-<label>Tu contacto</label>
-<input type="text" name="contacto" placeholder="WhatsApp o mail" required>
-<label>Qu&#233; necesit&#225;s</label>
-<select name="tipo">
+<label for="f-nombre">Nombre</label>
+<input id="f-nombre" type="text" name="nombre" placeholder="Tu nombre" required>
+<label for="f-contacto">Tu contacto</label>
+<input id="f-contacto" type="text" name="contacto" placeholder="WhatsApp o mail" required>
+<label for="f-tipo">Qu&#233; necesit&#225;s</label>
+<select id="f-tipo" name="tipo">
 <option>Web para mi negocio</option>
 <option>Tienda online con pagos</option>
 <option>App o sistema interno</option>
@@ -178,11 +292,11 @@ h2{font-family:var(--mono);margin:2.5rem 0 .6rem;font-size:.7rem;font-weight:600
 <option>Migraci&#243;n de correo</option>
 <option>Todav&#237;a no s&#233;, arranc&#225; vos</option>
 </select>
-<label>Contame un poco</label>
-<textarea name="mensaje" placeholder="Idea, deadline, lo que sea. Sin vueltas."></textarea>
+<label for="f-mensaje">Contame un poco</label>
+<textarea id="f-mensaje" name="mensaje" placeholder="Idea, deadline, lo que sea. Sin vueltas."></textarea>
 <button class="btn" type="submit">Enviar por WhatsApp &#8594;</button>
 </form>
-<p class="alt-contact">O directo: <a href="https://wa.me/5491162459508">WhatsApp</a> <a href="mailto:ignacio@bavala.dev">mail</a></p>
+<p class="alt-contact">O directo: <a href="https://wa.me/5491127343775">WhatsApp</a> <a href="mailto:ignacio@ivavala.com">mail</a></p>
 </div>
 
 </div>
@@ -215,7 +329,7 @@ form.addEventListener('submit',function(e){
     +'\nNecesito: '+v('tipo')
     + (v('mensaje')?'\n\n'+v('mensaje'):'');
   btn.disabled=true;btn.textContent='Abriendo WhatsApp...';
-  window.location.href='https://wa.me/5491162459508?text='+encodeURIComponent(msg);
+  window.location.href='https://wa.me/5491127343775?text='+encodeURIComponent(msg);
   setTimeout(function(){btn.disabled=false;btn.textContent='Enviar por WhatsApp \u2192'},3000);
 });
 </script>

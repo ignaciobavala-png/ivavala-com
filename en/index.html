@@ -3,8 +3,35 @@
 <head>
 <meta charset=utf-8>
 <meta content="width=device-width,initial-scale=1" name=viewport>
-<title>Ignacio Vavala — websites and systems that don't break</title>
-<meta content="Full-stack web developer. Next.js, Supabase, Astro, Cloudflare." name=description>
+<title>Ignacio Vavala — Full-stack web developer</title>
+<meta content="I build websites, online stores and custom systems with Next.js, Supabase and Cloudflare. Remote work for clients worldwide, maintenance included." name=description>
+<link rel="canonical" href="https://ivavala.com/en/">
+<link rel="alternate" hreflang="es" href="https://ivavala.com/">
+<link rel="alternate" hreflang="en" href="https://ivavala.com/en/">
+<link rel="alternate" hreflang="x-default" href="https://ivavala.com/">
+<meta property="og:site_name" content="Ignacio Vavala">
+<meta property="og:title" content="Ignacio Vavala — Full-stack web developer">
+<meta property="og:description" content="I build websites, online stores and custom systems with Next.js, Supabase and Cloudflare. Remote work for clients worldwide, maintenance included.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ivavala.com/en/">
+<meta property="og:image" content="https://ivavala.com/og.png">
+<meta property="og:image:alt" content="Ignacio Vavala — full-stack web development">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="es_AR">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"Person","@id":"https://ivavala.com/#ignacio","name":"Ignacio Vavala",
+"url":"https://ivavala.com/","image":"https://ivavala.com/yo.jpg","jobTitle":"Full-stack web developer",
+"email":"mailto:ignacio@ivavala.com","knowsLanguage":["es","en"],
+"knowsAbout":["Next.js","Supabase","Astro","Cloudflare Workers","TypeScript","Tailwind CSS"]},
+{"@type":"ProfessionalService","@id":"https://ivavala.com/#servicio","name":"Ignacio Vavala",
+"url":"https://ivavala.com/","image":"https://ivavala.com/og.png",
+"provider":{"@id":"https://ivavala.com/#ignacio"},"areaServed":"Worldwide",
+"availableLanguage":["es","en"],"serviceType":["Web development", "Online stores", "Custom applications", "Admin dashboards", "Website maintenance"]}
+]}</script>
+<link rel="icon" href="../favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <script>
 (function(){try{var t=localStorage.getItem('theme');document.documentElement.setAttribute('data-theme',t||'dark')}catch(e){document.documentElement.setAttribute('data-theme','dark')}})();
 </script>
@@ -54,14 +81,16 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
 
 .header{display:flex;align-items:center;gap:1.2rem}
 .avatar{width:88px;height:88px;border-radius:50%;object-fit:cover;border:1px solid var(--border);flex-shrink:0}
-h1{font-family:var(--mono);font-size:2rem;font-weight:700;letter-spacing:-.04em;line-height:1.1;color:var(--text)}
+h1{font-family:var(--mono);font-size:clamp(2.4rem,7vw,3.5rem);font-weight:700;letter-spacing:-.04em;line-height:1;color:var(--text)}
 h1::after{content:"_";color:var(--accent);animation:blink 1.1s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
 .sub{font-size:1.1rem;color:var(--dim);margin-top:.4rem;font-weight:400;line-height:1.5}
 .sub b{color:var(--accent);font-weight:600}
 .punch{color:var(--text)}
 
-h2{font-family:var(--mono);margin:2.5rem 0 .6rem;font-size:.7rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+h2{font-family:var(--mono);margin:.35rem 0 1rem;font-size:clamp(1.9rem,5.5vw,2.9rem);font-weight:700;letter-spacing:-.03em;line-height:1;text-transform:uppercase;color:var(--text)}
+.sect{font-family:var(--mono);font-size:.7rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:.5rem;margin:3rem 0 0}
+.sect::after{content:"";flex:0 0 28px;height:1px;background:var(--border)}
 
 .tag{font-family:var(--mono);font-size:.65rem;color:var(--accent2);letter-spacing:.03em}
 .note{color:var(--dim);font-size:.9rem;line-height:1.7}
@@ -83,15 +112,27 @@ h2{font-family:var(--mono);margin:2.5rem 0 .6rem;font-size:.7rem;font-weight:600
 
 .now{display:inline-block;font-family:var(--mono);font-size:.7rem;color:var(--accent);border:1px solid var(--accent);padding:.15rem .5rem;border-radius:2px;margin-bottom:.5rem;letter-spacing:.06em;text-transform:uppercase}
 
-.work{display:grid;grid-template-columns:1fr auto;gap:0 1.2rem}
-.work div{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:5px 0;border-bottom:1px solid var(--border)}
-.work time{font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--dim);letter-spacing:-.012em;white-space:nowrap;text-align:right;padding:5px 0;border-bottom:1px solid var(--border);font-size:.8rem}
+.group{font-family:var(--mono);font-size:.65rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin:2rem 0 .5rem}
+.group::after{content:" —";color:var(--dim)}
 
-.lang{position:fixed;top:20px;right:60px;font-family:var(--mono);font-size:.8rem;display:flex;gap:8px;align-items:center;z-index:20;background:var(--bg);padding:4px 10px;border:1px solid var(--border);border-radius:3px}
-@media (max-width:640px){.lang{right:20px}}
-.lang a{color:var(--dim);font-weight:400}.lang a:hover{color:var(--accent)}
-.theme-toggle{background:none;border:none;color:var(--dim);font-family:var(--mono);font-size:.8rem;cursor:pointer;padding:0;line-height:1}
-.theme-toggle:hover{color:var(--accent)}
+.work-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1rem;margin-top:.6rem}
+.work-card{display:block;background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;text-decoration:none;color:var(--text);transition:border-color .15s,transform .15s}
+.work-card:hover{border-color:var(--accent);text-decoration:none;transform:translateY(-2px)}
+.work-card img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;background:#000;border-bottom:1px solid var(--border)}
+.work-card .meta{padding:.75rem .9rem .85rem}
+.work-card h4{font-family:var(--mono);font-size:.85rem;font-weight:700;letter-spacing:-.01em;color:var(--text)}
+.work-card p{font-size:.82rem;color:var(--dim);line-height:1.5;margin-top:.2rem}
+.work-card .tag{display:inline-block;margin-top:.55rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.05em;color:var(--accent2);border:1px solid var(--border);padding:.12rem .5rem;border-radius:3px}
+@media (max-width:640px){
+  .work-grid{grid-template-columns:1fr}
+}
+
+.lang{position:fixed;top:20px;right:60px;display:flex;gap:10px;align-items:center;z-index:20}
+@media (max-width:640px){.lang{right:20px;gap:8px}}
+.lang a,.theme-toggle{display:flex;align-items:center;justify-content:center;min-width:40px;height:36px;padding:0 11px;box-sizing:border-box;background:var(--bg);border:1px solid var(--border);border-radius:3px;color:var(--dim);font-family:var(--mono);font-size:.95rem;font-weight:400;line-height:1;cursor:pointer;transition:color .15s,border-color .15s}
+.lang a{text-decoration:none}
+.lang a:hover,.theme-toggle:hover{color:var(--accent);border-color:var(--accent);text-decoration:none}
+.theme-toggle{font-size:1.15rem}
 
 /* ── líneas verticales ── */
 .rail{position:fixed;top:0;bottom:0;width:48px;overflow:hidden;pointer-events:none;z-index:1}
@@ -112,25 +153,26 @@ h2{font-family:var(--mono);margin:2.5rem 0 .6rem;font-size:.7rem;font-weight:600
 </head>
 <body>
 <div class="page">
-<div class="lang"><button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">&#9681;</button><a href="../index.html">ES</a></div>
+<div class="lang"><button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">&#9681;</button><a href="/">ES</a></div>
 <div class="main">
 
 <div class="header">
 <img class="avatar" src="../yo.jpg" alt="Ignacio Vavala">
 <div>
 <h1>Ignacio Vavala</h1>
-<p class="sub">I build <b>websites and systems that don't break</b>.<br>Your project doesn't need someone who throws code and prays.</p>
+<p class="sub">Full-stack web developer. I build <b>websites and systems that don't break</b>.<br>Websites and systems that run on their own, maintenance included.</p>
 </div>
 </div>
 
-<p class="punch">It needs someone who makes it work, keeps it working, and if it ever breaks at 3am, it's already fixed before you notice.</p>
+<p class="punch">I build them, I keep them running and, if something ever fails, it's already fixed before you notice.</p>
 
 <hr>
 
 <div class="now">now</div>
 <p class="note">Escuela S&#243;nica (music school website), Escriban&#237;a Tocagni (notary office automations).</p>
 
-<h2>&#9889; Services</h2>
+<p class="sect">&#9889; 01</p>
+<h2>Services</h2>
 <ul>
 <li>Websites with admin panels: publish yourself, no phone calls</li>
 <li>Online stores with payments (MercadoPago, WhatsApp checkout)</li>
@@ -139,38 +181,110 @@ h2{font-family:var(--mono);margin:2.5rem 0 .6rem;font-size:.7rem;font-weight:600
 <li>Email migrations the service never finds out about</li>
 </ul>
 
-<h2>&#x1f6e0; Work</h2>
-<div class="work">
-<div><a href="https://escuelasonica.com.ar">Escuela S&#243;nica</a> <span class="tag">Next.js</span></div><time>2026</time>
-<div><a href="https://arqgonzalezoliva.com">GonzalezOliva</a> <span class="tag">Astro + Cloudflare</span></div><time>2026</time>
-<div><a href="https://malasana.ethoslogliberty.workers.dev">Malasa&#241;a Boutique</a> <span class="tag">Cloudflare Workers</span></div><time>2026</time>
-<div><a href="https://umf.ethoslogliberty.workers.dev">UMF Records</a> <span class="tag">Astro + Cloudflare</span></div><time>2026</time>
-<div><a href="https://cosmic-eagle.vercel.app">Cosmic Eagle Journey</a> <span class="tag">Next.js</span></div><time>2026</time>
-<div><a href="https://santiagoazcuy.com">Santiago Azcuy</a> <span class="tag">Next.js</span></div><time>2026</time>
-<div><a href="https://www.productoracalafate.com">Torres del Paine Summit</a> <span class="tag">Next.js</span></div><time>2026</time>
-<div><a href="https://www.labitconf.com">LABITCONF 26</a> <span class="tag">Next.js + Realtime</span></div><time>2026</time>
-<div><a href="https://manso.club">Manso Club</a> <span class="tag">Next.js</span></div><time>2026</time>
-<div><a href="https://manso-gestion.vercel.app">Manso Gesti&#243;n</a> <span class="tag">React + Vite</span></div><time>2026</time>
-<div><a href="https://pampaestudio.com">Pampa Estudio</a> <span class="tag">Next.js</span></div><time>2026</time>
-<div>Escriban&#237;a Tocagni <span class="tag">Astro + Cloudflare</span></div><time>2026</time>
-<div>Ohana Holding &#8212; Google Workspace migration <span class="tag">infra</span></div><time>2026</time>
+<p class="sect">&#x1f6e0; 02</p>
+<h2>Work</h2>
+
+<h3 class="group">Plataformas</h3>
+<div class="work-grid">
+<a class="work-card" target="_blank" rel="noopener" href="https://www.labitconf.com/">
+<img src="../img/trabajos/labitconf.webp" alt="LABITCONF 26 — Event landing with speakers and live content" loading="lazy">
+<div class="meta">
+<h4>LABITCONF 26</h4>
+<p>Event landing with speakers and live content.</p>
+<span class="tag">Next.js + Realtime</span>
+</div>
+</a>
+<a class="work-card" target="_blank" rel="noopener" href="https://mansoclub.com.ar/">
+<img src="../img/trabajos/manso-club.webp" alt="Manso Club — Event apps: bar, tickets and live finances" loading="lazy">
+<div class="meta">
+<h4>Manso Club</h4>
+<p>Event apps: bar, tickets and live finances.</p>
+<span class="tag">Next.js + Supabase</span>
+</div>
+</a>
 </div>
 
-<h2>&#x1f9f0; Stack</h2>
+<h3 class="group">E-commerce</h3>
+<div class="work-grid">
+<a class="work-card" target="_blank" rel="noopener" href="https://malasanaboutique.com/">
+<img src="../img/trabajos/malasana.webp" alt="Malasaña Boutique — Online store with WhatsApp order checkout" loading="lazy">
+<div class="meta">
+<h4>Malasaña Boutique</h4>
+<p>Online store with WhatsApp order checkout.</p>
+<span class="tag">Cloudflare Workers</span>
+</div>
+</a>
+<a class="work-card" target="_blank" rel="noopener" href="https://www.reunata.com.ar/">
+<img src="../img/trabajos/reunata.webp" alt="Reunata — Wholesale e-commerce with per-user pricing" loading="lazy">
+<div class="meta">
+<h4>Reunata</h4>
+<p>Wholesale e-commerce with per-user pricing.</p>
+<span class="tag">Next.js + Supabase</span>
+</div>
+</a>
+</div>
+
+<h3 class="group">Landing</h3>
+<div class="work-grid">
+<a class="work-card" target="_blank" rel="noopener" href="https://www.productoracalafate.com/torres-del-paine-2026">
+<img src="../img/trabajos/torres-del-paine.webp" alt="Torres del Paine Summit — Expedition registration and onboarding with invite codes and payments" loading="lazy">
+<div class="meta">
+<h4>Torres del Paine Summit</h4>
+<p>Expedition registration and onboarding with invite codes and payments.</p>
+<span class="tag">Next.js</span>
+</div>
+</a>
+<a class="work-card" target="_blank" rel="noopener" href="https://arqgonzalezoliva.com/">
+<img src="../img/trabajos/gonzalezoliva.webp" alt="GonzalezOliva — Architecture studio portfolio with a fast-loading gallery" loading="lazy">
+<div class="meta">
+<h4>GonzalezOliva</h4>
+<p>Architecture studio portfolio with a fast-loading gallery.</p>
+<span class="tag">Astro + Cloudflare</span>
+</div>
+</a>
+<a class="work-card" target="_blank" rel="noopener" href="https://elementosdeseguridadlp.com/">
+<img src="../img/trabajos/elementos-seguridad.webp" alt="Elementos de Seguridad — Workplace safety landing with WhatsApp lead close" loading="lazy">
+<div class="meta">
+<h4>Elementos de Seguridad</h4>
+<p>Workplace safety landing with WhatsApp lead close.</p>
+<span class="tag">Astro + Cloudflare</span>
+</div>
+</a>
+<a class="work-card" target="_blank" rel="noopener" href="https://seguridadnuevosaires.com/">
+<img src="../img/trabajos/seguridad-nuevos-aires.webp" alt="Seguridad Nuevos Aires — CCTV and alarm landing built for local search" loading="lazy">
+<div class="meta">
+<h4>Seguridad Nuevos Aires</h4>
+<p>CCTV and alarm landing built for local search.</p>
+<span class="tag">HTML + Cloudflare</span>
+</div>
+</a>
+<a class="work-card" target="_blank" rel="noopener" href="https://escribaniatocagni.com/">
+<img src="../img/trabajos/escribania-tocagni.webp" alt="Escribanía Tocagni — Institutional landing for a notary office" loading="lazy">
+<div class="meta">
+<h4>Escribanía Tocagni</h4>
+<p>Institutional landing for a notary office.</p>
+<span class="tag">Astro + Cloudflare</span>
+</div>
+</a>
+</div>
+
+<p class="sect">&#x1f9f0; 03</p>
+<h2>Stack</h2>
 <p class="note">Next.js 16 &#183; Supabase &#183; Tailwind CSS v4 &#183; Astro &#183; Cloudflare Workers &#183; TypeScript</p>
 
-<h2>&#9993; Contact</h2>
-<p class="note">If you made it this far, that's already more than I had a year ago. Tell me about your project in 3 lines: what it is, when you need it, and what you expect from me. That's enough to get started.</p>
+<p class="sect">&#9993; 04</p>
+<h2>Contact</h2>
+<p class="note">Tell me about your project in three lines: what it is, when you need it and what you expect from me. That's enough to get started.</p>
 
 <div class="form-card">
 <p>Fill this in and it lands in my WhatsApp as a direct message. No forms lost in an inbox.</p>
 <form id="contact-form">
-<label>Name</label>
-<input type="text" name="nombre" placeholder="Your name" required>
-<label>Your contact</label>
-<input type="text" name="contacto" placeholder="WhatsApp or email" required>
-<label>What do you need</label>
-<select name="tipo">
+<label for="f-nombre">Name</label>
+<input id="f-nombre" type="text" name="nombre" placeholder="Your name" required>
+<label for="f-contacto">Your contact</label>
+<input id="f-contacto" type="text" name="contacto" placeholder="WhatsApp or email" required>
+<label for="f-tipo">What do you need</label>
+<select id="f-tipo" name="tipo">
 <option>Website for my business</option>
 <option>Online store with payments</option>
 <option>App or internal system</option>
@@ -178,11 +292,11 @@ h2{font-family:var(--mono);margin:2.5rem 0 .6rem;font-size:.7rem;font-weight:600
 <option>Email migration</option>
 <option>Not sure yet, you decide</option>
 </select>
-<label>Tell me a bit</label>
-<textarea name="mensaje" placeholder="Idea, deadline, whatever. Keep it simple."></textarea>
+<label for="f-mensaje">Tell me a bit</label>
+<textarea id="f-mensaje" name="mensaje" placeholder="Idea, deadline, whatever. Keep it simple."></textarea>
 <button class="btn" type="submit">Send via WhatsApp &#8594;</button>
 </form>
-<p class="alt-contact">Or direct: <a href="https://wa.me/5491162459508">WhatsApp</a> <a href="mailto:ignacio@bavala.dev">mail</a></p>
+<p class="alt-contact">Or direct: <a href="https://wa.me/5491127343775">WhatsApp</a> <a href="mailto:ignacio@ivavala.com">mail</a></p>
 </div>
 
 </div>
@@ -215,7 +329,7 @@ form.addEventListener('submit',function(e){
     +'\nI need: '+v('tipo')
     + (v('mensaje')?'\n\n'+v('mensaje'):'');
   btn.disabled=true;btn.textContent='Opening WhatsApp...';
-  window.location.href='https://wa.me/5491162459508?text='+encodeURIComponent(msg);
+  window.location.href='https://wa.me/5491127343775?text='+encodeURIComponent(msg);
   setTimeout(function(){btn.disabled=false;btn.textContent='Send via WhatsApp \u2192'},3000);
 });
 </script>
