@@ -8,3 +8,4 @@ AGENTS.md
 package.json
 pnpm-lock.yaml
 pnpm-workspace.yaml
+worker.js

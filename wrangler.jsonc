@@ -1,9 +1,16 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "portafolio",
+  "main": "worker.js",
   "compatibility_date": "2026-08-01",
   "workers_dev": true,
   "assets": {
-    "directory": "./"
-  }
+    "directory": "./",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  },
+  "routes": [
+    { "pattern": "ivavala.com", "custom_domain": true },
+    { "pattern": "www.ivavala.com", "custom_domain": true }
+  ]
 }
