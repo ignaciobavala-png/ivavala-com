@@ -162,6 +162,15 @@ h2{font-family:var(--mono);text-wrap:balance;margin:.35rem 0 1rem;font-size:clam
   .now::before{animation:none}
 }
 
+.svc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:.2rem}
+@media (max-width:640px){.svc-grid{grid-template-columns:1fr}}
+.svc{display:block;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.95rem 1rem 1rem;text-decoration:none;color:var(--text);transition:border-color .15s,transform .15s}
+.svc:hover{border-color:var(--accent);text-decoration:none;transform:translateY(-2px)}
+.svc h4{font-family:var(--mono);font-size:.82rem;font-weight:700;letter-spacing:-.01em;color:var(--text);line-height:1.35}
+.svc p{font-size:.83rem;color:var(--dim);line-height:1.55;margin-top:.3rem}
+.svc .ex{display:block;margin-top:.5rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.05em;text-transform:uppercase;color:var(--accent2)}
+.svc-foot{margin-top:.9rem;font-size:.86rem;color:var(--dim)}
+
 /* ── líneas verticales ── */
 .rail{position:fixed;top:0;bottom:0;width:48px;overflow:hidden;pointer-events:none;z-index:1}
 .rail.l{left:0}.rail.r{right:0}
@@ -201,13 +210,29 @@ h2{font-family:var(--mono);text-wrap:balance;margin:.35rem 0 1rem;font-size:clam
 
 <p class="sect rv">&#9889; 01</p>
 <h2 class="rv">Services</h2>
-<ul class="rv">
-<li>Websites with admin panels: publish yourself, no phone calls</li>
-<li>Online stores with payments (MercadoPago, WhatsApp checkout)</li>
-<li>Internal apps for events: bar, tickets, live finances</li>
-<li>Invite-code registration and onboarding</li>
-<li>Email migrations the service never finds out about</li>
-</ul>
+<div class="svc-grid">
+<a class="svc rv" href="#contacto" data-svc="Website for my business">
+<h4>Your site, and you update it</h4>
+<p>Publish prices, photos and news from an admin panel, without calling anyone or waiting for someone to have time.</p>
+<span class="ex">Escribanía Tocagni · GonzalezOliva</span>
+</a>
+<a class="svc rv" href="#contacto" data-svc="Online store with payments">
+<h4>A store that takes payment on its own</h4>
+<p>MercadoPago or WhatsApp checkout, whichever converts better for your business. Stock and prices under your control.</p>
+<span class="ex">Malasaña Boutique · Reunata</span>
+</a>
+<a class="svc rv" href="#contacto" data-svc="App or internal system">
+<h4>The system that today is a spreadsheet</h4>
+<p>Bar, tickets and live finances, with the whole team looking at the same number at the same time.</p>
+<span class="ex">Manso Club</span>
+</a>
+<a class="svc rv" href="#contacto" data-svc="Event: registration, bar, tickets">
+<h4>Your event, from signup to the door</h4>
+<p>Invite-code registration, payment and access control. No queues, no lists on paper.</p>
+<span class="ex">Torres del Paine · LABITCONF</span>
+</a>
+</div>
+<p class="svc-foot rv">None of these quite fit? <a href="#contacto" data-svc="Not sure yet, you decide">Tell me what you need</a> and we work it out.</p>
 
 <p class="sect rv">&#x1f6e0; 02</p>
 <h2 class="rv">Work</h2>
@@ -436,6 +461,16 @@ var io=new IntersectionObserver(function(es){
   [].forEach.call(g.children,function(c,i){c.style.transitionDelay=(i*80)+'ms'})
 });
 [].forEach.call(els,function(el){io.observe(el)});
+})();
+(function(){
+var sel=document.getElementById('f-tipo');
+if(!sel)return;
+[].forEach.call(document.querySelectorAll('[data-svc]'),function(a){
+  a.addEventListener('click',function(){
+    var want=a.getAttribute('data-svc');
+    [].forEach.call(sel.options,function(o){if(o.text===want)sel.value=o.value});
+  });
+});
 })();
 </script>
 </body>

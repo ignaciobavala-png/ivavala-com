@@ -162,6 +162,15 @@ h2{font-family:var(--mono);text-wrap:balance;margin:.35rem 0 1rem;font-size:clam
   .now::before{animation:none}
 }
 
+.svc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:.2rem}
+@media (max-width:640px){.svc-grid{grid-template-columns:1fr}}
+.svc{display:block;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.95rem 1rem 1rem;text-decoration:none;color:var(--text);transition:border-color .15s,transform .15s}
+.svc:hover{border-color:var(--accent);text-decoration:none;transform:translateY(-2px)}
+.svc h4{font-family:var(--mono);font-size:.82rem;font-weight:700;letter-spacing:-.01em;color:var(--text);line-height:1.35}
+.svc p{font-size:.83rem;color:var(--dim);line-height:1.55;margin-top:.3rem}
+.svc .ex{display:block;margin-top:.5rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.05em;text-transform:uppercase;color:var(--accent2)}
+.svc-foot{margin-top:.9rem;font-size:.86rem;color:var(--dim)}
+
 /* ── líneas verticales ── */
 .rail{position:fixed;top:0;bottom:0;width:48px;overflow:hidden;pointer-events:none;z-index:1}
 .rail.l{left:0}.rail.r{right:0}
@@ -201,13 +210,29 @@ h2{font-family:var(--mono);text-wrap:balance;margin:.35rem 0 1rem;font-size:clam
 
 <p class="sect rv">&#9889; 01</p>
 <h2 class="rv">Servicios</h2>
-<ul class="rv">
-<li>Webs con panel de admin: public&#225;s vos, sin llamar a nadie</li>
-<li>Tiendas online con pagos (MercadoPago, WhatsApp checkout)</li>
-<li>Apps internas para eventos: barra, entradas, finanzas en vivo</li>
-<li>Registro y onboarding con c&#243;digo de invitaci&#243;n</li>
-<li>Migraciones de correo sin que el servicio se entere</li>
-</ul>
+<div class="svc-grid">
+<a class="svc rv" href="#contacto" data-svc="Web para mi negocio">
+<h4>Tu web, y la actualizás vos</h4>
+<p>Precios, fotos y novedades los publicás desde un panel, sin llamar a nadie ni esperar a que alguien tenga tiempo.</p>
+<span class="ex">Escribanía Tocagni · GonzalezOliva</span>
+</a>
+<a class="svc rv" href="#contacto" data-svc="Tienda online con pagos">
+<h4>Una tienda que cobra sola</h4>
+<p>MercadoPago o cierre por WhatsApp, lo que convierta mejor para tu negocio. Con stock y precios que manejás vos.</p>
+<span class="ex">Malasaña Boutique · Reunata</span>
+</a>
+<a class="svc rv" href="#contacto" data-svc="App o sistema interno">
+<h4>El sistema que hoy es una planilla</h4>
+<p>Barra, entradas y finanzas en vivo, con todo el equipo mirando el mismo número al mismo tiempo.</p>
+<span class="ex">Manso Club</span>
+</a>
+<a class="svc rv" href="#contacto" data-svc="Evento: registro, barra, entradas">
+<h4>Tu evento, del registro a la puerta</h4>
+<p>Inscripción con códigos de invitación, cobro y control de acceso, sin filas ni listas en papel.</p>
+<span class="ex">Torres del Paine · LABITCONF</span>
+</a>
+</div>
+<p class="svc-foot rv">¿Ninguna encaja del todo? <a href="#contacto" data-svc="Todavía no sé, arrancá vos">Contame qué necesitás</a> y lo pensamos juntos.</p>
 
 <p class="sect rv">&#x1f6e0; 02</p>
 <h2 class="rv">Trabajo</h2>
@@ -436,6 +461,16 @@ var io=new IntersectionObserver(function(es){
   [].forEach.call(g.children,function(c,i){c.style.transitionDelay=(i*80)+'ms'})
 });
 [].forEach.call(els,function(el){io.observe(el)});
+})();
+(function(){
+var sel=document.getElementById('f-tipo');
+if(!sel)return;
+[].forEach.call(document.querySelectorAll('[data-svc]'),function(a){
+  a.addEventListener('click',function(){
+    var want=a.getAttribute('data-svc');
+    [].forEach.call(sel.options,function(o){if(o.text===want)sel.value=o.value});
+  });
+});
 })();
 </script>
 </body>
