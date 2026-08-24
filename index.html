@@ -107,6 +107,13 @@ h2{font-family:var(--mono);margin:.35rem 0 1rem;font-size:clamp(1.9rem,5.5vw,2.9
 .form-card .btn:hover{filter:brightness(1.15)}
 .form-card .btn:active{filter:brightness(.9)}
 .form-card .btn[disabled]{opacity:.5;cursor:wait}
+.form-card label .opt{text-transform:none;letter-spacing:0;opacity:.7}
+.form-card .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.form-card .btn-alt{display:block;width:100%;margin-top:.6rem;background:none;color:var(--dim);border:1px solid var(--border);border-radius:6px;padding:.65rem;font-family:var(--mono);font-size:.7rem;font-weight:400;letter-spacing:.08em;text-transform:uppercase;text-align:center;text-decoration:none;transition:color .15s,border-color .15s}
+.form-card .btn-alt:hover{color:var(--accent);border-color:var(--accent);text-decoration:none}
+.form-status{margin-top:.9rem;font-family:var(--mono);font-size:.8rem;line-height:1.5}
+.form-status.ok{color:var(--accent)}
+.form-status.err{color:#f87171}
 .alt-contact{margin-top:.9rem;font-size:.85rem;color:var(--dim)}
 .alt-contact a{margin-right:.6rem}
 
@@ -277,12 +284,15 @@ h2{font-family:var(--mono);margin:.35rem 0 1rem;font-size:clamp(1.9rem,5.5vw,2.9
 <p class="note">Contame tu proyecto en tres l&#237;neas: qu&#233; es, para cu&#225;ndo lo necesit&#225;s y qu&#233; esper&#225;s que haga. Con eso alcanza para arrancar.</p>
 
 <div class="form-card">
-<p>Complet&#225; esto y te llega a mi WhatsApp como mensaje directo. Sin formularios que se pierden en un mail.</p>
-<form id="contact-form">
+<p>Complet&#225; esto y me llega un mail directo. Te respondo al mismo mail que dejes.</p>
+<form id="contact-form" novalidate>
+<div class="hp" aria-hidden="true"><label for="f-empresa">Empresa</label><input id="f-empresa" name="empresa" type="text" tabindex="-1" autocomplete="off"></div>
 <label for="f-nombre">Nombre</label>
-<input id="f-nombre" type="text" name="nombre" placeholder="Tu nombre" required>
-<label for="f-contacto">Tu contacto</label>
-<input id="f-contacto" type="text" name="contacto" placeholder="WhatsApp o mail" required>
+<input id="f-nombre" type="text" name="nombre" placeholder="Tu nombre" autocomplete="name" required>
+<label for="f-email">Email</label>
+<input id="f-email" type="email" name="email" placeholder="donde te respondo" autocomplete="email" required>
+<label for="f-whatsapp">WhatsApp <span class="opt">(opcional)</span></label>
+<input id="f-whatsapp" type="tel" name="whatsapp" placeholder="por si prefer&#237;s que te escriba ah&#237;" autocomplete="tel">
 <label for="f-tipo">Qu&#233; necesit&#225;s</label>
 <select id="f-tipo" name="tipo">
 <option>Web para mi negocio</option>
@@ -294,7 +304,9 @@ h2{font-family:var(--mono);margin:.35rem 0 1rem;font-size:clamp(1.9rem,5.5vw,2.9
 </select>
 <label for="f-mensaje">Contame un poco</label>
 <textarea id="f-mensaje" name="mensaje" placeholder="Idea, deadline, lo que sea. Sin vueltas."></textarea>
-<button class="btn" type="submit">Enviar por WhatsApp &#8594;</button>
+<button class="btn" type="submit">Enviar mensaje &#8594;</button>
+<a class="btn-alt" id="wa-fallback" href="https://wa.me/5491127343775">&#191;Prefer&#237;s WhatsApp?</a>
+<p class="form-status" id="form-status" role="status" aria-live="polite"></p>
 </form>
 <p class="alt-contact">O directo: <a href="https://wa.me/5491127343775">WhatsApp</a> <a href="mailto:ignacio@ivavala.com">mail</a></p>
 </div>
@@ -321,16 +333,36 @@ toggle.addEventListener('click',function(){
 });
 syncToggle();
 var form=document.getElementById('contact-form');
+var status=document.getElementById('form-status');
+var wa=document.getElementById('wa-fallback');
+var T={sending:'Enviando...',ok:'Listo, me llegó. Te respondo dentro de las 24 horas hábiles.',err:'No se pudo enviar. Escribime por WhatsApp o a ignacio@ivavala.com y lo resolvemos.',inval:'Revesá el nombre y el email antes de enviar.',btn:'Enviar mensaje →'};
+var v=function(n){return form.elements[n].value.trim()};
+var waText=function(){
+  return 'Hola Ignacio, soy '+(v('nombre')||'...')+'.'
+    + (v('tipo')?'\nNecesito: '+v('tipo'):'')
+    + (v('mensaje')?'\n\n'+v('mensaje'):'');
+};
+wa.addEventListener('click',function(){wa.href='https://wa.me/5491127343775?text='+encodeURIComponent(waText())});
 form.addEventListener('submit',function(e){
   e.preventDefault();
   var btn=form.querySelector('.btn');
-  var v=function(n){return form.elements[n].value.trim()};
-  var msg='Hola Ignacio, soy '+v('nombre')+'. ('+v('contacto')+')'
-    +'\nNecesito: '+v('tipo')
-    + (v('mensaje')?'\n\n'+v('mensaje'):'');
-  btn.disabled=true;btn.textContent='Abriendo WhatsApp...';
-  window.location.href='https://wa.me/5491127343775?text='+encodeURIComponent(msg);
-  setTimeout(function(){btn.disabled=false;btn.textContent='Enviar por WhatsApp \u2192'},3000);
+  if(!v('nombre')||!/^[^@\s]+@[^@\s.]+\.[^@\s]+$/.test(v('email'))){
+    status.className='form-status err';status.textContent=T.inval;return;
+  }
+  btn.disabled=true;btn.textContent=T.sending;
+  status.className='form-status';status.textContent='';
+  fetch('/api/contacto',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({nombre:v('nombre'),email:v('email'),whatsapp:v('whatsapp'),
+      tipo:v('tipo'),mensaje:v('mensaje'),empresa:v('empresa')})})
+  .then(function(r){return r.ok?r.json():Promise.reject(r.status)})
+  .then(function(){
+    status.className='form-status ok';status.textContent=T.ok;
+    form.reset();btn.disabled=true;btn.textContent=T.btn;
+  })
+  .catch(function(){
+    status.className='form-status err';status.textContent=T.err;
+    btn.disabled=false;btn.textContent=T.btn;
+  });
 });
 </script>
 </body>

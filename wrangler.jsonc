@@ -9,6 +9,9 @@
     "binding": "ASSETS",
     "run_worker_first": true
   },
+  "send_email": [
+    { "name": "SEND_EMAIL", "destination_address": "ignaciobavala@gmail.com" }
+  ],
   "routes": [
     { "pattern": "ivavala.com", "custom_domain": true },
     { "pattern": "www.ivavala.com", "custom_domain": true }

@@ -40,6 +40,94 @@ const text = (body, type) =>
     headers: { "content-type": type + "; charset=utf-8", "cache-control": "public, max-age=3600" },
   });
 
+
+// ── formulario de contacto ────────────────────────────────────────────────
+const DEST = "ignaciobavala@gmail.com";
+const FROM = "formulario@ivavala.com";
+
+const b64 = (str) => {
+  const bytes = new TextEncoder().encode(str);
+  let bin = "";
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin);
+};
+
+// Las cabeceras solo aceptan ASCII: lo demas va codificado (RFC 2047).
+const header = (v) => (/^[\x20-\x7E]*$/.test(v) ? v : "=?UTF-8?B?" + b64(v) + "?=");
+
+// Critico: el visitante controla estos valores. Un \r o \n sin filtrar deja
+// inyectar cabeceras arbitrarias (Bcc, otro To) en el mensaje.
+const oneLine = (v, max) => String(v || "").replace(/[\r\n]+/g, " ").trim().slice(0, max);
+
+const isEmail = (v) => /^[^@\s]+@[^@\s.]+\.[^@\s]+$/.test(v);
+
+const json = (obj, status) =>
+  new Response(JSON.stringify(obj), {
+    status: status || 200,
+    headers: { "content-type": "application/json; charset=utf-8" },
+  });
+
+function buildMime({ nombre, email, whatsapp, tipo, mensaje }) {
+  const subject = `Consulta de ${nombre} — ${tipo}`;
+  const body = [
+    `Nombre:   ${nombre}`,
+    `Email:    ${email}`,
+    `WhatsApp: ${whatsapp || "(no dejo)"}`,
+    `Necesita: ${tipo}`,
+    "",
+    mensaje || "(sin mensaje)",
+    "",
+    "—",
+    "Enviado desde el formulario de ivavala.com",
+  ].join("\r\n");
+
+  return [
+    `From: ${header("Formulario ivavala.com")} <${FROM}>`,
+    `To: <${DEST}>`,
+    `Reply-To: ${header(nombre)} <${email}>`,
+    `Subject: ${header(subject)}`,
+    `Message-ID: <${crypto.randomUUID()}@ivavala.com>`,
+    `Date: ${new Date().toUTCString()}`,
+    "MIME-Version: 1.0",
+    "Content-Type: text/plain; charset=utf-8",
+    "Content-Transfer-Encoding: base64",
+    "",
+    b64(body).replace(/(.{76})/g, "$1\r\n"),
+  ].join("\r\n");
+}
+
+async function handleContacto(request, env) {
+  let data;
+  try {
+    data = await request.json();
+  } catch {
+    return json({ error: "bad_request" }, 400);
+  }
+
+  // Trampa para bots: el campo esta oculto, una persona nunca lo completa.
+  // Se responde ok para no darle informacion al que lo llena.
+  if (oneLine(data.empresa, 200)) return json({ ok: true });
+
+  const nombre = oneLine(data.nombre, 100);
+  const email = oneLine(data.email, 150);
+  const whatsapp = oneLine(data.whatsapp, 50);
+  const tipo = oneLine(data.tipo, 80);
+  const mensaje = String(data.mensaje || "").trim().slice(0, 4000);
+
+  if (!nombre || !isEmail(email)) return json({ error: "invalid" }, 422);
+
+  const { EmailMessage } = await import("cloudflare:email");
+  try {
+    await env.SEND_EMAIL.send(
+      new EmailMessage(FROM, DEST, buildMime({ nombre, email, whatsapp, tipo, mensaje }))
+    );
+  } catch (err) {
+    console.error("send_email fallo:", err && err.message);
+    return json({ error: "send_failed" }, 502);
+  }
+  return json({ ok: true });
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -60,6 +148,11 @@ export default {
       url.protocol = "https:";
       url.hostname = CANONICAL;
       return Response.redirect(url.toString(), 301);
+    }
+
+    if (url.pathname === "/api/contacto") {
+      if (request.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+      return handleContacto(request, env);
     }
 
     if (url.pathname === "/robots.txt") return text(ROBOTS_OK, "text/plain");
