@@ -171,6 +171,18 @@ h2{font-family:var(--mono);text-wrap:balance;margin:.35rem 0 1rem;font-size:clam
 .svc .ex{display:block;margin-top:.5rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.05em;text-transform:uppercase;color:var(--accent2)}
 .svc-foot{margin-top:.9rem;font-size:.86rem;color:var(--dim)}
 
+.hero-cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:1.3rem}
+.hero-cta a{display:inline-flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.72rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:.7rem 1.1rem;border-radius:6px;text-decoration:none;transition:filter .15s,color .15s,border-color .15s}
+.hero-cta .p{background:var(--accent);color:var(--btn-text)}
+.hero-cta .p:hover{filter:brightness(1.13);text-decoration:none}
+.hero-cta .s{border:1px solid var(--border);color:var(--dim);font-weight:400}
+.hero-cta .s:hover{color:var(--accent);border-color:var(--accent);text-decoration:none}
+.cta-pill{position:fixed;right:22px;bottom:22px;z-index:30;display:inline-flex;align-items:center;gap:.45rem;background:var(--accent);color:var(--btn-text);font-family:var(--mono);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.75rem 1.1rem;border-radius:999px;text-decoration:none;box-shadow:0 8px 28px rgba(0,0,0,.38);opacity:0;transform:translateY(14px);pointer-events:none;transition:opacity .3s ease,transform .3s ease}
+.cta-pill.on{opacity:1;transform:none;pointer-events:auto}
+.cta-pill:hover{filter:brightness(1.13);text-decoration:none}
+@media (max-width:640px){.cta-pill{left:16px;right:16px;bottom:16px;justify-content:center;border-radius:8px}}
+@media (prefers-reduced-motion:reduce){.cta-pill{transition:none}}
+
 /* ── líneas verticales ── */
 .rail{position:fixed;top:0;bottom:0;width:48px;overflow:hidden;pointer-events:none;z-index:1}
 .rail.l{left:0}.rail.r{right:0}
@@ -202,6 +214,7 @@ h2{font-family:var(--mono);text-wrap:balance;margin:.35rem 0 1rem;font-size:clam
 </div>
 
 <p class="punch rv">I build them, I keep them running and, if something ever fails, it's already fixed before you notice.</p>
+<div class="hero-cta rv"><a class="p" href="#contacto" data-svc="Not sure yet, you decide">Tell me about your project &#8594;</a><a class="s" href="#trabajo">See the work</a></div>
 
 <hr>
 
@@ -234,7 +247,7 @@ h2{font-family:var(--mono);text-wrap:balance;margin:.35rem 0 1rem;font-size:clam
 </div>
 <p class="svc-foot rv">None of these quite fit? <a href="#contacto" data-svc="Not sure yet, you decide">Tell me what you need</a> and we work it out.</p>
 
-<p class="sect rv">&#x1f6e0; 02</p>
+<p class="sect rv" id="trabajo">&#x1f6e0; 02</p>
 <h2 class="rv">Work</h2>
 
 <h3 class="group rv">Plataformas</h3>
@@ -388,6 +401,7 @@ h2{font-family:var(--mono);text-wrap:balance;margin:.35rem 0 1rem;font-size:clam
 
 </div>
 </div>
+<a class="cta-pill" id="cta-pill" href="#contacto" data-svc="Not sure yet, you decide">Start a project &#8594;</a>
 <div class="rail l">
 <svg class="b" viewBox="0 0 60 1200" preserveAspectRatio="none"><path d="M30 0 Q6 150 30 300 Q54 450 30 600 Q6 750 30 900 Q54 1050 30 1200"/></svg>
 <svg class="e" viewBox="0 0 60 1200" preserveAspectRatio="none"><path d="M30 0 Q6 150 30 300 Q54 450 30 600 Q6 750 30 900 Q54 1050 30 1200"/></svg>
@@ -471,6 +485,18 @@ if(!sel)return;
     [].forEach.call(sel.options,function(o){if(o.text===want)sel.value=o.value});
   });
 });
+})();
+(function(){
+var pill=document.getElementById('cta-pill');
+if(!pill||!('IntersectionObserver' in window))return;
+var hero=document.querySelector('.header'),form=document.querySelector('.form-card');
+var vis={hero:true,form:false};
+function upd(){pill.classList.toggle('on',!vis.hero&&!vis.form)}
+function watch(el,key){
+  if(!el)return;
+  new IntersectionObserver(function(es){vis[key]=es[0].isIntersecting;upd()},{threshold:.01}).observe(el);
+}
+watch(hero,'hero');watch(form,'form');
 })();
 </script>
 </body>
