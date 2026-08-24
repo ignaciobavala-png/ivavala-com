@@ -23,6 +23,7 @@
 <link rel="icon" href="../favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <script>
+document.documentElement.className+=' js';
 (function(){try{var t=localStorage.getItem('theme');document.documentElement.setAttribute('data-theme',t||'dark')}catch(e){document.documentElement.setAttribute('data-theme','dark')}})();
 </script>
 <style>
@@ -71,19 +72,20 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
 
 .header{display:flex;align-items:center;gap:1.2rem}
 .avatar{width:88px;height:88px;border-radius:50%;object-fit:cover;border:1px solid var(--border);flex-shrink:0}
-h1{font-family:var(--mono);font-size:clamp(2.4rem,7vw,3.5rem);font-weight:700;letter-spacing:-.04em;line-height:1;color:var(--text)}
-h1::after{content:"_";color:var(--accent);animation:blink 1.1s steps(1) infinite}
+h1{font-family:var(--mono);font-size:clamp(2.4rem,7vw,3.5rem);font-weight:700;letter-spacing:-.04em;line-height:1;color:var(--text);text-wrap:balance;font-optical-sizing:auto}
+h1::after{content:"_";color:var(--accent);opacity:.4}
 @keyframes blink{50%{opacity:0}}
-.sub{font-size:1.1rem;color:var(--dim);margin-top:.4rem;font-weight:400;line-height:1.5}
-.sub b{color:var(--accent);font-weight:600}
-.punch{color:var(--text)}
+.sub{font-size:clamp(1.02rem,2.7vw,1.15rem);color:var(--dim);margin-top:.5rem;font-weight:400;line-height:1.55;text-wrap:pretty}
+.sub b{color:var(--accent);font-weight:600;font-family:var(--mono);font-size:.94em;letter-spacing:-.02em}
+.tw-caret{display:inline-block;width:.5ch;height:1.02em;vertical-align:-.15em;margin-left:.08em;background:var(--accent);animation:blink 1.05s steps(1) infinite}
+.punch{color:var(--text);font-size:clamp(1.02rem,2.5vw,1.12rem);line-height:1.6;letter-spacing:-.01em;text-wrap:pretty;margin-top:1.1rem}
 
-h2{font-family:var(--mono);margin:.35rem 0 1rem;font-size:clamp(1.9rem,5.5vw,2.9rem);font-weight:700;letter-spacing:-.03em;line-height:1;text-transform:uppercase;color:var(--text)}
+h2{font-family:var(--mono);text-wrap:balance;margin:.35rem 0 1rem;font-size:clamp(1.9rem,5.5vw,2.9rem);font-weight:700;letter-spacing:-.03em;line-height:1;text-transform:uppercase;color:var(--text)}
 .sect{font-family:var(--mono);font-size:.7rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:.5rem;margin:3rem 0 0}
 .sect::after{content:"";flex:0 0 28px;height:1px;background:var(--border)}
 
 .tag{font-family:var(--mono);font-size:.65rem;color:var(--accent2);letter-spacing:.03em}
-.note{color:var(--dim);font-size:.9rem;line-height:1.7}
+.note{color:var(--dim);font-size:.9rem;line-height:1.7;text-wrap:pretty}
 
 /* ── formulario ── */
 .form-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.4rem 1.4rem 1.2rem;margin-top:1rem}
@@ -139,8 +141,27 @@ h2{font-family:var(--mono);margin:.35rem 0 1rem;font-size:clamp(1.9rem,5.5vw,2.9
 .faq details[open] summary::after{content:"\2013"}
 .faq summary:hover,.faq summary:hover::after{color:var(--accent)}
 .faq summary:focus-visible{outline:1px solid var(--accent);outline-offset:2px}
-.faq .a{padding:0 1.8rem 1rem 0;color:var(--dim);font-size:.88rem;line-height:1.65}
+.faq .a{padding:0 1.8rem 1rem 0;color:var(--dim);font-size:.88rem;line-height:1.65;text-wrap:pretty}
 .faq-cta{margin-top:1rem;font-size:.88rem;color:var(--dim)}
+@media (prefers-reduced-motion:reduce){
+  .rail svg{animation:none}
+  .tw-caret{animation:none}
+  .work-card:hover{transform:none}
+}
+
+/* ── movimiento ── */
+.js .rv{opacity:0;transform:translateY(16px)}
+.js .rv.in{opacity:1;transform:none;transition:opacity .6s ease,transform .6s cubic-bezier(.2,.7,.3,1)}
+.now::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-right:.45rem;vertical-align:.05em;animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 var(--rail-glow)}50%{opacity:.35;box-shadow:0 0 0 4px transparent}}
+.sect::after{transition:flex-basis .5s ease .1s}
+.rv.in.sect::after{flex-basis:28px}
+.js .rv.sect::after{flex-basis:0}
+@media (prefers-reduced-motion:reduce){
+  .js .rv{opacity:1;transform:none}
+  .now::before{animation:none}
+}
+
 /* ── líneas verticales ── */
 .rail{position:fixed;top:0;bottom:0;width:48px;overflow:hidden;pointer-events:none;z-index:1}
 .rail.l{left:0}.rail.r{right:0}
@@ -167,20 +188,20 @@ h2{font-family:var(--mono);margin:.35rem 0 1rem;font-size:clamp(1.9rem,5.5vw,2.9
 <img class="avatar" src="../yo.jpg" alt="Ignacio Vavala">
 <div>
 <h1>Ignacio Vavala</h1>
-<p class="sub">Full-stack web developer. I build <b>websites and systems that don't break</b>.<br>Websites and systems that run on their own, maintenance included.</p>
+<p class="sub">Full-stack web developer. I build <b><span id="tw" data-full="websites and systems that don't break">websites and systems that don't break</span><span class="tw-caret" aria-hidden="true"></span></b>.<br>Websites and systems that run on their own, maintenance included.</p>
 </div>
 </div>
 
-<p class="punch">I build them, I keep them running and, if something ever fails, it's already fixed before you notice.</p>
+<p class="punch rv">I build them, I keep them running and, if something ever fails, it's already fixed before you notice.</p>
 
 <hr>
 
-<div class="now">now</div>
-<p class="note">Escuela S&#243;nica (music school website), Escriban&#237;a Tocagni (notary office automations).</p>
+<div class="now rv">now</div>
+<p class="note rv">Escuela S&#243;nica (music school website), Escriban&#237;a Tocagni (notary office automations).</p>
 
-<p class="sect">&#9889; 01</p>
-<h2>Services</h2>
-<ul>
+<p class="sect rv">&#9889; 01</p>
+<h2 class="rv">Services</h2>
+<ul class="rv">
 <li>Websites with admin panels: publish yourself, no phone calls</li>
 <li>Online stores with payments (MercadoPago, WhatsApp checkout)</li>
 <li>Internal apps for events: bar, tickets, live finances</li>
@@ -188,12 +209,12 @@ h2{font-family:var(--mono);margin:.35rem 0 1rem;font-size:clamp(1.9rem,5.5vw,2.9
 <li>Email migrations the service never finds out about</li>
 </ul>
 
-<p class="sect">&#x1f6e0; 02</p>
-<h2>Work</h2>
+<p class="sect rv">&#x1f6e0; 02</p>
+<h2 class="rv">Work</h2>
 
-<h3 class="group">Plataformas</h3>
+<h3 class="group rv">Plataformas</h3>
 <div class="work-grid">
-<a class="work-card" target="_blank" rel="noopener" href="https://www.labitconf.com/">
+<a class="work-card rv" target="_blank" rel="noopener" href="https://www.labitconf.com/">
 <img src="../img/trabajos/labitconf.webp" alt="LABITCONF 26 — Event landing with speakers and live content" loading="lazy">
 <div class="meta">
 <h4>LABITCONF 26</h4>
@@ -201,7 +222,7 @@ h2{font-family:var(--mono);margin:.35rem 0 1rem;font-size:clamp(1.9rem,5.5vw,2.9
 <span class="tag">Next.js + Realtime</span>
 </div>
 </a>
-<a class="work-card" target="_blank" rel="noopener" href="https://mansoclub.com.ar/">
+<a class="work-card rv" target="_blank" rel="noopener" href="https://mansoclub.com.ar/">
 <img src="../img/trabajos/manso-club.webp" alt="Manso Club — Event apps: bar, tickets and live finances" loading="lazy">
 <div class="meta">
 <h4>Manso Club</h4>
@@ -211,9 +232,9 @@ h2{font-family:var(--mono);margin:.35rem 0 1rem;font-size:clamp(1.9rem,5.5vw,2.9
 </a>
 </div>
 
-<h3 class="group">E-commerce</h3>
+<h3 class="group rv">E-commerce</h3>
 <div class="work-grid">
-<a class="work-card" target="_blank" rel="noopener" href="https://malasanaboutique.com/">
+<a class="work-card rv" target="_blank" rel="noopener" href="https://malasanaboutique.com/">
 <img src="../img/trabajos/malasana.webp" alt="Malasaña Boutique — Online store with WhatsApp order checkout" loading="lazy">
 <div class="meta">
 <h4>Malasaña Boutique</h4>
@@ -221,7 +242,7 @@ h2{font-family:var(--mono);margin:.35rem 0 1rem;font-size:clamp(1.9rem,5.5vw,2.9
 <span class="tag">Cloudflare Workers</span>
 </div>
 </a>
-<a class="work-card" target="_blank" rel="noopener" href="https://www.reunata.com.ar/">
+<a class="work-card rv" target="_blank" rel="noopener" href="https://www.reunata.com.ar/">
 <img src="../img/trabajos/reunata.webp" alt="Reunata — Wholesale e-commerce with per-user pricing" loading="lazy">
 <div class="meta">
 <h4>Reunata</h4>
@@ -231,9 +252,9 @@ h2{font-family:var(--mono);margin:.35rem 0 1rem;font-size:clamp(1.9rem,5.5vw,2.9
 </a>
 </div>
 
-<h3 class="group">Landing</h3>
+<h3 class="group rv">Landing</h3>
 <div class="work-grid">
-<a class="work-card" target="_blank" rel="noopener" href="https://www.productoracalafate.com/torres-del-paine-2026">
+<a class="work-card rv" target="_blank" rel="noopener" href="https://www.productoracalafate.com/torres-del-paine-2026">
 <img src="../img/trabajos/torres-del-paine.webp" alt="Torres del Paine Summit — Expedition registration and onboarding with invite codes and payments" loading="lazy">
 <div class="meta">
 <h4>Torres del Paine Summit</h4>
@@ -241,7 +262,7 @@ h2{font-family:var(--mono);margin:.35rem 0 1rem;font-size:clamp(1.9rem,5.5vw,2.9
 <span class="tag">Next.js</span>
 </div>
 </a>
-<a class="work-card" target="_blank" rel="noopener" href="https://arqgonzalezoliva.com/">
+<a class="work-card rv" target="_blank" rel="noopener" href="https://arqgonzalezoliva.com/">
 <img src="../img/trabajos/gonzalezoliva.webp" alt="GonzalezOliva — Architecture studio portfolio with a fast-loading gallery" loading="lazy">
 <div class="meta">
 <h4>GonzalezOliva</h4>
@@ -249,7 +270,7 @@ h2{font-family:var(--mono);margin:.35rem 0 1rem;font-size:clamp(1.9rem,5.5vw,2.9
 <span class="tag">Astro + Cloudflare</span>
 </div>
 </a>
-<a class="work-card" target="_blank" rel="noopener" href="https://elementosdeseguridadlp.com/">
+<a class="work-card rv" target="_blank" rel="noopener" href="https://elementosdeseguridadlp.com/">
 <img src="../img/trabajos/elementos-seguridad.webp" alt="Elementos de Seguridad — Workplace safety landing with WhatsApp lead close" loading="lazy">
 <div class="meta">
 <h4>Elementos de Seguridad</h4>
@@ -257,7 +278,7 @@ h2{font-family:var(--mono);margin:.35rem 0 1rem;font-size:clamp(1.9rem,5.5vw,2.9
 <span class="tag">Astro + Cloudflare</span>
 </div>
 </a>
-<a class="work-card" target="_blank" rel="noopener" href="https://seguridadnuevosaires.com/">
+<a class="work-card rv" target="_blank" rel="noopener" href="https://seguridadnuevosaires.com/">
 <img src="../img/trabajos/seguridad-nuevos-aires.webp" alt="Seguridad Nuevos Aires — CCTV and alarm landing built for local search" loading="lazy">
 <div class="meta">
 <h4>Seguridad Nuevos Aires</h4>
@@ -265,7 +286,7 @@ h2{font-family:var(--mono);margin:.35rem 0 1rem;font-size:clamp(1.9rem,5.5vw,2.9
 <span class="tag">HTML + Cloudflare</span>
 </div>
 </a>
-<a class="work-card" target="_blank" rel="noopener" href="https://escribaniatocagni.com/">
+<a class="work-card rv" target="_blank" rel="noopener" href="https://escribaniatocagni.com/">
 <img src="../img/trabajos/escribania-tocagni.webp" alt="Escribanía Tocagni — Institutional landing for a notary office" loading="lazy">
 <div class="meta">
 <h4>Escribanía Tocagni</h4>
@@ -275,13 +296,13 @@ h2{font-family:var(--mono);margin:.35rem 0 1rem;font-size:clamp(1.9rem,5.5vw,2.9
 </a>
 </div>
 
-<p class="sect">&#x1f9f0; 03</p>
-<h2>Stack</h2>
-<p class="note">Next.js 16 &#183; Supabase &#183; Tailwind CSS v4 &#183; Astro &#183; Cloudflare Workers &#183; TypeScript</p>
+<p class="sect rv">&#x1f9f0; 03</p>
+<h2 class="rv">Stack</h2>
+<p class="note rv">Next.js 16 &#183; Supabase &#183; Tailwind CSS v4 &#183; Astro &#183; Cloudflare Workers &#183; TypeScript</p>
 
-<p class="sect">&#10067; 04</p>
-<h2>FAQ</h2>
-<div class="faq">
+<p class="sect rv">&#10067; 04</p>
+<h2 class="rv">FAQ</h2>
+<div class="faq rv">
 <details name="faq">
 <summary>How long does it take?</summary>
 <p class="a">A one-page institutional site, one to two weeks. A store or a custom system depends on scope. The deadline is set before we start and does not move unless the scope changes.</p>
@@ -307,12 +328,12 @@ h2{font-family:var(--mono);margin:.35rem 0 1rem;font-size:clamp(1.9rem,5.5vw,2.9
 <p class="a">Tell me what you need in three lines and I send you a proposal with a fixed price and deadline. No strings: if it does not work for you, nothing happens.</p>
 </details>
 </div>
-<p class="faq-cta">Still have a question that is not here? <a href="#contacto">Tell me about your project</a> and I reply today.</p>
-<p class="sect" id="contacto">&#9993; 05</p>
-<h2>Contact</h2>
-<p class="note">Tell me about your project in three lines: what it is, when you need it and what you expect from me. That's enough to get started.</p>
+<p class="faq-cta rv">Still have a question that is not here? <a href="#contacto">Tell me about your project</a> and I reply today.</p>
+<p class="sect rv" id="contacto">&#9993; 05</p>
+<h2 class="rv">Contact</h2>
+<p class="note rv">Tell me about your project in three lines: what it is, when you need it and what you expect from me. That's enough to get started.</p>
 
-<div class="form-card">
+<div class="form-card rv">
 <p>Fill this in and it reaches me as a direct email. I reply to the address you leave.</p>
 <form id="contact-form" novalidate>
 <div class="hp" aria-hidden="true"><label for="f-empresa">Company</label><input id="f-empresa" name="empresa" type="text" tabindex="-1" autocomplete="off"></div>
@@ -393,6 +414,29 @@ form.addEventListener('submit',function(e){
     btn.disabled=false;btn.textContent=T.btn;
   });
 });
+(function(){
+var el=document.getElementById('tw'),c=document.querySelector('.tw-caret');
+if(!el)return;
+var full=el.getAttribute('data-full')||el.textContent;
+if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){el.textContent=full;return}
+el.textContent='';
+var i=0;
+(function type(){
+  el.textContent=full.slice(0,++i);
+  if(i<full.length)setTimeout(type,88);
+})();
+})();
+(function(){
+if(!('IntersectionObserver' in window))return;
+var els=document.querySelectorAll('.rv');
+var io=new IntersectionObserver(function(es){
+  es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})
+},{rootMargin:'0px 0px -8% 0px',threshold:.05});
+[].forEach.call(document.querySelectorAll('.work-grid'),function(g){
+  [].forEach.call(g.children,function(c,i){c.style.transitionDelay=(i*80)+'ms'})
+});
+[].forEach.call(els,function(el){io.observe(el)});
+})();
 </script>
 </body>
 </html>
