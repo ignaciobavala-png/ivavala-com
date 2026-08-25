@@ -1,0 +1,1035 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset=utf-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<title>The bottle — messages adrift · Ignacio Vavala</title>
+<meta content="Write a message, toss it into the sea and another visitor fishes it out at random." name=description>
+<meta name="theme-color" content="#0a0a0a">
+<link rel="canonical" href="https://ivavala.com/en/piezas/botella">
+<link rel="alternate" hreflang="es" href="https://ivavala.com/piezas/botella">
+<link rel="alternate" hreflang="en" href="https://ivavala.com/en/piezas/botella">
+<link rel="alternate" hreflang="x-default" href="https://ivavala.com/piezas/botella">
+<meta property="og:site_name" content="Ignacio Vavala">
+<meta property="og:title" content="The bottle — messages adrift">
+<meta property="og:description" content="Write a message, toss it into the sea and another visitor fishes it out at random. Each bottle is delivered exactly once.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ivavala.com/en/piezas/botella">
+<meta property="og:image" content="https://ivavala.com/og.png">
+<meta property="og:image:alt" content="The bottle — interactive piece by Ignacio Vavala">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="es_AR">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../../favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<script>
+document.documentElement.className+=' js';
+(function(){try{var t=localStorage.getItem('theme');document.documentElement.setAttribute('data-theme',t||'dark')}catch(e){document.documentElement.setAttribute('data-theme','dark')}})();
+</script>
+<style>
+:root{
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"avenir next",avenir,helvetica,"helvetica neue",ubuntu,roboto,noto,"segoe ui",arial,sans-serif;
+  --bg:#0a0a0a;
+  --card:#101010;
+  --text:#e0e0e0;
+  --dim:#777;
+  --accent:#6ee7b7;
+  --accent2:#a78bfa;
+  --link:#6ee7b7;
+  --border:#222;
+  --input-bg:#0a0a0a;
+  --btn-text:#0a0a0a;
+  --rail:#fff;
+  --rail-glow:rgba(255,255,255,.9);
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --bg:#f7f6f3;
+  --card:#fff;
+  --text:#1b1b1b;
+  --dim:#5c5c5c;
+  --accent:#089e7e;
+  --accent2:#6b3fd4;
+  --link:#089e7e;
+  --border:#e3e3e0;
+  --input-bg:#fff;
+  --btn-text:#fff;
+  --rail:#1b1b1b;
+  --rail-glow:rgba(0,0,0,.45);
+  color-scheme:light;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;line-height:1.7;font-size:1rem;font-family:var(--sans)}
+a{color:var(--link);text-decoration:none;font-weight:500}a:hover{text-decoration:underline}
+ul{padding:0}li{list-style:none}
+hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
+
+.page{position:relative}
+
+/* ── navbar ── */
+.nav{position:sticky;top:0;z-index:40;background:var(--bg);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:640px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.nav-links{display:flex;align-items:center;flex-wrap:wrap;gap:0;font-family:var(--mono);font-size:.72rem;letter-spacing:.02em;overflow-x:auto;scrollbar-width:none}
+.nav-links::-webkit-scrollbar{display:none}
+.nav-links a{padding:2px 6px;color:var(--dim);white-space:nowrap}
+.nav-links a:hover{color:var(--accent);text-decoration:none}
+.nav-links a.on{color:var(--accent)}
+.nav-links .sep{color:var(--border);user-select:none}
+.nav-tools{display:flex;gap:8px;align-items:center;flex-shrink:0}
+.nav-tools button{display:flex;align-items:center;justify-content:center;min-width:36px;height:30px;padding:0 10px;box-sizing:border-box;background:none;border:1px solid var(--border);border-radius:3px;color:var(--dim);font-family:var(--mono);font-size:.95rem;line-height:1;cursor:pointer;transition:color .15s,border-color .15s}
+.nav-tools button:hover{color:var(--accent);border-color:var(--accent)}
+.theme-toggle{font-size:1.05rem}
+
+.main{max-width:640px;margin:0 auto;padding:48px 20px 140px;position:relative;z-index:2}
+.main>*{max-width:600px}
+
+h1{font-family:var(--mono);font-size:clamp(2rem,6vw,2.9rem);font-weight:700;letter-spacing:-.04em;line-height:1;color:var(--text);text-wrap:balance;font-optical-sizing:auto}
+h1::after{content:"_";color:var(--accent);opacity:.4}
+.sub{font-size:clamp(1rem,2.6vw,1.1rem);color:var(--dim);margin-top:.5rem;font-weight:400;line-height:1.55;text-wrap:pretty}
+.punch{color:var(--text);font-size:clamp(1rem,2.4vw,1.08rem);line-height:1.6;letter-spacing:-.01em;text-wrap:pretty;margin-top:1rem}
+
+h2{font-family:var(--mono);text-wrap:balance;margin:.35rem 0 1rem;font-size:clamp(1.9rem,5.5vw,2.9rem);font-weight:700;letter-spacing:-.03em;line-height:1;text-transform:uppercase;color:var(--text)}
+.sect{font-family:var(--mono);font-size:.7rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:.5rem;margin:3rem 0 0}
+.sect::after{content:"";flex:0 0 28px;height:1px;background:var(--border)}
+.note{color:var(--dim);font-size:.9rem;line-height:1.7;text-wrap:pretty}
+.tag{font-family:var(--mono);font-size:.65rem;color:var(--accent2);letter-spacing:.03em}
+
+/* ── el mar ── */
+.sea-box{position:relative;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:0 0 8px;margin-top:1.4rem;overflow:hidden}
+/* El mar, las botellas y el medidor comparten metrica: si cambia la fuente,
+   cambia en los tres a la vez y la grilla no se desalinea. */
+#sea-canvas{display:block;width:100%;height:252px}
+/* Las botellas se dibujan en el canvas; el boton es solo la zona de click.
+   Sin canvas 2D el texto se vuelve visible y quedan botellas ASCII. */
+.bottle-hit{color:transparent;font-family:var(--mono);font-size:13px;line-height:1.25;white-space:pre}
+.no-canvas #sea-canvas{display:none}
+.no-canvas .bottle-hit{color:var(--accent);width:auto!important;height:auto!important}
+#sea .accent{color:var(--accent)}
+.bottle-layer{position:absolute;inset:0;z-index:2;pointer-events:none}
+.bottle-hit{position:absolute;left:0;top:0;pointer-events:auto;touch-action:manipulation;padding:0;margin:0;border:none;background:none;cursor:pointer;text-align:left;will-change:transform}
+.bottle-hit:focus{outline:none}
+.bottle-hit:hover{transform-origin:center;filter:brightness(1.08)}
+.bottle-hit[disabled]{cursor:default;opacity:.35}
+.no-canvas .bottle-hit.house{color:var(--accent2)}
+.sea-meta{position:relative;z-index:6;display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:.5rem 14px 0;font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.sea-meta .n{color:var(--accent)}
+
+/* ── panel de juego ── */
+.game-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.3rem 1.4rem 1.2rem;margin-top:1.2rem}
+.game-card label{display:block;font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin:0 0 .3rem}
+.game-card textarea{width:100%;box-sizing:border-box;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:.6rem .7rem;font-family:var(--sans);font-size:.95rem;outline:none;resize:vertical;min-height:64px;transition:border-color .15s}
+.game-card textarea:focus{border-color:var(--accent)}
+.game-card .btn{display:block;width:100%;margin-top:.8rem;background:var(--accent);color:var(--btn-text);border:none;border-radius:6px;padding:.7rem;font-family:var(--mono);font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:filter .15s}
+.game-card .btn:hover{filter:brightness(1.15)}
+.game-card .btn:active{filter:brightness(.9)}
+.game-card .btn[disabled]{opacity:.5;cursor:wait}
+.game-card .btn-alt{display:block;width:100%;margin-top:.6rem;background:none;color:var(--dim);border:1px solid var(--border);border-radius:6px;padding:.65rem;font-family:var(--mono);font-size:.7rem;font-weight:400;letter-spacing:.08em;text-transform:uppercase;text-align:center;text-decoration:none;transition:color .15s,border-color .15s}
+.game-card .btn-alt:hover{color:var(--accent);border-color:var(--accent);text-decoration:none}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.status{margin-top:.8rem;font-family:var(--mono);font-size:.8rem;line-height:1.5}
+.status.ok{color:var(--accent)}
+.status.err{color:#f87171}
+
+/* ── mensaje pescado: se abre sobre el mar, donde el visitante ya esta
+      mirando. Antes salia debajo del panel y quien no scrolleaba clickeaba
+      una botella y no veia pasar nada. ── */
+/* Es el papel que venia adentro de la botella: crema, tinta oscura, contorno
+   grueso y apenas torcido. No usa los tokens del tema porque la escena es un
+   dibujo y el dibujo no tiene modo claro y oscuro. */
+.catch{display:none;position:absolute;z-index:5;top:16px;left:16px;right:16px;bottom:auto;max-height:calc(100% - 52px);background:#f7efd6;color:#141b26;border:3px solid #141b26;border-radius:4px;padding:.85rem 1rem .95rem;overflow:auto;transform:rotate(-.5deg);box-shadow:5px 6px 0 rgba(20,27,38,.35)}
+.catch.on{display:block}
+.js .catch.on{animation:catch-in .2s cubic-bezier(.2,.7,.3,1)}
+@keyframes catch-in{from{opacity:0;transform:rotate(-3deg) scale(.94)}to{opacity:1;transform:rotate(-.5deg)}}
+.catch:focus{outline:none}
+.catch .msg{font-family:var(--mono);font-size:.92rem;line-height:1.6;color:#141b26;white-space:pre-wrap;word-break:break-word}
+.catch .from{margin-top:.6rem;padding-top:.5rem;border-top:2px dashed rgba(20,27,38,.35);font-family:var(--mono);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:#5b5344}
+.catch .note{margin-top:.4rem;font-size:.78rem;line-height:1.5;color:#5b5344}
+.catch-close{position:absolute;top:2px;right:6px;background:none;border:none;color:#141b26;font-family:var(--mono);font-size:1.25rem;line-height:1;padding:.15rem .3rem;cursor:pointer}
+.catch-close:hover{color:#b23b2e}
+.sea-meta #sea-hint{color:var(--dim)}
+
+/* ── admin ── */
+.admin{display:none;margin-top:1.2rem;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.2rem 1.3rem}
+.admin.on{display:block}
+.admin input{width:100%;box-sizing:border-box;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:.55rem .7rem;font-family:var(--mono);font-size:.95rem;outline:none}
+.admin input:focus{border-color:var(--accent)}
+/* Grilla y no flex: en el telefono la fila entraba en una sola columna y el
+   mensaje quedaba a un caracter por linea. Ahora la cabecera envuelve arriba
+   y el mensaje ocupa el ancho completo debajo, en cualquier pantalla. */
+.admin-row{display:grid;grid-template-columns:1fr auto;gap:.3rem .6rem;padding:.6rem 0;border-top:1px solid var(--border);font-family:var(--mono);font-size:.76rem;line-height:1.5}
+.admin-head{grid-column:1;display:flex;flex-wrap:wrap;gap:.15rem .6rem;align-items:baseline;min-width:0}
+.admin-row .meta{color:var(--dim)}
+.admin-row .st{color:var(--accent2)}
+.admin-row .msg{grid-column:1/-1;color:var(--text);overflow-wrap:anywhere}
+.admin-row button{grid-column:2;grid-row:1;align-self:start;background:none;border:1px solid var(--border);color:#f87171;border-radius:3px;padding:.25rem .6rem;font-family:var(--mono);font-size:.68rem;cursor:pointer}
+.admin-row button:hover{border-color:#f87171}
+.admin{overflow-wrap:anywhere}
+.admin-enter{width:auto;margin-top:0;padding:.55rem .9rem;white-space:nowrap;flex-shrink:0}
+.admin-open{display:inline-block;margin-top:1.4rem;font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);cursor:pointer;background:none;border:none;text-decoration:underline dotted}
+.admin-open:hover{color:var(--accent)}
+
+.back{display:inline-block;margin-top:2.4rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.back:hover{color:var(--accent)}
+
+/* ── líneas verticales ── */
+.rail{position:fixed;top:0;bottom:0;width:48px;overflow:hidden;pointer-events:none;z-index:1}
+.rail.l{left:0}.rail.r{right:0}
+.rail svg{position:absolute;left:0;top:0;width:100%;height:200%;animation:rail-fall linear infinite}
+.rail svg path{fill:none;stroke:var(--rail)}
+.rail .b{stroke-width:1.6;opacity:.55;filter:drop-shadow(0 0 5px var(--rail-glow))}
+.rail .e{stroke-width:1;opacity:.12}
+.rail.l .b{animation-duration:9s}
+.rail.l .e{animation-duration:14s}
+.rail.r .b{animation-duration:12s}
+.rail.r .e{animation-duration:17s}
+@keyframes rail-fall{from{transform:translateY(0)}to{transform:translateY(-50%)}}
+@media (max-width:640px){
+  .rail{width:24px;opacity:.4}
+}
+
+/* ── movimiento ── */
+.js .rv{opacity:0;transform:translateY(16px)}
+.js .rv.in{opacity:1;transform:none;transition:opacity .6s ease,transform .6s cubic-bezier(.2,.7,.3,1)}
+@media (prefers-reduced-motion:reduce){
+  .js .rv{opacity:1;transform:none}
+  .rail svg{animation:none}
+}
+</style>
+</head>
+<body>
+<div class="page">
+<nav class="nav">
+<div class="nav-inner">
+<div class="nav-links"><a href="../index.html#componentes">~/components</a><span class="sep"> / </span><span>the bottle</span></div>
+<div class="nav-tools"><button class="theme-toggle" id="theme-toggle" aria-label="Switch theme">&#9681;</button></div>
+</div>
+</nav>
+<div class="main">
+
+<h1 class="rv">The bottle</h1>
+<p class="sub rv">Write a message and toss it into the sea. Some visitor, at some point, will fish it out at random.</p>
+<p class="punch rv">The closed bottles are the ones you have not opened yet. Each one holds a message from someone who passed by.</p>
+
+<div class="sea-box rv" id="sea-box">
+<canvas id="sea-canvas" aria-hidden="true"></canvas>
+<div class="bottle-layer" id="bottle-layer"></div>
+<div class="catch" id="catch" role="dialog" aria-label="Fished message" tabindex="-1">
+<button class="catch-close" id="catch-close" type="button" aria-label="Close and keep fishing">&#215;</button>
+<div class="msg" id="catch-msg"></div>
+<div class="from" id="catch-from"></div>
+<p class="note" id="catch-note"></p>
+</div>
+<div class="sea-meta"><span id="sea-hint">tap a bottle to open it</span><span class="n" id="adrift-n">— bottles adrift</span></div>
+</div>
+
+<div class="game-card rv">
+<label for="msg">Your message</label>
+<textarea id="msg" maxlength="500" placeholder="Leave something for whoever comes next. No links, no fuss."></textarea>
+<div class="hp" aria-hidden="true"><input id="bot" name="bot" type="text" tabindex="-1" autocomplete="off"></div>
+<button class="btn" id="btn-throw" type="button">Throw it into the sea &#8594;</button>
+<button class="btn-alt" id="btn-fish" type="button">Fish out a bottle</button>
+<p class="status" id="status" role="status" aria-live="polite"></p>
+</div>
+
+<button class="admin-open" id="admin-open" type="button">&#9874; moderate the sea</button>
+<div class="admin" id="admin">
+<label for="admin-pin" style="font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)">PIN</label>
+<div style="display:flex;gap:8px;margin-top:.4rem">
+<input id="admin-pin" type="password" inputmode="numeric" placeholder="••••" autocomplete="off">
+<button class="btn admin-enter" id="admin-enter" type="button">Enter</button>
+</div>
+<p class="status" id="admin-status"></p>
+<div id="admin-list"></div>
+</div>
+
+<a class="back rv" href="../index.html#componentes">&#8592; back to the components</a>
+
+</div>
+</div>
+<div class="rail l">
+<svg class="b" viewBox="0 0 60 1200" preserveAspectRatio="none"><path d="M30 0 Q6 150 30 300 Q54 450 30 600 Q6 750 30 900 Q54 1050 30 1200"/></svg>
+<svg class="e" viewBox="0 0 60 1200" preserveAspectRatio="none"><path d="M30 0 Q6 150 30 300 Q54 450 30 600 Q6 750 30 900 Q54 1050 30 1200"/></svg>
+</div>
+<div class="rail r">
+<svg class="b" viewBox="0 0 60 1200" preserveAspectRatio="none"><path d="M30 0 Q6 150 30 300 Q54 450 30 600 Q6 750 30 900 Q54 1050 30 1200"/></svg>
+<svg class="e" viewBox="0 0 60 1200" preserveAspectRatio="none"><path d="M30 0 Q6 150 30 300 Q54 450 30 600 Q6 750 30 900 Q54 1050 30 1200"/></svg>
+</div>
+<script>
+var toggle=document.getElementById('theme-toggle');
+var syncToggle=function(){toggle.innerHTML=document.documentElement.getAttribute('data-theme')==='light'?'&#9680;':'&#9681;'};
+toggle.addEventListener('click',function(){
+  var cur=document.documentElement.getAttribute('data-theme');
+  var next=cur==='light'?'dark':'light';
+  document.documentElement.setAttribute('data-theme',next);
+  try{localStorage.setItem('theme',next)}catch(e){}
+  syncToggle();
+  if(window.seaTheme)window.seaTheme();
+});
+syncToggle();
+(function(){
+if(!('IntersectionObserver' in window))return;
+var io=new IntersectionObserver(function(es){
+  es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})
+},{rootMargin:'0px 0px -8% 0px',threshold:.05});
+[].forEach.call(document.querySelectorAll('.rv'),function(el){io.observe(el)});
+})();
+
+/* ── el mar ──────────────────────────────────────────────────────────────
+   Dibujo plano sobre canvas 2D: relleno liso, contorno negro grueso y linea
+   temblorosa que "hierve" a 12 cuadros, como el vector de los dibujos flash
+   de los 2000. Nada de degrade, nada de glow.
+   Las botellas se dibujan en el canvas pero se clickean con botones del DOM
+   transparentes encima, asi no se pierde teclado ni lector de pantalla. Si el
+   navegador no da canvas, esos botones se vuelven visibles en ASCII y el
+   juego sigue andando.
+   ────────────────────────────────────────────────────────────────────── */
+var API='/api/juegos/botella';
+var LANG='en';
+var reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+var seaBox=document.getElementById('sea-box');
+var canvas=document.getElementById('sea-canvas');
+var bottleLayer=document.getElementById('bottle-layer');
+var status=document.getElementById('status');
+var adriftN=document.getElementById('adrift-n');
+var btnThrow=document.getElementById('btn-throw');
+var btnFish=document.getElementById('btn-fish');
+var msgEl=document.getElementById('msg');
+var catchBox=document.getElementById('catch');
+var catchMsg=document.getElementById('catch-msg');
+var catchFrom=document.getElementById('catch-from');
+var catchNote=document.getElementById('catch-note');
+var catchClose=document.getElementById('catch-close');
+var seaHint=document.getElementById('sea-hint');
+var lastOpener=null;
+
+// Lo que ya abrio esta persona, en su propio navegador. Una botella se ve
+// cerrada hasta que la abre EL que mira: que otro la haya leido no le quita
+// nada. Si el almacenamiento no esta disponible, el mar arranca entero.
+var LEIDAS_KEY='botella:leidas';
+var leidas={};
+(function(){
+  try{
+    var raw=localStorage.getItem(LEIDAS_KEY);
+    if(!raw)return;
+    var arr=JSON.parse(raw);
+    if(Object.prototype.toString.call(arr)!=='[object Array]')return;
+    for(var i=0;i<arr.length;i++)leidas[arr[i]]=1;
+  }catch(e){}
+})();
+function marcarLeida(id){
+  if(leidas[id])return;
+  leidas[id]=1;
+  try{
+    var ids=[];
+    for(var k in leidas)if(leidas.hasOwnProperty(k))ids.push(parseInt(k,10));
+    // Se recorta a las ultimas 400: el mar puede crecer, el renglon no.
+    localStorage.setItem(LEIDAS_KEY,JSON.stringify(ids.slice(-400)));
+  }catch(e){}
+}
+
+var ctx=null;
+try{ctx=canvas.getContext('2d');}catch(e){}
+if(!ctx)document.documentElement.className+=' no-canvas';
+
+var W=0, H=252, SEA_Y=0, OX=0, OY=0;
+var t=0, boil=0, focusedId=0;
+var real=[], splashes=[], flying=[];
+
+// Paleta fija: un dibujo animado no tiene modo oscuro, pero de noche la
+// escena pasa a atardecer para no encandilar en la pagina oscura.
+var DAY={
+  sky:'#a5dcef', skyLow:'#d8f1f8', sun:'#ffd93d', ray:'#f0a500',
+  cloud:'#ffffff', sea:'#2f7fc7', seaMid:'#4a9cdd', seaHi:'#7cc3ee',
+  foam:'#f2fbff', ink:'#141b26', glass:'#4aa877', glassHouse:'#c98a4b',
+  shine:'#ffffff', cork:'#b5793d', paper:'#f7efd6', fish:'#f0872b',
+  glassOpen:'#8fb3a2', mouth:'#2c4a3d'
+};
+var DUSK={
+  sky:'#2b3f6b', skyLow:'#6b4a72', sun:'#f6efd0', ray:'#f6efd0',
+  cloud:'#5d5580', sea:'#173a5e', seaMid:'#1e4a76', seaHi:'#2f6f9f',
+  foam:'#bcd9ef', ink:'#0a0f18', glass:'#3d8f65', glassHouse:'#a86f33',
+  shine:'#e8f4ff', cork:'#8f5f2e', paper:'#efe4c4', fish:'#c96a1f',
+  glassOpen:'#4d6b5e', mouth:'#0d1a15'
+};
+function pal(){
+  return document.documentElement.getAttribute('data-theme')==='light'?DAY:DUSK;
+}
+
+/* ── utilidades de trazo ─────────────────────────────────────────────── */
+// Ruido estable: cambia con el "boil", no con cada cuadro, para que la linea
+// tiemble a saltos y no vibre como ruido de television.
+function wob(i){
+  var s=Math.sin(i*127.1+boil*311.7)*43758.5453;
+  return (s-Math.floor(s))*2-1;
+}
+function rr(x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
+}
+function inked(fill,lw){
+  var P=pal();
+  if(fill){ctx.fillStyle=fill;ctx.fill();}
+  ctx.lineWidth=lw||3;
+  ctx.strokeStyle=P.ink;
+  ctx.lineJoin='round';
+  ctx.lineCap='round';
+  ctx.stroke();
+}
+
+/* ── la ola ──────────────────────────────────────────────────────────── */
+// Una sola linea de flotacion: las botellas se apoyan en ella y se inclinan
+// con su pendiente, asi flotan de verdad en vez de estar pegadas al fondo.
+function waveY(x){
+  return SEA_Y+Math.sin(x*0.017+t*1.5)*7+Math.sin(x*0.043-t*2.2)*3.2;
+}
+function waveSlope(x){
+  return (waveY(x+8)-waveY(x-8))/16;
+}
+
+function drawSky(P){
+  ctx.fillStyle=P.sky;
+  ctx.fillRect(0,0,W,SEA_Y+30);
+  // Resplandor bajo, pegado a la linea del agua: da hora del dia sin degrade.
+  ctx.fillStyle=P.skyLow;
+  ctx.fillRect(0,SEA_Y-22,W,52);
+
+  // sol o luna, con rayos cortos de trazo grueso
+  var cx=W-64, cy=44, r=19;
+  if(P===DAY){
+    ctx.save();
+    ctx.translate(cx,cy);
+    for(var i=0;i<8;i++){
+      ctx.save();
+      ctx.rotate(i*Math.PI/4+t*0.12);
+      ctx.beginPath();
+      ctx.moveTo(r+6,0);
+      ctx.lineTo(r+13+wob(i)*2,0);
+      ctx.lineWidth=3.5;ctx.strokeStyle=P.ray;ctx.lineCap='round';ctx.stroke();
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+  ctx.beginPath();
+  ctx.arc(cx,cy,r,0,Math.PI*2);
+  inked(P.sun,3.5);
+  if(P!==DAY){
+    // el mordisco de la luna: un circulo del color del cielo encima
+    ctx.beginPath();
+    ctx.arc(cx+9,cy-5,15,0,Math.PI*2);
+    ctx.fillStyle=P.sky;ctx.fill();
+  }
+
+  // nubes: tres circulos pegados, contorno grueso, sin sombra
+  cloud(P,58+((t*6)%(W+260))-130,38,1);
+  cloud(P,W*0.42+((t*3.4)%(W+300))-150,64,.72);
+}
+// Tres circulos: primero el contorno grueso de los tres, despues el relleno
+// encima. Asi la silueta queda con un solo borde y sin las lineas de adentro.
+function cloud(P,x,y,s){
+  var c=[[-22,4,15],[0,-6,21],[24,4,16]], i;
+  ctx.save();
+  ctx.translate(x,y);ctx.scale(s,s);
+  ctx.lineWidth=3.5/s;ctx.strokeStyle=P.ink;
+  for(i=0;i<3;i++){ctx.beginPath();ctx.arc(c[i][0],c[i][1],c[i][2],0,Math.PI*2);ctx.stroke();}
+  ctx.fillStyle=P.cloud;
+  for(i=0;i<3;i++){ctx.beginPath();ctx.arc(c[i][0],c[i][1],c[i][2],0,Math.PI*2);ctx.fill();}
+  ctx.restore();
+}
+
+function drawSea(P){
+  // cuerpo de agua: un solo relleno liso hasta abajo
+  ctx.beginPath();
+  ctx.moveTo(-4,waveY(-4));
+  for(var x=0;x<=W+8;x+=7)ctx.lineTo(x,waveY(x)+wob(x*0.13)*1.3);
+  ctx.lineTo(W+8,H+4);ctx.lineTo(-4,H+4);
+  ctx.closePath();
+  ctx.fillStyle=P.sea;ctx.fill();
+
+  // la orilla se contornea aparte para no dibujar el borde de abajo
+  ctx.beginPath();
+  ctx.moveTo(-4,waveY(-4));
+  for(var x2=0;x2<=W+8;x2+=7)ctx.lineTo(x2,waveY(x2)+wob(x2*0.13)*1.3);
+  ctx.lineWidth=4;ctx.strokeStyle=P.ink;ctx.lineCap='round';ctx.stroke();
+
+  // dos franjas mas claras: dan cuerpo al agua sin degrade
+  band(P.seaMid,46,0.9,3.2);
+  band(P.seaHi,92,1.35,2.6);
+
+  // rayitas de espuma sobre la cresta
+  ctx.lineWidth=3;ctx.strokeStyle=P.foam;ctx.lineCap='round';
+  for(var i=0;i<Math.ceil(W/58);i++){
+    var fx=18+i*58+Math.sin(t*1.1+i)*9;
+    var fy=waveY(fx)+13;
+    ctx.beginPath();
+    ctx.moveTo(fx-9,fy);
+    ctx.quadraticCurveTo(fx,fy-4,fx+9,fy);
+    ctx.stroke();
+  }
+}
+function band(color,off,sp,lw){
+  ctx.beginPath();
+  for(var x=-4;x<=W+8;x+=9){
+    var y=waveY(x)+off+Math.sin(x*0.03-t*sp)*4;
+    if(x<0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+  }
+  ctx.lineWidth=lw;ctx.strokeStyle=color;ctx.lineCap='round';ctx.stroke();
+}
+
+/* ── la botella ──────────────────────────────────────────────────────── */
+// Con ojos. Es la licencia que la vuelve un personaje y no un icono.
+// Una botella ya leida se dibuja destapada, sin el papel adentro y con los
+// ojos cerrados: se entiende de un vistazo que esa ya encontro a alguien.
+function drawBottle(x,y,rot,s,house,focused,opened){
+  var P=pal();
+  ctx.save();
+  ctx.translate(x,y);
+  ctx.rotate(rot);
+  ctx.scale(s,s);
+
+  if(focused){
+    ctx.beginPath();
+    ctx.setLineDash([5,4]);
+    rr(-31,-21,62,42,10);
+    ctx.lineWidth=3;ctx.strokeStyle=P.foam;ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  var body=house?P.glassHouse:(opened?P.glassOpen:P.glass);
+  // cuerpo
+  rr(-24,-14,36,28,9);
+  inked(body,3);
+  // cuello
+  rr(11,-7,10,14,3);
+  inked(body,3);
+  if(opened){
+    // la boca abierta, sin corcho
+    rr(19,-7,5,14,2);
+    inked(P.mouth,2.6);
+  }else{
+    rr(19,-8,8,16,3);
+    inked(P.cork,3);
+    // el papel enrollado adentro
+    rr(-19,-8,15,16,4);
+    inked(P.paper,2.2);
+  }
+  // brillo del vidrio
+  ctx.beginPath();
+  ctx.moveTo(-14,-9);ctx.lineTo(-8,-9);
+  ctx.lineWidth=2.6;ctx.strokeStyle=P.shine;ctx.lineCap='round';ctx.stroke();
+  // ojos
+  eye(P,1,-4,opened);
+  eye(P,9,-4,opened);
+
+  ctx.restore();
+}
+function eye(P,x,y,shut){
+  if(shut){
+    // dormida: un arco para abajo en vez del ojo
+    ctx.beginPath();
+    ctx.moveTo(x-4,y);
+    ctx.quadraticCurveTo(x,y+3.4,x+4,y);
+    ctx.lineWidth=2.4;ctx.strokeStyle=P.ink;ctx.lineCap='round';ctx.stroke();
+    return;
+  }
+  ctx.beginPath();
+  ctx.arc(x,y,4.4,0,Math.PI*2);
+  inked('#ffffff',2.4);
+  var lx=Math.sin(t*0.5)*1.4;
+  ctx.beginPath();
+  ctx.arc(x+lx,y+0.6,1.9,0,Math.PI*2);
+  ctx.fillStyle=P.ink;ctx.fill();
+}
+
+// Burbujas lentas: el agua de abajo estaba vacia y se notaba.
+function drawBubbles(P){
+  for(var i=0;i<5;i++){
+    var bx=(i*137+41)%Math.max(1,W-30)+15;
+    var span=H-SEA_Y-30;
+    var by=H-((t*16+i*61)%Math.max(1,span));
+    var r=2.4+(i%3);
+    ctx.beginPath();
+    ctx.arc(bx+Math.sin(t*1.4+i)*5,by,r,0,Math.PI*2);
+    ctx.lineWidth=2;ctx.strokeStyle=P.seaHi;ctx.stroke();
+  }
+}
+function drawFish(P){
+  var x=W+40-((t*46)%(W+120));
+  var y=SEA_Y+120+Math.sin(t*1.6)*8;
+  ctx.save();
+  ctx.translate(x,y);
+  ctx.beginPath();
+  ctx.ellipse(0,0,15,9,0,0,Math.PI*2);
+  inked(P.fish,3);
+  ctx.beginPath();
+  ctx.moveTo(13,0);ctx.lineTo(25,-9);ctx.lineTo(25,9);
+  ctx.closePath();
+  inked(P.fish,3);
+  ctx.beginPath();
+  ctx.arc(-6,-2,1.9,0,Math.PI*2);
+  ctx.fillStyle=P.ink;ctx.fill();
+  ctx.restore();
+}
+
+// Salpicadura: tres arcos que se abren y se van. Reemplaza al pez de ASCII.
+function drawSplashes(P){
+  var now=Date.now(), keep=[];
+  for(var i=0;i<splashes.length;i++){
+    var s=splashes[i];
+    var k=(now-s.born)/620;
+    if(k>=1)continue;
+    keep.push(s);
+    ctx.globalAlpha=1-k;
+    ctx.lineWidth=3.2;ctx.strokeStyle=P.foam;ctx.lineCap='round';
+    for(var j=0;j<3;j++){
+      var a=-Math.PI/2+(j-1)*0.75;
+      var d=8+k*30;
+      ctx.beginPath();
+      ctx.moveTo(s.x+Math.cos(a)*d*0.5,s.y+Math.sin(a)*d*0.5);
+      ctx.lineTo(s.x+Math.cos(a)*d,s.y+Math.sin(a)*d-k*8);
+      ctx.stroke();
+    }
+    ctx.globalAlpha=1;
+  }
+  splashes=keep;
+}
+
+// La botella que se lanza: vuela en arco de izquierda a derecha y cae al agua.
+function drawFlying(P){
+  var now=Date.now(), keep=[];
+  for(var i=0;i<flying.length;i++){
+    var f=flying[i];
+    var k=(now-f.born)/1500;
+    if(k>=1){splashes.push({x:f.tx,y:waveY(f.tx),born:now});continue;}
+    keep.push(f);
+    var x=24+(f.tx-24)*k;
+    var y=(H*0.12)+(waveY(x)-H*0.12)*(k*k)-Math.sin(k*Math.PI)*46;
+    drawBottle(x,y,k*5.5,0.85,false,false,false);
+  }
+  flying=keep;
+}
+
+/* ── cuadro ──────────────────────────────────────────────────────────── */
+function render(){
+  if(!ctx||!W)return;
+  var P=pal();
+  ctx.clearRect(0,0,W,H);
+  drawSky(P);
+  drawSea(P);
+  drawBubbles(P);
+  drawFish(P);
+  placeBottles(true);
+  drawFlying(P);
+  drawSplashes(P);
+}
+
+// Coloca cada botella sobre la ola y, de paso, mueve el boton invisible que
+// la hace clickeable. Un solo recorrido para las dos cosas.
+function placeBottles(paint){
+  for(var i=0;i<real.length;i++){
+    var b=real[i];
+    if(b.hidden)continue;
+    var x=b.px;
+    var y=waveY(x)+(b.far?4:12);
+    var rot=Math.atan(waveSlope(x))*0.9;
+    if(paint&&ctx)drawBottle(x,y,rot,b.far?0.72:1,b.origin==='house',focusedId===b.id,b.opened);
+    var s=b.far?0.72:1;
+    b.el.style.width=(62*s)+'px';
+    b.el.style.height=(42*s)+'px';
+    b.el.style.transform='translate('+(OX+x-31*s).toFixed(1)+'px,'+(OY+y-21*s).toFixed(1)+'px)';
+  }
+}
+
+/* ── medidas y reparto ───────────────────────────────────────────────── */
+function measure(){
+  W=canvas.clientWidth||seaBox.clientWidth;
+  H=canvas.clientHeight||252;
+  SEA_Y=Math.round(H*0.36);
+  if(ctx){
+    var dpr=Math.min(window.devicePixelRatio||1,2);
+    canvas.width=Math.round(W*dpr);
+    canvas.height=Math.round(H*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  OX=canvas.offsetLeft;OY=canvas.offsetTop;
+  layout();
+}
+// Mezcla de bits: un id*k%total colapsa cuando k y total comparten factores.
+function spread(n){
+  n=(n^61)^(n>>>16);
+  n=n+(n<<3);
+  n=n^(n>>>4);
+  n=Math.imul(n,0x27d4eb2d);
+  n=n^(n>>>15);
+  return n>>>0;
+}
+// Dos planos de profundidad: las de atras van mas chicas y mas arriba.
+function layout(){
+  if(!W)return;
+  // 84 y no 66: con el mar lleno las botellas quedaban pegadas una a otra.
+  var cols=Math.max(2,Math.floor((W-40)/84));
+  var total=cols*2;
+  var taken={};
+  for(var i=0;i<real.length;i++){
+    var b=real[i], s=spread(b.id)%total, n=0;
+    while(taken[s]&&n<total){s=(s+1)%total;n++;}
+    if(n>=total){b.hidden=true;b.el.style.display='none';continue;}
+    taken[s]=1;b.hidden=false;b.el.style.display='';
+    b.far=s>=cols;
+    var col=s%cols;
+    var step=cols>1?((W-76)/(cols-1)):0;
+    b.px=cols>1?(38+col*step):(W/2);
+    // El plano de atras se intercala medio casillero: con un corrimiento fijo
+    // caia justo encima de una botella de adelante.
+    if(b.far)b.px+=step/2;
+    // Ninguna puede quedar mordida por el borde del lienzo.
+    b.px=Math.max(36,Math.min(W-36,b.px));
+  }
+  placeBottles(false);
+  setHint();
+}
+
+/* ── reloj ───────────────────────────────────────────────────────────── */
+// 24 cuadros por segundo, pero la linea tiembla cada dos: el pulso de 12 es
+// el de los dibujos flash y ademas sale gratis.
+var STEP=1000/24;
+var rafId=0, lastTs=0, acc=0, running=false, frame=0;
+function tick(ts){
+  if(!running){rafId=0;return;}
+  rafId=requestAnimationFrame(tick);
+  if(!lastTs)lastTs=ts;
+  acc+=ts-lastTs;lastTs=ts;
+  if(acc<STEP)return;
+  t+=Math.min(acc,200)/1000;
+  acc=0;
+  if((++frame&1)===0)boil++;
+  render();
+}
+function play(){
+  if(running||reduced)return;
+  running=true;lastTs=0;acc=0;
+  rafId=requestAnimationFrame(tick);
+}
+function pause(){running=false;if(rafId){cancelAnimationFrame(rafId);rafId=0;}}
+var onScreen=true;
+function sync(){if(onScreen&&!document.hidden)play();else pause();}
+document.addEventListener('visibilitychange',sync);
+if('IntersectionObserver' in window){
+  new IntersectionObserver(function(es){onScreen=es[0].isIntersecting;sync();}).observe(seaBox);
+}
+var rzT=0;
+window.addEventListener('resize',function(){
+  clearTimeout(rzT);
+  rzT=setTimeout(function(){measure();render();},120);
+});
+window.seaTheme=function(){render();};
+
+measure();
+render();
+sync();
+
+/* ── botellas ────────────────────────────────────────────────────────── */
+function findReal(id){
+  for(var i=0;i<real.length;i++)if(real[i].id===id)return real[i];
+  return null;
+}
+function addBottle(id,origin){
+  if(findReal(id))return;
+  var house=origin==='house';
+  var opened=!!leidas[id];
+  var el=document.createElement('button');
+  el.type='button';
+  el.className='bottle-hit'+(house?' house':'');
+  el.setAttribute('aria-label',house?'Open a bottle from the house':(opened?'Read bottle #'+id+' again, already fished':'Open bottle #'+id+', unopened'));
+  // El texto queda para el respaldo sin canvas; con canvas es transparente.
+  el.textContent=' .---.\n( o   )\n \\___/';
+  el.addEventListener('click',function(){openBottle(id,origin,el);});
+  // El foco del teclado no se ve en un boton transparente: lo dibuja el canvas.
+  el.addEventListener('focus',function(){focusedId=id;if(reduced)render();});
+  el.addEventListener('blur',function(){if(focusedId===id)focusedId=0;if(reduced)render();});
+  bottleLayer.appendChild(el);
+  real.push({id:id,origin:origin,opened:opened,px:0,far:false,hidden:false,el:el});
+  layout();
+}
+// Al abrirse no se hunde: se queda flotando destapada y se puede releer.
+function markOpened(id){
+  marcarLeida(id);
+  var b=findReal(id);
+  if(!b||b.opened)return;
+  b.opened=true;
+  b.el.setAttribute('aria-label','Read bottle #'+id+' again, already fished');
+}
+function splash(x){
+  if(reduced)return;
+  splashes.push({x:x,y:waveY(x),born:Date.now()});
+}
+// Abre la tarjeta sobre el mar. La regla del juego se explica adentro, en el
+// momento en que importa, en vez de quedar en un texto que hay que scrollear.
+function openCatch(msg,from,note){
+  catchMsg.textContent=msg;
+  catchFrom.textContent=from;
+  catchNote.textContent=note;
+  catchBox.classList.add('on');
+  // Si el mar quedó fuera de pantalla, se trae: la tarjeta no sirve de nada
+  // si el visitante no la tiene delante.
+  var r=seaBox.getBoundingClientRect();
+  if(r.top<0||r.bottom>(window.innerHeight||0)){
+    try{seaBox.scrollIntoView({block:'center',behavior:reduced?'auto':'smooth'});}catch(e){seaBox.scrollIntoView();}
+  }
+  try{catchBox.focus({preventScroll:true});}catch(e){}
+}
+function closeCatch(){
+  if(!catchBox.classList.contains('on'))return;
+  catchBox.classList.remove('on');
+  // El foco vuelve a la botella que se abrió, o al botón de pescar.
+  var back=(lastOpener&&lastOpener.parentNode)?lastOpener:btnFish;
+  lastOpener=null;
+  try{back.focus({preventScroll:true});}catch(e){}
+}
+function showCatch(bottle){
+  if(bottle.origin==='house'){
+    openCatch(bottle.msg,'from the house · Ignacio',
+      'This one is mine: house bottles are always there for whoever arrives.');
+    return;
+  }
+  var de=bottle.country?('travelled from '+bottle.country):'travelled from somewhere in the world';
+  openCatch(bottle.msg,de+' · another visitor wrote it',
+    'It stays uncorked in your sea so you know you have read it. The closed ones are the ones left for you.');
+}
+catchClose.addEventListener('click',closeCatch);
+catchBox.addEventListener('keydown',function(e){if(e.key==='Escape'||e.key==='Esc')closeCatch();});
+// Tocar el agua fuera de la tarjeta también la cierra.
+seaBox.addEventListener('click',function(e){
+  if(!catchBox.classList.contains('on'))return;
+  if(catchBox.contains(e.target))return;
+  // Una botella abre la suya: cerrar acá la pisaría con su propia respuesta.
+  if(e.target.closest&&e.target.closest('.bottle-hit'))return;
+  closeCatch();
+});
+function openBottle(id,origin,el){
+  lastOpener=el;
+  var b=findReal(id);
+  var fx=b?b.px:(W/2);
+  el.disabled=true;
+  setStatus('','');
+  ask(API+'?id='+id)
+  .then(function(d){
+    setCount();
+    // Ninguna se hunde. Las de la casa siguen disponibles en el servidor para
+    // el proximo visitante, pero para vos quedan destapadas igual que el resto:
+    // lo que marca el dibujo es lo que abriste vos, no lo que gasto el mar.
+    el.disabled=false;
+    markOpened(id);
+    splash(fx);
+    if(!d.bottle){
+      openCatch('The bottle was empty.','nothing left inside',
+        'Something went wrong with this one. Throw yours or try another.');
+      return;
+    }
+    showCatch(d.bottle);
+  })
+  .catch(function(e){
+    el.disabled=false;
+    seaError(e,'The sea resists. Try again.');
+  });
+}
+
+/* ── acciones ────────────────────────────────────────────────────────── */
+// Un solo lugar donde se lee la respuesta: si el mar dice que no, el error
+// viaja con el status y con los segundos que faltan.
+function ask(url,opts){
+  return fetch(url,opts).then(function(r){
+    return r.json().catch(function(){return {};}).then(function(d){
+      if(r.ok)return d;
+      var e=new Error(d.error||('http_'+r.status));
+      e.status=r.status;
+      e.retry=d.retry_after||0;
+      throw e;
+    });
+  });
+}
+function espera(s){
+  if(s>90)return 'in '+Math.ceil(s/60)+' minutes';
+  return 'in '+Math.max(5,s)+' seconds';
+}
+function seaError(e,fallback){
+  if(e&&e.status===429){
+    setStatus('err','Ease up: the sea is getting rough. Try again '+espera(e.retry)+'.');
+    return;
+  }
+  setStatus('err',fallback);
+}
+function setStatus(cls,msg){status.className='status '+(cls||'');status.textContent=msg;}
+// El renglón cuenta lo que le falta a esta persona, no lo que leyó el mar.
+function setCount(){
+  var total=0, cerradas=0;
+  for(var i=0;i<real.length;i++){
+    if(real[i].hidden)continue;
+    total++;
+    if(!real[i].opened)cerradas++;
+  }
+  if(!total){adriftN.textContent='empty sea';setHint();return;}
+  var partes=[total===1?'1 bottle in the sea':total+' bottles in the sea'];
+  partes.push(cerradas?(cerradas===1?'1 unopened':cerradas+' unopened'):'none left for you');
+  adriftN.textContent=partes.join(' · ');
+  setHint();
+}
+// El renglón de abajo del mar explica el gesto, no rotula la sección.
+function setHint(){
+  var vivas=0, cerradas=0;
+  for(var i=0;i<real.length;i++){
+    if(real[i].hidden)continue;
+    vivas++;
+    if(!real[i].opened)cerradas++;
+  }
+  if(!vivas)seaHint.textContent='the sea is empty: throw the first one';
+  else if(cerradas)seaHint.textContent='tap a bottle to open it';
+  else seaHint.textContent='you opened them all: come back when there are more';
+}
+function setBusy(on,el,label){if(el){el.disabled=on;if(!on)el.textContent=label;}}
+function idle(){setBusy(false,btnThrow,'Throw it into the sea →');setBusy(false,btnFish,'Fish out a bottle');}
+
+function throwBottle(){
+  var msg=msgEl.value.trim();
+  if(!msg){setStatus('err','The message is empty.');msgEl.focus();return;}
+  var bot=document.getElementById('bot').value.trim();
+  setBusy(true,btnThrow,'Throwing...');setBusy(true,btnFish,'');
+  setStatus('','');
+  ask(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({msg:msg,bot:bot})})
+  .then(function(d){
+    setCount();setStatus('ok','» Bottle thrown. It is adrift now.');
+    msgEl.value='';
+    closeCatch();
+    if(d.id)addBottle(d.id,'human');
+    if(!reduced)flying.push({born:Date.now(),tx:Math.max(60,Math.min(W-60,W*0.62))});
+  })
+  .catch(function(e){seaError(e,'I cannot reach the sea right now. Try again in a bit.');})
+  .then(idle);
+}
+
+// La caña tira primero de lo que ESTA persona no abrió todavía. El servidor
+// no sabe qué vio cada quien, así que la elección sale de acá; sólo cuando ya
+// las abrió todas se le pide una al azar al mar.
+function sinAbrir(){
+  var libres=[];
+  for(var i=0;i<real.length;i++){
+    var b=real[i];
+    if(!b.hidden&&!b.opened)libres.push(b);
+  }
+  return libres;
+}
+function fishBottle(){
+  lastOpener=null;
+  setBusy(true,btnFish,'Fishing...');setBusy(true,btnThrow,'');
+  catchBox.classList.remove('on');
+  setStatus('','');
+
+  var libres=sinAbrir();
+  if(libres.length){
+    var b=libres[Math.floor(Math.random()*libres.length)];
+    splash(b.px);
+    lastOpener=b.el;
+    ask(API+'?id='+b.id)
+    .then(function(d){
+      markOpened(b.id);
+      setCount();
+      if(!d.bottle){
+        setStatus('ok','That bottle is gone. Try again.');
+        return;
+      }
+      showCatch(d.bottle);
+    })
+    .catch(function(e){seaError(e,'I cannot reach the sea right now. Try again in a bit.');})
+    .then(idle);
+    return;
+  }
+
+  splash(W/2);
+  ask(API+'?lang='+LANG)
+  .then(function(d){
+    if(!d.bottle){
+      setStatus('ok','The sea is calm today. Give it another try.');
+      setCount();
+      return;
+    }
+    markOpened(d.bottle.id);
+    setCount();
+    showCatch(d.bottle);
+  })
+  .catch(function(e){seaError(e,'I cannot reach the sea right now. Try again in a bit.');})
+  .then(idle);
+}
+
+btnThrow.addEventListener('click',throwBottle);
+btnFish.addEventListener('click',fishBottle);
+
+// Un solo pedido pinta el mar: la lista ya trae los contadores.
+ask(API+'?list=1&lang='+LANG)
+  .then(function(d){
+    if(d.bottles)for(var i=0;i<d.bottles.length;i++)addBottle(d.bottles[i].id,d.bottles[i].origin);
+    setCount();
+  })
+  .catch(function(){adriftN.textContent='sea offline';});
+
+/* ── admin ───────────────────────────────────────────────── */
+var adminBox=document.getElementById('admin');
+var adminOpen=document.getElementById('admin-open');
+var adminPin=document.getElementById('admin-pin');
+var adminEnter=document.getElementById('admin-enter');
+var adminStatus=document.getElementById('admin-status');
+var adminList=document.getElementById('admin-list');
+var pin='';
+
+adminOpen.addEventListener('click',function(){
+  var show=adminBox.classList.toggle('on');
+  adminOpen.innerHTML=show?'&#9874; close moderation':'&#9874; moderate the sea';
+  if(show)adminPin.focus();
+});
+adminEnter.addEventListener('click',function(){
+  var p=adminPin.value.trim();
+  if(!p){adminStatus.className='status err';adminStatus.textContent='PIN missing.';return;}
+  pin=p;
+  adminEnter.disabled=true;adminEnter.textContent='...';
+  ask(API+'/admin',{headers:{'x-bottle-pin':pin}})
+  .then(renderAdmin)
+  .catch(function(){
+    adminStatus.className='status err';
+    adminStatus.textContent=pin? 'Wrong PIN.':'Could not get in.';
+    pin='';
+  })
+  .then(function(){adminEnter.disabled=false;adminEnter.textContent='Enter';});
+});
+
+function renderAdmin(d){
+  adminStatus.className='status ok';
+  adminStatus.textContent='visitors adrift '+d.counts.adrift+' · house '+d.counts.house+' · total '+d.counts.total;
+  adminList.innerHTML='';
+  if(!d.bottles.length){adminList.textContent='The sea is empty.';return;}
+  d.bottles.forEach(function(b){
+    var row=document.createElement('div');
+    row.className='admin-row';
+    var head=document.createElement('div');head.className='admin-head';
+    var meta=document.createElement('span');meta.className='meta';meta.textContent='#'+b.id+' '+b.created_at+(b.origin==='human'&&b.country?' · '+b.country:'');
+    var st=document.createElement('span');st.className='st';st.textContent=(b.origin==='house'?'casa · ':'')+b.status;
+    head.appendChild(meta);head.appendChild(st);
+    var msg=document.createElement('div');msg.className='msg';msg.textContent=b.msg;
+    var del=document.createElement('button');del.type='button';del.textContent='delete';
+    del.addEventListener('click',function(){
+      if(!window.confirm('Delete #'+b.id+'?'))return;
+      ask(API+'/admin?id='+b.id,{method:'DELETE',headers:{'x-bottle-pin':pin}})
+      .then(function(){row.remove();adminStatus.textContent='#'+b.id+' deleted.';})
+      .catch(function(){adminStatus.className='status err';adminStatus.textContent='Could not delete.';});
+    });
+    row.appendChild(head);row.appendChild(del);row.appendChild(msg);
+    adminList.appendChild(row);
+  });
+}
+</script>
+</body>
+</html>
