@@ -3,10 +3,66 @@
 const CANONICAL = "ivavala.com";
 const ORIGIN = "https://" + CANONICAL;
 
-const ROBOTS_OK = `User-agent: *
+// Un solo grupo "User-agent: *" a proposito. Un crawler que encuentra un grupo
+// con SU nombre usa solo ese y descarta el general: si se agregaran bloques por
+// bot (GPTBot, ClaudeBot...) para "dejarlos entrar", esos bots dejarian de leer
+// el Disallow del panel. Permitir a todos ya los incluye.
+const ROBOTS_OK = `# ivavala.com — Ignacio Vavala, desarrollador web full-stack.
+# Buscadores y asistentes: bienvenidos. El sitio entero es publico y se puede
+# citar; lo unico cerrado es el panel privado.
+
+User-agent: *
+Content-Signal: search=yes,ai-input=yes
 Allow: /
+Disallow: /panel
 
 Sitemap: ${ORIGIN}/sitemap.xml
+`;
+
+// Resumen en texto plano para agentes: la home es HTML con acordeones y estilos,
+// esto es lo mismo sin nada alrededor. Convencion emergente (/llms.txt), todavia
+// sin adopcion confirmada de los grandes: cuesta poco y no estorba.
+const LLMS = `# Ignacio Vavala
+
+> Desarrollador web full-stack. Construye sitios y sistemas a medida, se hace
+> cargo del mantenimiento y trabaja en remoto con cualquier huso horario.
+> Espanol e ingles. Contacto: ignacio@ivavala.com
+
+## Que hace
+
+- Sitios con panel propio: el cliente publica precios, fotos y novedades sin
+  depender de nadie.
+- Tiendas online con cobro por Mercado Pago o cierre de compra por WhatsApp,
+  con stock y precios administrables.
+- Sistemas de gestion que reemplazan planillas: barra, entradas y finanzas en
+  vivo, con todo el equipo sobre el mismo numero.
+- Plataformas de eventos: inscripcion con codigos de invitacion, cobro y
+  control de acceso.
+
+## Como trabaja
+
+- Una landing institucional toma entre una y dos semanas; un sistema a medida
+  depende del alcance. El plazo se fija antes de arrancar.
+- Los primeros 3 meses de mantenimiento van incluidos: el sitio online, las
+  actualizaciones de seguridad y cualquier arreglo de algo propio, sin costo.
+- El dominio, el codigo y los accesos son del cliente desde el dia uno. Sin
+  plataformas cerradas de las que despues no se pueda salir.
+
+## Trabajos en produccion
+
+- LABITCONF 26 — landing del evento con speakers y contenido en vivo.
+- Manso Club — apps de evento: barra, entradas y finanzas en vivo.
+- Malasana Boutique — tienda online con cierre de compra por WhatsApp.
+- Reunata — e-commerce mayorista con precios por usuario.
+- Torres del Paine Summit — registro y onboarding con codigos y pagos.
+- GonzalezOliva — portfolio de estudio de arquitectura.
+- Escribania Tocagni — landing institucional de estudio notarial.
+
+## Paginas
+
+- ${ORIGIN}/ — inicio (espanol)
+- ${ORIGIN}/en/ — inicio (ingles)
+- ${ORIGIN}/piezas/botella — pieza interactiva
 `;
 
 const ROBOTS_BLOCK = `User-agent: *
@@ -150,7 +206,7 @@ async function handleContacto(request, env) {
 
 // ── la botella: mensajes a la deriva ─────────────────────────────────────
 const MSG_MAX = 500;
-const RATE = { throw: 5, fish: 8, admin: 5 }; // por IP cada 5 minutos
+const RATE = { throw: 5, fish: 8, admin: 5, ev: 80 }; // por IP cada 5 minutos
 
 const safeEqual = (a, b) => {
   if (typeof a !== "string" || typeof b !== "string" || a.length !== b.length) return false;
@@ -416,6 +472,114 @@ async function botellaRoute(request, env, ctx) {
   return null;
 }
 
+// ── medicion del embudo ───────────────────────────────────────────────────
+// Analitica propia: sin cookies, sin scripts de terceros y sin guardar IP.
+// Solo interesa el embudo — cuantos ven la home, cuantos despliegan el
+// trabajo, cuantos llegan al formulario y cuantos escriben de verdad.
+
+// Lista blanca: un evento que no este aca se descarta. Asi la tabla no se
+// puede llenar desde afuera con nombres inventados.
+const EVENTS = new Set([
+  "view",
+  "sec:servicios", "sec:trabajo", "sec:componentes", "sec:stack", "sec:faq", "sec:contacto",
+  "svc:click", "work:click", "pieza:click",
+  "form:start", "form:ok",
+  "out:whatsapp", "out:mail", "out:github",
+]);
+
+// Del referrer se guarda solo el host: alcanza para saber de donde llega la
+// gente y evita arrastrar querystrings con datos de campanas ajenas.
+const refHost = (raw) => {
+  const v = String(raw || "").slice(0, 300);
+  if (!v) return null;
+  try {
+    const h = new URL(v).hostname.replace(/^www\./, "");
+    return h === CANONICAL ? null : h.slice(0, 80);
+  } catch {
+    return null;
+  }
+};
+
+async function handleEvent(request, db) {
+  let data;
+  try { data = await request.json(); } catch { return json({ error: "invalid" }, 400); }
+
+  const name = oneLine(data.n, 40);
+  if (!EVENTS.has(name)) return json({ error: "unknown_event" }, 422);
+
+  const rate = await allowRate(db, ipOf(request), "ev");
+  if (!rate.ok) return rateLimited(rate);
+
+  const path = oneLine(data.p, 120) || null;
+  const lang = data.l === "en" ? "en" : "es";
+  const ref = refHost(data.r);
+  const country = (request.headers.get("cf-ipcountry") || "").slice(0, 2).toUpperCase() || null;
+
+  await db
+    .prepare("INSERT INTO events (name, path, lang, ref, country) VALUES (?, ?, ?, ?, ?)")
+    .bind(name, path, lang, ref, country)
+    .run();
+  // 204: el navegador manda esto con sendBeacon y no lee la respuesta.
+  return new Response(null, { status: 204 });
+}
+
+// Panel: los mismos numeros que mirarias todos los dias, detras del PIN.
+async function handleStats(request, db, env) {
+  const pin = request.headers.get("x-panel-pin") || "";
+  const rate = await allowRate(db, ipOf(request), "admin");
+  if (!rate.ok) return rateLimited(rate);
+  if (!env.BOTTLE_PIN || !safeEqual(pin, env.BOTTLE_PIN)) return json({ error: "forbidden" }, 403);
+
+  const url = new URL(request.url);
+  const days = Math.min(Math.max(parseInt(url.searchParams.get("days") || "30", 10) || 30, 1), 365);
+  const since = `-${days} days`;
+
+  const [totals, daily, refs, countries] = await Promise.all([
+    db.prepare(
+      `SELECT name, COUNT(*) AS n FROM events
+       WHERE created_at >= datetime('now', ?) GROUP BY name ORDER BY n DESC`
+    ).bind(since).all(),
+    db.prepare(
+      `SELECT date(created_at) AS d, COUNT(*) AS n,
+              SUM(CASE WHEN name = 'view' THEN 1 ELSE 0 END) AS views,
+              SUM(CASE WHEN name = 'form:ok' THEN 1 ELSE 0 END) AS leads
+       FROM events WHERE created_at >= datetime('now', ?)
+       GROUP BY d ORDER BY d DESC LIMIT 60`
+    ).bind(since).all(),
+    db.prepare(
+      `SELECT ref, COUNT(*) AS n FROM events
+       WHERE name = 'view' AND ref IS NOT NULL AND created_at >= datetime('now', ?)
+       GROUP BY ref ORDER BY n DESC LIMIT 20`
+    ).bind(since).all(),
+    db.prepare(
+      `SELECT country, COUNT(*) AS n FROM events
+       WHERE name = 'view' AND country IS NOT NULL AND created_at >= datetime('now', ?)
+       GROUP BY country ORDER BY n DESC LIMIT 20`
+    ).bind(since).all(),
+  ]);
+
+  const by = {};
+  for (const r of totals.results) by[r.name] = r.n;
+  // El embudo en el orden en que lo recorre una persona: llega, mira el
+  // trabajo, abre el contacto, escribe.
+  const funnel = {
+    view: by["view"] || 0,
+    trabajo: by["sec:trabajo"] || 0,
+    contacto: by["sec:contacto"] || 0,
+    escribio: by["form:ok"] || 0,
+    salidas: (by["out:whatsapp"] || 0) + (by["out:mail"] || 0),
+  };
+
+  return json({
+    days,
+    funnel,
+    totals: totals.results,
+    daily: daily.results,
+    refs: refs.results,
+    countries: countries.results.map((r) => ({ ...r, name: countryName(r.country) || r.country })),
+  });
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -442,6 +606,20 @@ export default {
       return Response.redirect(url.toString(), 301);
     }
 
+    if (url.pathname === "/api/e" && request.method === "POST") {
+      const db = env.portafolio_db;
+      if (!db) return new Response(null, { status: 204 });
+      sweepRates(db, ctx);
+      return handleEvent(request, db);
+    }
+
+    if (url.pathname === "/api/stats") {
+      if (request.method !== "GET") return json({ error: "method_not_allowed" }, 405);
+      const db = env.portafolio_db;
+      if (!db) return json({ error: "db_unavailable" }, 503);
+      return handleStats(request, db, env);
+    }
+
     if (url.pathname === "/api/contacto") {
       if (request.method !== "POST") return json({ error: "method_not_allowed" }, 405);
       return handleContacto(request, env);
@@ -451,6 +629,7 @@ export default {
     if (botella) return botella;
 
     if (url.pathname === "/robots.txt") return text(ROBOTS_OK, "text/plain");
+    if (url.pathname === "/llms.txt") return text(LLMS, "text/plain");
     if (url.pathname === "/sitemap.xml") return text(SITEMAP, "application/xml");
 
     return env.ASSETS.fetch(request);

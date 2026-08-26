@@ -263,7 +263,7 @@ h2{font-family:var(--mono);text-wrap:balance;margin:.35rem 0 1rem;font-size:clam
 <div class="now rv">ahora</div>
 <p class="note rv">Escuela S&#243;nica (web de escuela de m&#250;sica), Escriban&#237;a Tocagni (automatizaciones del estudio).</p>
 
-<details class="acc" name="home" id="servicios">
+<details class="acc" id="servicios" open>
 <summary><span class="acc-tag">&#9889; 01</span><h2 class="acc-title">Servicios</h2><span class="acc-meta">4 formas de trabajar juntos</span><span class="acc-sign" aria-hidden="true">+</span></summary>
 <div class="acc-body">
 <div class="svc-grid">
@@ -292,7 +292,7 @@ h2{font-family:var(--mono);text-wrap:balance;margin:.35rem 0 1rem;font-size:clam
 
 </div>
 </details>
-<details class="acc" name="home" id="trabajo">
+<details class="acc" id="trabajo" open>
 <summary><span class="acc-tag">&#x1f6e0; 02</span><h2 class="acc-title">Trabajo</h2><span class="acc-meta">9 proyectos en producci&#243;n</span><span class="acc-sign" aria-hidden="true">+</span></summary>
 <div class="acc-body">
 <h3 class="group rv">Plataformas</h3>
@@ -381,7 +381,7 @@ h2{font-family:var(--mono);text-wrap:balance;margin:.35rem 0 1rem;font-size:clam
 
 </div>
 </details>
-<details class="acc" name="home" id="componentes">
+<details class="acc" id="componentes">
 <summary><span class="acc-tag">&#x1f9e9; 03</span><h2 class="acc-title">Componentes interactivos</h2><span class="acc-meta">1 pieza para probar ac&#225; mismo</span><span class="acc-sign" aria-hidden="true">+</span></summary>
 <div class="acc-body">
 <p class="note rv">Piezas que arm&#233; para probar ideas. Funcionan de verdad: clicke&#225; y probalos.</p>
@@ -396,14 +396,14 @@ h2{font-family:var(--mono);text-wrap:balance;margin:.35rem 0 1rem;font-size:clam
 
 </div>
 </details>
-<details class="acc" name="home" id="stack">
+<details class="acc" id="stack">
 <summary><span class="acc-tag">&#x1f9f0; 04</span><h2 class="acc-title">Stack</h2><span class="acc-meta">con qu&#233; est&#225; construido</span><span class="acc-sign" aria-hidden="true">+</span></summary>
 <div class="acc-body">
 <p class="note rv">Next.js 16 &#183; Supabase &#183; Tailwind CSS v4 &#183; Astro &#183; Cloudflare Workers &#183; TypeScript</p>
 
 </div>
 </details>
-<details class="acc" name="home" id="faq">
+<details class="acc" id="faq">
 <summary><span class="acc-tag">&#10067; 05</span><h2 class="acc-title">Preguntas frecuentes</h2><span class="acc-meta">6 preguntas, 6 respuestas cortas</span><span class="acc-sign" aria-hidden="true">+</span></summary>
 <div class="acc-body">
 <div class="faq rv">
@@ -435,7 +435,7 @@ h2{font-family:var(--mono);text-wrap:balance;margin:.35rem 0 1rem;font-size:clam
 <p class="faq-cta rv">¿Te quedó alguna duda que no está acá? <a href="#contacto">Contame tu proyecto</a> y te respondo hoy.</p>
 </div>
 </details>
-<details class="acc" name="home" id="contacto" open>
+<details class="acc" id="contacto">
 <summary><span class="acc-tag">&#9993; 06</span><h2 class="acc-title">Contacto</h2><span class="acc-meta">contame el tuyo en tres l&#237;neas</span><span class="acc-sign" aria-hidden="true">+</span></summary>
 <div class="acc-body">
 <p class="note rv">Contame tu proyecto en tres l&#237;neas: qu&#233; es, para cu&#225;ndo lo necesit&#225;s y qu&#233; esper&#225;s que haga. Con eso alcanza para arrancar.</p>
@@ -609,6 +609,58 @@ document.addEventListener('click',function(e){
 },true);
 window.addEventListener('hashchange',function(){abrirDestino(location.hash);});
 if(location.hash)abrirDestino(location.hash);
+
+/* ── medicion del embudo ─────────────────────────────────── */
+// Que se mide y por que: la home sola no dice nada. Lo que importa es cuantos
+// de los que llegan despliegan el trabajo, cuantos abren el contacto y cuantos
+// escriben. Sin cookies, sin identificar a nadie: cada evento viaja suelto.
+(function(){
+  var LANG = document.documentElement.lang === 'en' ? 'en' : 'es';
+  var sent = {};
+  function ev(name, once){
+    if(once){ if(sent[name]) return; sent[name] = 1; }
+    var body = JSON.stringify({n:name, p:location.pathname, l:LANG, r:document.referrer});
+    try{
+      // sendBeacon sobrevive a que la persona se vaya de la pagina en el mismo
+      // clic (que es justo cuando se miden las salidas a WhatsApp o mail).
+      if(navigator.sendBeacon && navigator.sendBeacon('/api/e', new Blob([body],{type:'application/json'}))) return;
+    }catch(e){}
+    try{ fetch('/api/e',{method:'POST',body:body,headers:{'content-type':'application/json'},keepalive:true}); }catch(e){}
+  }
+
+  ev('view');
+
+  // Cada seccion desplegada, una sola vez por visita: interesa cuanta gente
+  // llego a mirarla, no cuantas veces la abrio y cerro.
+  [].forEach.call(document.querySelectorAll('details.acc'), function(d){
+    if(d.id && d.open) ev('sec:' + d.id, true);
+    d.addEventListener('toggle', function(){ if(d.open && d.id) ev('sec:' + d.id, true); });
+  });
+
+  document.addEventListener('click', function(e){
+    var t = e.target && e.target.closest ? e.target : null;
+    if(!t) return;
+    if(t.closest('a[href*="wa.me"]')) ev('out:whatsapp');
+    else if(t.closest('a[href^="mailto:"]')) ev('out:mail');
+    else if(t.closest('a[href*="github.com"]')) ev('out:github');
+    else if(t.closest('.svc')) ev('svc:click');
+    else if(t.closest('.work-card')) ev('work:click');
+    else if(t.closest('.piece-card')) ev('pieza:click');
+  }, true);
+
+  var f = document.getElementById('contact-form');
+  if(f){
+    f.addEventListener('focusin', function(){ ev('form:start', true); });
+    // El envio real lo confirma el estado ok que pinta el propio formulario:
+    // asi no se cuenta como lead un intento que el servidor rechazo.
+    var st = document.getElementById('form-status');
+    if(st && window.MutationObserver){
+      new MutationObserver(function(){
+        if(st.className.indexOf('ok') > -1) ev('form:ok', true);
+      }).observe(st, {attributes:true, attributeFilter:['class']});
+    }
+  }
+})();
 
 </script>
 </body>

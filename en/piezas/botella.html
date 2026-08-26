@@ -148,6 +148,12 @@ h2{font-family:var(--mono);text-wrap:balance;margin:.35rem 0 1rem;font-size:clam
 .catch-close{position:absolute;top:2px;right:6px;background:none;border:none;color:#141b26;font-family:var(--mono);font-size:1.25rem;line-height:1;padding:.15rem .3rem;cursor:pointer}
 .catch-close:hover{color:#b23b2e}
 .sea-meta #sea-hint{color:var(--dim)}
+/* Boton de movimiento: solo aparece cuando el sistema pide menos animacion.
+   La preferencia se respeta, pero el mar quieto es indistinguible de un mar
+   roto, asi que se ofrece la puerta en vez de decidir por la persona. */
+.motion-on{position:absolute;right:10px;top:206px;z-index:7;display:none;align-items:center;gap:.4rem;background:rgba(20,27,38,.72);color:#f2fbff;border:1px solid rgba(242,251,255,.35);border-radius:999px;padding:.4rem .75rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+.motion-on:hover{border-color:#fff}
+.motion-on.on{display:inline-flex}
 
 /* ── admin ── */
 .admin{display:none;margin-top:1.2rem;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.2rem 1.3rem}
@@ -214,6 +220,7 @@ h2{font-family:var(--mono);text-wrap:balance;margin:.35rem 0 1rem;font-size:clam
 <div class="sea-box rv" id="sea-box">
 <canvas id="sea-canvas" aria-hidden="true"></canvas>
 <div class="bottle-layer" id="bottle-layer"></div>
+<button class="motion-on" id="motion-on" type="button">&#9654; Enable motion</button>
 <div class="catch" id="catch" role="dialog" aria-label="Fished message" tabindex="-1">
 <button class="catch-close" id="catch-close" type="button" aria-label="Close and keep fishing">&#215;</button>
 <div class="msg" id="catch-msg"></div>
@@ -286,7 +293,15 @@ var io=new IntersectionObserver(function(es){
    ────────────────────────────────────────────────────────────────────── */
 var API='/api/juegos/botella';
 var LANG='en';
-var reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+// El sistema puede pedir menos movimiento (en macOS, Accesibilidad > Pantalla >
+// Reducir movimiento, que ademas enciende el modo de bajo consumo). Se respeta
+// por defecto, pero queda un boton para activarlo a mano: un mar congelado se
+// lee como una pieza rota, no como una decision de accesibilidad.
+var MOTION_KEY='botella:motion';
+var motionOptIn=false;
+try{motionOptIn=localStorage.getItem(MOTION_KEY)==='on';}catch(e){}
+var prefersReduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var reduced=prefersReduced&&!motionOptIn;
 
 var seaBox=document.getElementById('sea-box');
 var canvas=document.getElementById('sea-canvas');
@@ -733,6 +748,30 @@ window.seaTheme=function(){render();};
 measure();
 render();
 sync();
+
+// La preferencia puede cambiar con la pieza abierta (alguien apaga el modo de
+// bajo consumo): el mar arranca solo, sin recargar.
+(function(){
+  var mq=window.matchMedia('(prefers-reduced-motion: reduce)');
+  var btn=document.getElementById('motion-on');
+  function refresh(){
+    reduced=prefersReduced&&!motionOptIn;
+    if(btn)btn.classList.toggle('on',prefersReduced&&!motionOptIn);
+    if(reduced)pause(); else sync();
+  }
+  if(btn){
+    btn.addEventListener('click',function(){
+      motionOptIn=true;
+      try{localStorage.setItem(MOTION_KEY,'on');}catch(e){}
+      refresh();
+    });
+  }
+  var onChange=function(e){prefersReduced=e.matches;refresh();};
+  // Safari viejo no tiene addEventListener sobre MediaQueryList.
+  if(mq.addEventListener)mq.addEventListener('change',onChange);
+  else if(mq.addListener)mq.addListener(onChange);
+  refresh();
+})();
 
 /* ── botellas ────────────────────────────────────────────────────────── */
 function findReal(id){
