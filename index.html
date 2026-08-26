@@ -5,6 +5,8 @@
 <meta content="width=device-width,initial-scale=1" name=viewport>
 <title>Ignacio Vavala — Desarrollador web full-stack</title>
 <meta content="Desarrollo webs, tiendas online y sistemas a medida con Next.js, Supabase y Cloudflare. Trabajo remoto para clientes de cualquier país, mantenimiento incluido." name=description>
+<link rel="preload" href="/fonts/courier-prime-700-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/geist-mono-100-900-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="canonical" href="https://ivavala.com/">
 <link rel="alternate" hreflang="es" href="https://ivavala.com/">
 <link rel="alternate" hreflang="en" href="https://ivavala.com/en/">
@@ -27,8 +29,20 @@ document.documentElement.className+=' js';
 (function(){try{var t=localStorage.getItem('theme');document.documentElement.setAttribute('data-theme',t||'dark')}catch(e){document.documentElement.setAttribute('data-theme','dark')}})();
 </script>
 <style>
+/* Dos voces, repartidas por funcion. Courier Prime dice lo que dice una
+   persona (el nombre, la promesa, los titulos); Geist Mono dice lo que dice la
+   maquina (nav, botones, etiquetas, stack). Los parrafos largos siguen en la
+   sans del sistema: un monoespaciado es ancho y de renglon corto, y el texto
+   largo cansa — por eso el FAQ y las descripciones no van en Courier.
+   Autoalojadas: sin pedido a Google, sin filtrar la IP del visitante. */
+@font-face {font-family: 'Courier Prime'; font-style: normal; font-weight: 700; font-display: swap; src: url(/fonts/courier-prime-700-normal-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}
+@font-face {font-family: 'Courier Prime'; font-style: normal; font-weight: 700; font-display: swap; src: url(/fonts/courier-prime-700-normal-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+@font-face {font-family: 'Geist Mono'; font-style: normal; font-weight: 100 900; font-display: swap; src: url(/fonts/geist-mono-100-900-normal-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}
+@font-face {font-family: 'Geist Mono'; font-style: normal; font-weight: 100 900; font-display: swap; src: url(/fonts/geist-mono-100-900-normal-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+
 :root{
-  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  --display:"Courier Prime",Courier,"Courier New",monospace;
+  --mono:"Geist Mono",ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
   --sans:-apple-system,BlinkMacSystemFont,"avenir next",avenir,helvetica,"helvetica neue",ubuntu,roboto,noto,"segoe ui",arial,sans-serif;
   --bg:#0a0a0a;
   --card:#101010;
@@ -72,15 +86,15 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
 
 .header{display:flex;align-items:center;gap:1.2rem}
 .avatar{width:88px;height:88px;border-radius:50%;object-fit:cover;border:1px solid var(--border);flex-shrink:0}
-h1{font-family:var(--mono);font-size:clamp(2.4rem,7vw,3.5rem);font-weight:700;letter-spacing:-.04em;line-height:1;color:var(--text);text-wrap:balance;font-optical-sizing:auto}
+h1{font-family:var(--display);font-size:clamp(2.4rem,7vw,3.5rem);font-weight:700;letter-spacing:-.04em;line-height:1;color:var(--text);text-wrap:balance;font-optical-sizing:auto}
 h1::after{content:"_";color:var(--accent);opacity:.4}
 @keyframes blink{50%{opacity:0}}
 .sub{font-size:clamp(1.02rem,2.7vw,1.15rem);color:var(--dim);margin-top:.5rem;font-weight:400;line-height:1.55;text-wrap:pretty}
-.sub b{color:var(--accent);font-weight:600;font-family:var(--mono);font-size:.94em;letter-spacing:-.02em}
+.sub b{color:var(--accent);font-weight:700;font-family:var(--display);font-size:.94em;letter-spacing:-.02em}
 .tw-caret{display:inline-block;width:.5ch;height:1.02em;vertical-align:-.15em;margin-left:.08em;background:var(--accent);animation:blink 1.05s steps(1) infinite}
 .punch{color:var(--text);font-size:clamp(1.02rem,2.5vw,1.12rem);line-height:1.6;letter-spacing:-.01em;text-wrap:pretty;margin-top:1.1rem}
 
-h2{font-family:var(--mono);text-wrap:balance;margin:.35rem 0 1rem;font-size:clamp(1.9rem,5.5vw,2.9rem);font-weight:700;letter-spacing:-.03em;line-height:1;text-transform:uppercase;color:var(--text)}
+h2{font-family:var(--display);text-wrap:balance;margin:.35rem 0 1rem;font-size:clamp(1.9rem,5.5vw,2.9rem);font-weight:700;letter-spacing:-.03em;line-height:1;text-transform:uppercase;color:var(--text)}
 .sect{font-family:var(--mono);font-size:.7rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:.5rem;margin:3rem 0 0}
 .sect::after{content:"";flex:0 0 28px;height:1px;background:var(--border)}
 
@@ -119,7 +133,7 @@ h2{font-family:var(--mono);text-wrap:balance;margin:.35rem 0 1rem;font-size:clam
 .work-card:hover{border-color:var(--accent);text-decoration:none;transform:translateY(-2px)}
 .work-card img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;background:#000;border-bottom:1px solid var(--border)}
 .work-card .meta{padding:.75rem .9rem .85rem}
-.work-card h4{font-family:var(--mono);font-size:.85rem;font-weight:700;letter-spacing:-.01em;color:var(--text)}
+.work-card h4{font-family:var(--display);font-size:.85rem;font-weight:700;letter-spacing:-.01em;color:var(--text)}
 .work-card p{font-size:.82rem;color:var(--dim);line-height:1.5;margin-top:.2rem}
 .work-card .tag{display:inline-block;margin-top:.55rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.05em;color:var(--accent2);border:1px solid var(--border);padding:.12rem .5rem;border-radius:3px}
 @media (max-width:640px){
@@ -146,7 +160,7 @@ h2{font-family:var(--mono);text-wrap:balance;margin:.35rem 0 1rem;font-size:clam
 .piece-card{display:block;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.95rem 1rem 1rem;text-decoration:none;color:var(--text);transition:border-color .15s,transform .15s}
 .piece-card:hover{border-color:var(--accent);text-decoration:none;transform:translateY(-2px)}
 .piece-status{display:inline-block;font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);padding:.12rem .45rem;border-radius:2px;margin-bottom:.55rem}
-.piece-card h4{font-family:var(--mono);font-size:.85rem;font-weight:700;letter-spacing:-.01em;color:var(--text);line-height:1.35}
+.piece-card h4{font-family:var(--display);font-size:.85rem;font-weight:700;letter-spacing:-.01em;color:var(--text);line-height:1.35}
 .piece-card p{font-size:.83rem;color:var(--dim);line-height:1.55;margin-top:.3rem}
 .piece-card .tag{display:inline-block;margin-top:.6rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.05em;color:var(--accent2);border:1px solid var(--border);padding:.12rem .5rem;border-radius:3px}
 
@@ -183,7 +197,7 @@ h2{font-family:var(--mono);text-wrap:balance;margin:.35rem 0 1rem;font-size:clam
 @media (max-width:640px){.svc-grid{grid-template-columns:1fr}}
 .svc{display:block;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.95rem 1rem 1rem;text-decoration:none;color:var(--text);transition:border-color .15s,transform .15s}
 .svc:hover{border-color:var(--accent);text-decoration:none;transform:translateY(-2px)}
-.svc h4{font-family:var(--mono);font-size:.82rem;font-weight:700;letter-spacing:-.01em;color:var(--text);line-height:1.35}
+.svc h4{font-family:var(--display);font-size:.82rem;font-weight:700;letter-spacing:-.01em;color:var(--text);line-height:1.35}
 .svc p{font-size:.83rem;color:var(--dim);line-height:1.55;margin-top:.3rem}
 .svc .ex{display:block;margin-top:.5rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.05em;text-transform:uppercase;color:var(--accent2)}
 .svc-foot{margin-top:.9rem;font-size:.86rem;color:var(--dim)}
@@ -226,7 +240,7 @@ h2{font-family:var(--mono);text-wrap:balance;margin:.35rem 0 1rem;font-size:clam
 .acc>summary::-webkit-details-marker{display:none}
 .acc-tag{grid-column:1;display:flex;align-items:center;gap:.5rem;font-family:var(--mono);font-size:.7rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}
 .acc-tag::after{content:"";flex:0 0 28px;height:1px;background:var(--border)}
-.acc-title{grid-column:1;margin:.3rem 0 0;font-family:var(--mono);font-size:clamp(1.7rem,4.8vw,2.4rem);font-weight:700;letter-spacing:-.03em;line-height:1;text-transform:uppercase;color:var(--text);transition:color .15s}
+.acc-title{grid-column:1;margin:.3rem 0 0;font-family:var(--display);font-size:clamp(1.7rem,4.8vw,2.4rem);font-weight:700;letter-spacing:-.03em;line-height:1;text-transform:uppercase;color:var(--text);transition:color .15s}
 .acc-meta{grid-column:1;margin-top:.35rem;font-size:.85rem;line-height:1.5;color:var(--dim);text-wrap:pretty}
 .acc-sign{grid-column:2;grid-row:1/span 3;align-self:center;font-family:var(--mono);font-size:1.6rem;line-height:1;color:var(--dim);transition:color .15s,transform .25s ease}
 .acc[open]>summary .acc-sign{transform:rotate(45deg)}
