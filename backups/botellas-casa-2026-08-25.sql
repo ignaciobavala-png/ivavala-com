@@ -1,0 +1,28 @@
+-- Respaldo de las botellas de la casa antes de vaciar el mar (2026-08-25).
+-- Para reponerlas: npx wrangler d1 execute portafolio-db --remote --file=backups/botellas-casa-2026-08-25.sql
+INSERT INTO bottles (msg, origin, lang) VALUES
+  ('Este mar lo construí yo. Las olas son una función seno que se mueve sola. No le digas.', 'house', 'es'),
+  ('Dejé esta botella para que tengas algo que pescar. El resto del mar está más vacío de lo que parece.', 'house', 'es'),
+  ('Si leés esto, el algoritmo eligió bien: vos, esta botella, este momento.', 'house', 'es'),
+  ('Una vez tiré un mensaje y nadie lo pescó. Lo pescó el océano. Igual vale.', 'house', 'es'),
+  ('La mejor web es la que no se nota. Esta, en cambio, se nota bastante.', 'house', 'es'),
+  ('Regla de marino: nunca abras una botella en un momento de apuro.', 'house', 'es'),
+  ('Todavía no sé qué hago acá. Pero el mar tampoco.', 'house', 'es'),
+  ('Escribir para nadie tiene algo de honesto. Buenas olas.', 'house', 'es'),
+  ('Hay dos tipos de personas: las que lanzan botellas y las que las abren. Vos estás haciendo las dos.', 'house', 'es'),
+  ('Esta botella viajó de la punta del código al fondo del mar sin pasaporte.', 'house', 'es'),
+  ('Si esto fuera un sistema de mensajería tendría rate limit. Por suerte es el mar.', 'house', 'es'),
+  ('I built this sea myself. The waves are a sine function moving on its own. Do not tell it.', 'house', 'en'),
+  ('I left this bottle here so you would have something to fish. The rest of the sea is emptier than it looks.', 'house', 'en'),
+  ('If you are reading this, the algorithm chose well: you, this bottle, this moment.', 'house', 'en'),
+  ('I once threw a message and nobody fished it. The ocean did. That counts too.', 'house', 'en'),
+  ('The best website is the one you do not notice. This one, however, is quite noticeable.', 'house', 'en'),
+  ('Sailor rule: never open a bottle when you are in a hurry.', 'house', 'en'),
+  ('I still do not know what I am doing here. Neither does the sea.', 'house', 'en'),
+  ('Writing for nobody has something honest about it. Fair winds.', 'house', 'en'),
+  ('There are two kinds of people: those who throw bottles and those who open them. You are doing both.', 'house', 'en'),
+  ('This bottle travelled from the edge of the code to the bottom of the sea without a passport.', 'house', 'en'),
+  ('If this were a messaging system it would have a rate limit. Luckily it is the sea.', 'house', 'en'),
+  ('Keep this: things made with patience sink more slowly.', 'house', 'en'),
+  ('Signed: a developer who writes adrift.', 'house', 'en'),
+  ('If you fished another one of mine, it is because the sea wants you close.', 'house', 'en');

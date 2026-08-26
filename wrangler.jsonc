@@ -12,6 +12,13 @@
   "send_email": [
     { "name": "SEND_EMAIL", "destination_address": "ignaciobavala@gmail.com" }
   ],
+  "d1_databases": [
+    {
+      "binding": "portafolio_db",
+      "database_name": "portafolio-db",
+      "database_id": "1cc790cb-70d3-4d56-9a67-a5035e8914a1"
+    }
+  ],
   "routes": [
     { "pattern": "ivavala.com", "custom_domain": true },
     { "pattern": "www.ivavala.com", "custom_domain": true }

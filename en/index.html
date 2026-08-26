@@ -126,12 +126,29 @@ h2{font-family:var(--mono);text-wrap:balance;margin:.35rem 0 1rem;font-size:clam
   .work-grid{grid-template-columns:1fr}
 }
 
-.lang{position:fixed;top:20px;right:60px;display:flex;gap:10px;align-items:center;z-index:20}
-@media (max-width:640px){.lang{right:20px;gap:8px}}
-.lang a,.theme-toggle{display:flex;align-items:center;justify-content:center;min-width:40px;height:36px;padding:0 11px;box-sizing:border-box;background:var(--bg);border:1px solid var(--border);border-radius:3px;color:var(--dim);font-family:var(--mono);font-size:.95rem;font-weight:400;line-height:1;cursor:pointer;transition:color .15s,border-color .15s}
-.lang a{text-decoration:none}
-.lang a:hover,.theme-toggle:hover{color:var(--accent);border-color:var(--accent);text-decoration:none}
-.theme-toggle{font-size:1.15rem}
+/* ── navbar ── */
+.nav{position:sticky;top:0;z-index:40;background:var(--bg);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:640px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.nav-links{display:flex;align-items:center;flex-wrap:wrap;font-family:var(--mono);font-size:.72rem;letter-spacing:.02em;overflow-x:auto;scrollbar-width:none}
+.nav-links::-webkit-scrollbar{display:none}
+.nav-links a{padding:2px 6px;color:var(--dim);white-space:nowrap}
+.nav-links a:hover{color:var(--accent);text-decoration:none}
+.nav-links a.on{color:var(--accent)}
+.nav-links .sep{color:var(--border);user-select:none}
+.nav-tools{display:flex;gap:8px;align-items:center;flex-shrink:0}
+.nav-tools button,.nav-tools a{display:flex;align-items:center;justify-content:center;min-width:36px;height:30px;padding:0 10px;box-sizing:border-box;background:none;border:1px solid var(--border);border-radius:3px;color:var(--dim);font-family:var(--mono);font-size:.9rem;line-height:1;cursor:pointer;transition:color .15s,border-color .15s}
+.nav-tools a{text-decoration:none}
+.nav-tools button:hover,.nav-tools a:hover{color:var(--accent);border-color:var(--accent);text-decoration:none}
+.theme-toggle{font-size:1.05rem}
+
+.piece-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:.6rem}
+@media (max-width:640px){.piece-grid{grid-template-columns:1fr}}
+.piece-card{display:block;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.95rem 1rem 1rem;text-decoration:none;color:var(--text);transition:border-color .15s,transform .15s}
+.piece-card:hover{border-color:var(--accent);text-decoration:none;transform:translateY(-2px)}
+.piece-status{display:inline-block;font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);padding:.12rem .45rem;border-radius:2px;margin-bottom:.55rem}
+.piece-card h4{font-family:var(--mono);font-size:.85rem;font-weight:700;letter-spacing:-.01em;color:var(--text);line-height:1.35}
+.piece-card p{font-size:.83rem;color:var(--dim);line-height:1.55;margin-top:.3rem}
+.piece-card .tag{display:inline-block;margin-top:.6rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.05em;color:var(--accent2);border:1px solid var(--border);padding:.12rem .5rem;border-radius:3px}
 
 .faq{margin-top:.4rem;border-top:1px solid var(--border)}
 .faq details{border-bottom:1px solid var(--border)}
@@ -198,11 +215,36 @@ h2{font-family:var(--mono);text-wrap:balance;margin:.35rem 0 1rem;font-size:clam
 @media (max-width:640px){
   .rail{width:24px;opacity:.4}
 }
+/* ── secciones plegables ────────────────────────────────────────────────
+   La home tenia nueve trabajos en fila y todo lo demas quedaba enterrado
+   abajo. Cada seccion pasa a ser una barra que se abre: entran todas en una
+   pantalla y los componentes pesan lo mismo que el trabajo. Es <details>
+   nativo, asi que anda con el teclado y tambien sin JS. */
+.acc{border-top:1px solid var(--border)}
+.acc:last-of-type{border-bottom:1px solid var(--border)}
+.acc>summary{cursor:pointer;list-style:none;display:grid;grid-template-columns:1fr auto;align-items:start;column-gap:1rem;padding:1.1rem 0}
+.acc>summary::-webkit-details-marker{display:none}
+.acc-tag{grid-column:1;display:flex;align-items:center;gap:.5rem;font-family:var(--mono);font-size:.7rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}
+.acc-tag::after{content:"";flex:0 0 28px;height:1px;background:var(--border)}
+.acc-title{grid-column:1;margin:.3rem 0 0;font-family:var(--mono);font-size:clamp(1.7rem,4.8vw,2.4rem);font-weight:700;letter-spacing:-.03em;line-height:1;text-transform:uppercase;color:var(--text);transition:color .15s}
+.acc-meta{grid-column:1;margin-top:.35rem;font-size:.85rem;line-height:1.5;color:var(--dim);text-wrap:pretty}
+.acc-sign{grid-column:2;grid-row:1/span 3;align-self:center;font-family:var(--mono);font-size:1.6rem;line-height:1;color:var(--dim);transition:color .15s,transform .25s ease}
+.acc[open]>summary .acc-sign{transform:rotate(45deg)}
+.acc>summary:hover .acc-title,.acc>summary:hover .acc-sign{color:var(--accent)}
+.acc>summary:focus-visible{outline:1px solid var(--accent);outline-offset:3px}
+.acc-body{padding-bottom:2.2rem}
+.acc-body>.sect:first-child{margin-top:0}
+@media (prefers-reduced-motion:reduce){.acc-sign{transition:none}}
 </style>
 </head>
 <body>
 <div class="page">
-<div class="lang"><button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">&#9681;</button><a href="/">ES</a></div>
+<nav class="nav">
+<div class="nav-inner">
+<div class="nav-links"><a href="#servicios">services</a><span class="sep"> / </span><a href="#trabajo">work</a><span class="sep"> / </span><a href="#componentes">components</a><span class="sep"> / </span><a href="#stack">stack</a><span class="sep"> / </span><a href="#faq">faq</a><span class="sep"> / </span><a href="#contacto">contact</a></div>
+<div class="nav-tools"><button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">&#9681;</button><a href="/">ES</a></div>
+</div>
+</nav>
 <div class="main">
 
 <div class="header">
@@ -221,8 +263,9 @@ h2{font-family:var(--mono);text-wrap:balance;margin:.35rem 0 1rem;font-size:clam
 <div class="now rv">now</div>
 <p class="note rv">Escuela S&#243;nica (music school website), Escriban&#237;a Tocagni (notary office automations).</p>
 
-<p class="sect rv">&#9889; 01</p>
-<h2 class="rv">Services</h2>
+<details class="acc" id="servicios" open>
+<summary><span class="acc-tag">&#9889; 01</span><h2 class="acc-title">Services</h2><span class="acc-meta">4 ways to work together</span><span class="acc-sign" aria-hidden="true">+</span></summary>
+<div class="acc-body">
 <div class="svc-grid">
 <a class="svc rv" href="#contacto" data-svc="Website for my business">
 <h4>Your site, and you update it</h4>
@@ -247,9 +290,11 @@ h2{font-family:var(--mono);text-wrap:balance;margin:.35rem 0 1rem;font-size:clam
 </div>
 <p class="svc-foot rv">None of these quite fit? <a href="#contacto" data-svc="Not sure yet, you decide">Tell me what you need</a> and we work it out.</p>
 
-<p class="sect rv" id="trabajo">&#x1f6e0; 02</p>
-<h2 class="rv">Work</h2>
-
+</div>
+</details>
+<details class="acc" id="trabajo" open>
+<summary><span class="acc-tag">&#x1f6e0; 02</span><h2 class="acc-title">Work</h2><span class="acc-meta">9 projects in production</span><span class="acc-sign" aria-hidden="true">+</span></summary>
+<div class="acc-body">
 <h3 class="group rv">Plataformas</h3>
 <div class="work-grid">
 <a class="work-card rv" target="_blank" rel="noopener" href="https://www.labitconf.com/">
@@ -334,12 +379,33 @@ h2{font-family:var(--mono);text-wrap:balance;margin:.35rem 0 1rem;font-size:clam
 </a>
 </div>
 
-<p class="sect rv">&#x1f9f0; 03</p>
-<h2 class="rv">Stack</h2>
+</div>
+</details>
+<details class="acc" id="componentes">
+<summary><span class="acc-tag">&#x1f9e9; 03</span><h2 class="acc-title">Interactive components</h2><span class="acc-meta">1 piece to try right here</span><span class="acc-sign" aria-hidden="true">+</span></summary>
+<div class="acc-body">
+<p class="note rv">Pieces I built to try out ideas. They actually work: click and try them.</p>
+<div class="piece-grid">
+<a class="piece-card rv" href="piezas/botella">
+<span class="piece-status">experimental</span>
+<h4>Piece 01 — The bottle</h4>
+<p>Write a message, toss it into the sea and another visitor fishes it out at random.</p>
+<span class="tag">D1 · Workers · Canvas</span>
+</a>
+</div>
+
+</div>
+</details>
+<details class="acc" id="stack">
+<summary><span class="acc-tag">&#x1f9f0; 04</span><h2 class="acc-title">Stack</h2><span class="acc-meta">what it is built with</span><span class="acc-sign" aria-hidden="true">+</span></summary>
+<div class="acc-body">
 <p class="note rv">Next.js 16 &#183; Supabase &#183; Tailwind CSS v4 &#183; Astro &#183; Cloudflare Workers &#183; TypeScript</p>
 
-<p class="sect rv">&#10067; 04</p>
-<h2 class="rv">FAQ</h2>
+</div>
+</details>
+<details class="acc" id="faq">
+<summary><span class="acc-tag">&#10067; 05</span><h2 class="acc-title">FAQ</h2><span class="acc-meta">6 questions, 6 short answers</span><span class="acc-sign" aria-hidden="true">+</span></summary>
+<div class="acc-body">
 <div class="faq rv">
 <details name="faq">
 <summary>How long does it take?</summary>
@@ -367,8 +433,11 @@ h2{font-family:var(--mono);text-wrap:balance;margin:.35rem 0 1rem;font-size:clam
 </details>
 </div>
 <p class="faq-cta rv">Still have a question that is not here? <a href="#contacto">Tell me about your project</a> and I reply today.</p>
-<p class="sect rv" id="contacto">&#9993; 05</p>
-<h2 class="rv">Contact</h2>
+</div>
+</details>
+<details class="acc" id="contacto">
+<summary><span class="acc-tag">&#9993; 06</span><h2 class="acc-title">Contact</h2><span class="acc-meta">tell me yours in three lines</span><span class="acc-sign" aria-hidden="true">+</span></summary>
+<div class="acc-body">
 <p class="note rv">Tell me about your project in three lines: what it is, when you need it and what you expect from me. That's enough to get started.</p>
 
 <div class="form-card rv">
@@ -397,7 +466,9 @@ h2{font-family:var(--mono);text-wrap:balance;margin:.35rem 0 1rem;font-size:clam
 <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
 </form>
 <p class="alt-contact">Or direct: <a href="https://wa.me/5491127343775">WhatsApp</a> <a href="mailto:ignacio@ivavala.com">mail</a> <a href="https://github.com/ignaciobavala-png" target="_blank" rel="noopener">GitHub</a></p>
-</div>
+</div></div>
+</details>
+
 
 </div>
 </div>
@@ -498,6 +569,99 @@ function watch(el,key){
 }
 watch(hero,'hero');watch(form,'form');
 })();
+(function(){
+var links=[].slice.call(document.querySelectorAll('.nav-links a[href^="#"]'));
+if(!links.length||!('IntersectionObserver' in window))return;
+var map={};
+links.forEach(function(a){map['#'+a.getAttribute('href').slice(1)]=a});
+var secs=links.map(function(a){return document.querySelector(a.getAttribute('href'))}).filter(Boolean);
+var io=new IntersectionObserver(function(es){
+  var current=null;
+  es.forEach(function(e){if(e.isIntersecting)current=e.target.id});
+  if(!current)return;
+  links.forEach(function(a){a.classList.toggle('on',a.getAttribute('href')==='#'+current)});
+},{rootMargin:'-35% 0px -55% 0px',threshold:0});
+secs.forEach(function(s){io.observe(s)});
+})();
+
+/* ── secciones plegables ─────────────────────────────────────────────── */
+// Al abrirse hay que revelar el contenido a mano: lo que nace dentro de un
+// <details> cerrado nunca intersecta, asi que el observer no lo despierta.
+function revelarAcc(d){
+  [].forEach.call(d.querySelectorAll('.rv'),function(el){el.classList.add('in');});
+}
+[].forEach.call(document.querySelectorAll('details.acc'),function(d){
+  d.addEventListener('toggle',function(){if(d.open)revelarAcc(d);});
+});
+// Un ancla del menu o un CTA tiene que abrir la seccion antes de saltar, si no
+// el navegador scrollea hasta una barra cerrada y no se ve nada.
+function abrirDestino(hash){
+  if(!hash||hash.charAt(0)!=='#'||hash.length<2)return;
+  var el;
+  try{el=document.getElementById(decodeURIComponent(hash.slice(1)));}catch(e){return;}
+  if(!el)return;
+  var d=(el.tagName==='DETAILS'&&el.className.indexOf('acc')>-1)?el:(el.closest?el.closest('details.acc'):null);
+  if(d&&!d.open){d.open=true;revelarAcc(d);}
+}
+document.addEventListener('click',function(e){
+  var a=e.target&&e.target.closest?e.target.closest('a[href^="#"]'):null;
+  if(a)abrirDestino(a.getAttribute('href'));
+},true);
+window.addEventListener('hashchange',function(){abrirDestino(location.hash);});
+if(location.hash)abrirDestino(location.hash);
+
+/* ── medicion del embudo ─────────────────────────────────── */
+// Que se mide y por que: la home sola no dice nada. Lo que importa es cuantos
+// de los que llegan despliegan el trabajo, cuantos abren el contacto y cuantos
+// escriben. Sin cookies, sin identificar a nadie: cada evento viaja suelto.
+(function(){
+  var LANG = document.documentElement.lang === 'en' ? 'en' : 'es';
+  var sent = {};
+  function ev(name, once){
+    if(once){ if(sent[name]) return; sent[name] = 1; }
+    var body = JSON.stringify({n:name, p:location.pathname, l:LANG, r:document.referrer});
+    try{
+      // sendBeacon sobrevive a que la persona se vaya de la pagina en el mismo
+      // clic (que es justo cuando se miden las salidas a WhatsApp o mail).
+      if(navigator.sendBeacon && navigator.sendBeacon('/api/e', new Blob([body],{type:'application/json'}))) return;
+    }catch(e){}
+    try{ fetch('/api/e',{method:'POST',body:body,headers:{'content-type':'application/json'},keepalive:true}); }catch(e){}
+  }
+
+  ev('view');
+
+  // Cada seccion desplegada, una sola vez por visita: interesa cuanta gente
+  // llego a mirarla, no cuantas veces la abrio y cerro.
+  [].forEach.call(document.querySelectorAll('details.acc'), function(d){
+    if(d.id && d.open) ev('sec:' + d.id, true);
+    d.addEventListener('toggle', function(){ if(d.open && d.id) ev('sec:' + d.id, true); });
+  });
+
+  document.addEventListener('click', function(e){
+    var t = e.target && e.target.closest ? e.target : null;
+    if(!t) return;
+    if(t.closest('a[href*="wa.me"]')) ev('out:whatsapp');
+    else if(t.closest('a[href^="mailto:"]')) ev('out:mail');
+    else if(t.closest('a[href*="github.com"]')) ev('out:github');
+    else if(t.closest('.svc')) ev('svc:click');
+    else if(t.closest('.work-card')) ev('work:click');
+    else if(t.closest('.piece-card')) ev('pieza:click');
+  }, true);
+
+  var f = document.getElementById('contact-form');
+  if(f){
+    f.addEventListener('focusin', function(){ ev('form:start', true); });
+    // El envio real lo confirma el estado ok que pinta el propio formulario:
+    // asi no se cuenta como lead un intento que el servidor rechazo.
+    var st = document.getElementById('form-status');
+    if(st && window.MutationObserver){
+      new MutationObserver(function(){
+        if(st.className.indexOf('ok') > -1) ev('form:ok', true);
+      }).observe(st, {attributes:true, attributeFilter:['class']});
+    }
+  }
+})();
+
 </script>
 </body>
 </html>
