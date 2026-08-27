@@ -475,6 +475,7 @@ h2{font-family:var(--display);text-wrap:balance;margin:.35rem 0 1rem;font-size:c
 </select>
 <label for="f-mensaje">Contame un poco</label>
 <textarea id="f-mensaje" name="mensaje" placeholder="Idea, deadline, lo que sea. Sin vueltas."></textarea>
+<div id="cf-ts"></div>
 <button class="btn" type="submit">Enviar mensaje &#8594;</button>
 <a class="btn-alt" id="wa-fallback" href="https://wa.me/5491127343775">&#191;Prefer&#237;s WhatsApp?</a>
 <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
@@ -517,26 +518,40 @@ var waText=function(){
     + (v('mensaje')?'\n\n'+v('mensaje'):'');
 };
 wa.addEventListener('click',function(){wa.href='https://wa.me/5491127343775?text='+encodeURIComponent(waText())});
-form.addEventListener('submit',function(e){
-  e.preventDefault();
-  var btn=form.querySelector('.btn');
-  if(!v('nombre')||!/^[^@\s]+@[^@\s.]+\.[^@\s]+$/.test(v('email'))){
-    status.className='form-status err';status.textContent=T.inval;return;
-  }
-  btn.disabled=true;btn.textContent=T.sending;
-  status.className='form-status';status.textContent='';
+var btn=form.querySelector('.btn');
+var TS_KEY='0x4AAAAAAEd2UwMVyDyHqSFZ',tsId=null;
+var fail=function(){status.className='form-status err';status.textContent=T.err;btn.disabled=false;btn.textContent=T.btn};
+var post=function(token){
   fetch('/api/contacto',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({nombre:v('nombre'),email:v('email'),whatsapp:v('whatsapp'),
-      tipo:v('tipo'),mensaje:v('mensaje'),empresa:v('empresa')})})
+      tipo:v('tipo'),mensaje:v('mensaje'),empresa:v('empresa'),turnstile:token||''})})
   .then(function(r){return r.ok?r.json():Promise.reject(r.status)})
   .then(function(){
     status.className='form-status ok';status.textContent=T.ok;
     form.reset();btn.disabled=true;btn.textContent=T.btn;
   })
-  .catch(function(){
-    status.className='form-status err';status.textContent=T.err;
-    btn.disabled=false;btn.textContent=T.btn;
-  });
+  .catch(fail);
+};
+// Turnstile se dibuja invisible y recien corre al apretar Enviar: no molesta a
+// nadie y el token nace fresco (dura 5 minutos y es de un solo uso).
+window.tsInit=function(){
+  try{
+    tsId=window.turnstile.render('#cf-ts',{sitekey:TS_KEY,execution:'execute',
+      appearance:'interaction-only',language:'es',
+      callback:post,'error-callback':fail,'timeout-callback':fail});
+  }catch(err){tsId=null}
+};
+form.addEventListener('submit',function(e){
+  e.preventDefault();
+  if(!v('nombre')||!/^[^@\s]+@[^@\s.]+\.[^@\s]+$/.test(v('email'))){
+    status.className='form-status err';status.textContent=T.inval;return;
+  }
+  btn.disabled=true;btn.textContent=T.sending;
+  status.className='form-status';status.textContent='';
+  if(tsId!==null&&window.turnstile){
+    try{window.turnstile.reset(tsId);window.turnstile.execute(tsId);return}catch(err){}
+  }
+  post('');
 });
 (function(){
 var el=document.getElementById('tw'),c=document.querySelector('.tw-caret');
@@ -677,5 +692,6 @@ if(location.hash)abrirDestino(location.hash);
 })();
 
 </script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=tsInit&amp;render=explicit" async defer></script>
 </body>
 </html>

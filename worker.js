@@ -172,7 +172,36 @@ function buildMime({ nombre, email, whatsapp, tipo, mensaje }) {
   ].join("\r\n");
 }
 
-async function handleContacto(request, env) {
+// Turnstile: el widget corre invisible en el navegador y deja un token de un
+// solo uso. Sin este chequeo el honeypot no alcanza — un bot que postea el JSON
+// directo a /api/contacto nunca ve el campo trampa y pasa igual.
+async function turnstileOk(token, ip, env) {
+  // Sin secreto (dev local) no se traba el formulario.
+  if (!env.TURNSTILE_SECRET) return true;
+  if (!token) return false;
+
+  const body = new FormData();
+  body.append("secret", env.TURNSTILE_SECRET);
+  body.append("response", token);
+  if (ip && ip !== "local") body.append("remoteip", ip);
+
+  try {
+    const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      body,
+    });
+    const out = await res.json();
+    return out.success === true;
+  } catch (err) {
+    // Si siteverify no contesta, pasa. Perder una consulta real cuesta mucho
+    // mas que comerse un spam: solo se rechaza cuando el token es invalido
+    // de verdad, no cuando falla la red.
+    console.error("turnstile inaccesible, se deja pasar:", err && err.message);
+    return true;
+  }
+}
+
+async function handleContacto(request, env, ctx) {
   let data;
   try {
     data = await request.json();
@@ -192,6 +221,18 @@ async function handleContacto(request, env) {
 
   if (!nombre || !isEmail(email)) return json({ error: "invalid" }, 422);
 
+  // Techo por IP antes de gastar un envio: tres consultas cada cinco minutos.
+  const db = env.portafolio_db;
+  if (db) {
+    sweepRates(db, ctx);
+    const rate = await allowRate(db, ipOf(request), "contacto");
+    if (!rate.ok) return rateLimited(rate);
+  }
+
+  if (!(await turnstileOk(data.turnstile, ipOf(request), env))) {
+    return json({ error: "captcha" }, 403);
+  }
+
   const { EmailMessage } = await import("cloudflare:email");
   try {
     await env.SEND_EMAIL.send(
@@ -206,7 +247,7 @@ async function handleContacto(request, env) {
 
 // ── la botella: mensajes a la deriva ─────────────────────────────────────
 const MSG_MAX = 500;
-const RATE = { throw: 5, fish: 8, admin: 5, ev: 80 }; // por IP cada 5 minutos
+const RATE = { throw: 5, fish: 8, admin: 5, ev: 80, contacto: 3 }; // por IP cada 5 minutos
 
 const safeEqual = (a, b) => {
   if (typeof a !== "string" || typeof b !== "string" || a.length !== b.length) return false;
@@ -622,7 +663,7 @@ export default {
 
     if (url.pathname === "/api/contacto") {
       if (request.method !== "POST") return json({ error: "method_not_allowed" }, 405);
-      return handleContacto(request, env);
+      return handleContacto(request, env, ctx);
     }
 
     const botella = await botellaRoute(request, env, ctx);
