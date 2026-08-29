@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset=utf-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<title>Me quiere — la flor que responde · Ignacio Vavala</title>
+<meta content="Escribí una pregunta, deshojá la flor de a un pétalo y quedate con lo que tiene para decirte." name=description>
+<meta name="theme-color" content="#0a0a0a">
+<link rel="preload" href="/fonts/courier-prime-700-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/geist-mono-100-900-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/img/flor/pergamino.webp" as="image">
+<link rel="canonical" href="https://ivavala.com/piezas/flor">
+<meta property="og:site_name" content="Ignacio Vavala">
+<meta property="og:title" content="Me quiere — la flor que responde">
+<meta property="og:description" content="Escribí una pregunta, deshojá la flor de a un pétalo y quedate con lo que tiene para decirte.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ivavala.com/piezas/flor">
+<meta property="og:image" content="https://ivavala.com/img/flor/og-flor.jpg">
+<meta property="og:image:alt" content="Me quiere — pieza interactiva de Ignacio Vavala">
+<meta property="og:locale" content="es_AR">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<script>
+document.documentElement.className+=' js';
+(function(){try{var t=localStorage.getItem('theme');document.documentElement.setAttribute('data-theme',t||'dark')}catch(e){document.documentElement.setAttribute('data-theme','dark')}})();
+</script>
+<style>
+/* Mismas dos voces que la home: ver el bloque de tokens de index.html. */
+@font-face {font-family: 'Courier Prime'; font-style: normal; font-weight: 700; font-display: swap; src: url(/fonts/courier-prime-700-normal-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}
+@font-face {font-family: 'Courier Prime'; font-style: normal; font-weight: 700; font-display: swap; src: url(/fonts/courier-prime-700-normal-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+@font-face {font-family: 'Geist Mono'; font-style: normal; font-weight: 100 900; font-display: swap; src: url(/fonts/geist-mono-100-900-normal-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}
+@font-face {font-family: 'Geist Mono'; font-style: normal; font-weight: 100 900; font-display: swap; src: url(/fonts/geist-mono-100-900-normal-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+
+:root{
+  --display:"Courier Prime",Courier,"Courier New",monospace;
+  --mono:"Geist Mono",ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"avenir next",avenir,helvetica,"helvetica neue",ubuntu,roboto,noto,"segoe ui",arial,sans-serif;
+  --bg:#0a0a0a;
+  --card:#101010;
+  --text:#e0e0e0;
+  --dim:#777;
+  --accent:#6ee7b7;
+  --accent2:#a78bfa;
+  --link:#6ee7b7;
+  --border:#222;
+  --input-bg:#0a0a0a;
+  --btn-text:#0a0a0a;
+  --rail:#fff;
+  --rail-glow:rgba(255,255,255,.9);
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --bg:#f7f6f3;
+  --card:#fff;
+  --text:#1b1b1b;
+  --dim:#5c5c5c;
+  --accent:#089e7e;
+  --accent2:#6b3fd4;
+  --link:#089e7e;
+  --border:#e3e3e0;
+  --input-bg:#fff;
+  --btn-text:#fff;
+  --rail:#1b1b1b;
+  --rail-glow:rgba(0,0,0,.45);
+  color-scheme:light;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;line-height:1.7;font-size:1rem;font-family:var(--sans)}
+a{color:var(--link);text-decoration:none;font-weight:500}a:hover{text-decoration:underline}
+ul{padding:0}li{list-style:none}
+hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
+
+.page{position:relative}
+
+/* ── navbar ── */
+.nav{position:sticky;top:0;z-index:40;background:var(--bg);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:640px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.nav-links{display:flex;align-items:center;flex-wrap:wrap;gap:0;font-family:var(--mono);font-size:.72rem;letter-spacing:.02em;overflow-x:auto;scrollbar-width:none}
+.nav-links::-webkit-scrollbar{display:none}
+.nav-links a{padding:2px 6px;color:var(--dim);white-space:nowrap}
+.nav-links a:hover{color:var(--accent);text-decoration:none}
+.nav-links .sep{color:var(--border);user-select:none}
+.nav-tools{display:flex;gap:8px;align-items:center;flex-shrink:0}
+.nav-tools button{display:flex;align-items:center;justify-content:center;min-width:36px;height:30px;padding:0 10px;box-sizing:border-box;background:none;border:1px solid var(--border);border-radius:3px;color:var(--dim);font-family:var(--mono);font-size:.95rem;line-height:1;cursor:pointer;transition:color .15s,border-color .15s}
+.nav-tools button:hover{color:var(--accent);border-color:var(--accent)}
+.theme-toggle{font-size:1.05rem}
+
+.main{max-width:640px;margin:0 auto;padding:48px 20px 140px;position:relative;z-index:2}
+.main>*{max-width:600px}
+
+h1{font-family:var(--display);font-size:clamp(2rem,6vw,2.9rem);font-weight:700;letter-spacing:-.04em;line-height:1;color:var(--text);text-wrap:balance;font-optical-sizing:auto}
+h1::after{content:"_";color:var(--accent);opacity:.4}
+.sub{font-size:clamp(1rem,2.6vw,1.1rem);color:var(--dim);margin-top:.5rem;font-weight:400;line-height:1.55;text-wrap:pretty}
+.punch{color:var(--text);font-size:clamp(1rem,2.4vw,1.08rem);line-height:1.6;letter-spacing:-.01em;text-wrap:pretty;margin-top:1rem}
+.note{color:var(--dim);font-size:.9rem;line-height:1.7;text-wrap:pretty}
+
+/* ── el pergamino ──────────────────────────────────────────────────────
+   El tablero es una carta, no una interfaz: papel, tinta marron y tipografia
+   de maquina. No usa los tokens del tema porque el papel no tiene modo claro
+   y oscuro; lo unico que cambia de noche es un velo que le baja el brillo
+   para que no encandile en la pagina oscura. */
+.board{position:relative;margin-top:1.4rem;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:#e6dcb8 url(/img/flor/pergamino.webp) center/cover no-repeat;color:#2f2417;isolation:isolate}
+.board::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:3;box-shadow:inset 0 0 90px rgba(74,56,28,.38)}
+:root[data-theme="dark"] .board::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:2;background:rgba(12,9,4,.22)}
+.board-in{position:relative;z-index:4;padding:1.5rem 1.3rem 1.4rem;text-align:center;min-height:430px;display:flex;flex-direction:column;justify-content:center}
+
+.screen{display:none}
+.screen.on{display:block}
+.js .screen.on{animation:fade-in .35s ease both}
+@keyframes fade-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.kicker{font-family:var(--mono);font-size:.62rem;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#7a6238}
+
+/* ── pantalla 1: la pregunta ── */
+.ask-title{font-family:var(--display);font-size:clamp(1.5rem,5vw,2rem);font-weight:700;line-height:1.1;letter-spacing:-.03em;color:#2f2417;margin:.5rem 0 .1rem}
+.ask-hint{font-family:var(--display);font-size:.95rem;line-height:1.5;color:#6b5636;margin-bottom:1rem}
+.q-field{width:100%;max-width:420px;margin:0 auto;display:block;background:rgba(255,253,244,.62);border:none;border-bottom:2px solid rgba(74,56,28,.45);border-radius:2px 2px 0 0;color:#2f2417;padding:.7rem .8rem;font-family:var(--display);font-size:1.05rem;line-height:1.5;text-align:center;outline:none;resize:none;overflow:hidden;min-height:3.2rem}
+.q-field::placeholder{color:#9a8558}
+.q-field:focus{border-bottom-color:#2f2417;background:rgba(255,253,244,.85)}
+.ink{display:inline-block;margin-top:1.1rem;background:#2f2417;color:#f4ecd4;border:none;border-radius:4px;padding:.72rem 1.5rem;font-family:var(--mono);font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;box-shadow:3px 3px 0 rgba(47,36,23,.28);transition:transform .12s,box-shadow .12s}
+.ink:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 rgba(47,36,23,.34);text-decoration:none;color:#f4ecd4}
+.ink:active{transform:translate(2px,2px);box-shadow:1px 1px 0 rgba(47,36,23,.28)}
+.ink[disabled]{opacity:.45;cursor:default;transform:none;box-shadow:none}
+.ink.ghost{background:none;color:#2f2417;border:1px solid rgba(47,36,23,.45);box-shadow:none;font-weight:400}
+.ink.ghost:hover{background:rgba(47,36,23,.08);transform:none;color:#2f2417}
+.ask-err{margin-top:.7rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;color:#a8442f;min-height:1.2em}
+
+/* ── pantalla 2: la flor ── */
+.q-echo{font-family:var(--display);font-size:.98rem;line-height:1.45;color:#6b5636;max-width:460px;margin:0 auto .2rem;overflow-wrap:anywhere}
+.flower{position:relative;width:min(78vw,340px);aspect-ratio:1;margin:.2rem auto 0}
+.js .flower{animation:respirar 9s ease-in-out infinite}
+@keyframes respirar{0%,100%{transform:rotate(-1.2deg) scale(1)}50%{transform:rotate(1.2deg) scale(1.015)}}
+.petalo{position:absolute;padding:0;margin:0;border:none;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;transform-origin:var(--ox) var(--oy);will-change:transform,opacity}
+.petalo img,.centro img{display:block;width:100%;height:100%;user-select:none;-webkit-user-drag:none;pointer-events:none}
+.petalo:hover img{filter:brightness(1.1) drop-shadow(0 0 10px rgba(255,220,255,.55))}
+.petalo:focus-visible{outline:2px solid #2f2417;outline-offset:2px;border-radius:4px}
+.petalo[disabled]{cursor:default}
+/* El petalo se suelta del centro, gira y se va con el viento: sale hacia su
+   propia punta (--dx/--dy) y despues manda la gravedad. */
+.petalo.cae{pointer-events:none;animation:caer 1.5s cubic-bezier(.35,.15,.6,1) forwards}
+@keyframes caer{
+  0%{transform:none;opacity:1}
+  18%{transform:translate(calc(var(--dx) * 7%),calc(var(--dy) * 7%)) rotate(4deg)}
+  100%{transform:translate(calc(var(--dx) * 34% + 12%),calc(var(--dy) * 22% + 165%)) rotate(var(--spin)) scale(.72);opacity:0}
+}
+.centro{position:absolute;pointer-events:none;z-index:9}
+.flower.pelada .centro{animation:tiritar 2.4s ease-in-out infinite}
+@keyframes tiritar{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+
+.verso{margin-top:1rem;min-height:5.4rem}
+.chant{font-family:var(--mono);font-size:.66rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#8a5a3c;min-height:1.1em}
+.chant.si{color:#7a3f8f}
+.frase{font-family:var(--display);font-size:clamp(1.05rem,3.6vw,1.3rem);line-height:1.4;color:#2f2417;max-width:420px;margin:.35rem auto 0;text-wrap:balance}
+.js .frase.nueva{animation:fade-in .4s ease both}
+.quedan{margin-top:.4rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:#7a6238}
+
+/* ── pantalla 3: el mensaje ── */
+.sobre{max-width:460px;margin:0 auto}
+.mensaje{font-family:var(--display);font-size:clamp(1.25rem,4.6vw,1.7rem);line-height:1.35;letter-spacing:-.02em;color:#2f2417;text-wrap:balance;margin:.4rem 0 0}
+.firma{margin-top:1.1rem;padding-top:.8rem;border-top:2px dashed rgba(74,56,28,.32);font-family:var(--mono);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:#7a6238;line-height:1.9}
+.firma b{color:#2f2417;font-weight:700}
+.share{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-top:1.1rem}
+.share .ink{margin-top:0;padding:.6rem 1rem;font-size:.66rem}
+.copied{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;line-height:1.5;color:#3f6b46;min-height:1.3em;margin-top:.6rem;overflow-wrap:anywhere}
+
+/* ── afuera del pergamino ── */
+.bajo{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1rem}
+.bajo button,.bajo a{flex:1 1 auto;background:none;color:var(--dim);border:1px solid var(--border);border-radius:6px;padding:.62rem;font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;text-align:center;cursor:pointer;transition:color .15s,border-color .15s}
+.bajo button:hover,.bajo a:hover{color:var(--accent);border-color:var(--accent);text-decoration:none}
+.back{display:inline-block;margin-top:2.4rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.back:hover{color:var(--accent)}
+
+/* ── lineas verticales ── */
+.rail{position:fixed;top:0;bottom:0;width:48px;overflow:hidden;pointer-events:none;z-index:1}
+.rail.l{left:0}.rail.r{right:0}
+.rail svg{position:absolute;left:0;top:0;width:100%;height:200%;animation:rail-fall linear infinite}
+.rail svg path{fill:none;stroke:var(--rail)}
+.rail .b{stroke-width:1.6;opacity:.55;filter:drop-shadow(0 0 5px var(--rail-glow))}
+.rail .e{stroke-width:1;opacity:.12}
+.rail.l .b{animation-duration:9s}
+.rail.l .e{animation-duration:14s}
+.rail.r .b{animation-duration:12s}
+.rail.r .e{animation-duration:17s}
+@keyframes rail-fall{from{transform:translateY(0)}to{transform:translateY(-50%)}}
+@media (max-width:640px){
+  .rail{width:24px;opacity:.4}
+  .board-in{padding:1.3rem 1rem 1.2rem}
+}
+
+/* ── movimiento ── */
+.js .rv{opacity:0;transform:translateY(16px)}
+.js .rv.in{opacity:1;transform:none;transition:opacity .6s ease,transform .6s cubic-bezier(.2,.7,.3,1)}
+@media (prefers-reduced-motion:reduce){
+  .js .rv{opacity:1;transform:none}
+  .rail svg{animation:none}
+  .js .flower,.flower.pelada .centro{animation:none}
+  .js .screen.on,.js .frase.nueva{animation:none}
+  /* El petalo igual tiene que irse: sin animacion, desaparece de una. */
+  .petalo.cae{animation:none;opacity:0;visibility:hidden}
+}
+</style>
+</head>
+<body>
+<div class="page">
+<nav class="nav">
+<div class="nav-inner">
+<div class="nav-links"><a href="../index.html#componentes">~/componentes</a><span class="sep"> / </span><span>me quiere</span></div>
+<div class="nav-tools"><button class="theme-toggle" id="theme-toggle" aria-label="Cambiar tema">&#9681;</button></div>
+</div>
+</nav>
+<div class="main">
+
+<h1 class="rv">Me quiere</h1>
+<p class="sub rv">Escribí una pregunta y deshojá la flor de a un pétalo. Cuando no quede ninguno, la flor contesta.</p>
+<p class="punch rv">Nadie deshoja una flor para saber la verdad. Se deshoja para darse permiso de esperar algo.</p>
+
+<div class="board rv">
+<div class="board-in">
+
+<!-- ── 1. la pregunta ─────────────────────────────────────────────── -->
+<div class="screen on" id="s-ask">
+  <p class="kicker">preguntale a la flor</p>
+  <h2 class="ask-title">¿Qué querés saber?</h2>
+  <p class="ask-hint">Escribilo como se lo dirías a alguien de confianza.</p>
+  <textarea class="q-field" id="q" rows="2" maxlength="140" placeholder="¿Va a salir lo que estoy esperando?" aria-label="Tu pregunta"></textarea>
+  <button class="ink" id="btn-start" type="button">Conoc&#233; tu destino &#8594;</button>
+  <p class="ask-err" id="ask-err" role="status" aria-live="polite"></p>
+</div>
+
+<!-- ── 2. la flor ─────────────────────────────────────────────────── -->
+<div class="screen" id="s-play">
+  <p class="q-echo" id="q-echo"></p>
+  <div class="flower" id="flower">
+    <button class="petalo" type="button" style="left:59.171%;top:53.110%;width:37.879%;height:35.965%;--ox:-14.105%;--oy:-5.765%;--dx:.834;--dy:.552;--spin:128deg;z-index:5" aria-label="Arrancar un pétalo"><img src="/img/flor/petalo-0.webp" alt="" width="288" height="273" decoding="async"></button>
+    <button class="petalo" type="button" style="left:31.738%;top:58.852%;width:40.112%;height:41.148%;--ox:55.070%;--oy:-18.992%;--dx:-.165;--dy:.986;--spin:-146deg;z-index:4" aria-label="Arrancar un pétalo"><img src="/img/flor/petalo-1.webp" alt="" width="305" height="313" decoding="async"></button>
+    <button class="petalo" type="button" style="left:2.711%;top:27.273%;width:42.823%;height:44.338%;--ox:119.367%;--oy:53.597%;--dx:-1;--dy:.009;--spin:112deg;z-index:3" aria-label="Arrancar un pétalo"><img src="/img/flor/petalo-2.webp" alt="" width="325" height="337" decoding="async"></button>
+    <button class="petalo" type="button" style="left:26.555%;top:.718%;width:41.228%;height:42.743%;--ox:66.151%;--oy:117.724%;--dx:-.216;--dy:-.976;--spin:-104deg;z-index:2" aria-label="Arrancar un pétalo"><img src="/img/flor/petalo-3.webp" alt="" width="313" height="325" decoding="async"></button>
+    <button class="petalo" type="button" style="left:58.293%;top:16.348%;width:39.394%;height:37.719%;--ox:-11.336%;--oy:91.966%;--dx:.857;--dy:-.515;--spin:154deg;z-index:1" aria-label="Arrancar un pétalo"><img src="/img/flor/petalo-4.webp" alt="" width="299" height="287" decoding="async"></button>
+    <div class="centro" style="left:41.547%;top:34.290%;width:45.774%;height:29.107%"><img src="/img/flor/centro.webp" alt="Una flor a la que le vas sacando los pétalos" width="348" height="221" decoding="async"></div>
+  </div>
+  <div class="verso">
+    <p class="chant" id="chant"></p>
+    <p class="frase" id="frase">Tocá un pétalo.</p>
+    <p class="quedan" id="quedan">5 pétalos</p>
+  </div>
+</div>
+
+<!-- ── 3. el mensaje ──────────────────────────────────────────────── -->
+<div class="screen" id="s-end">
+  <div class="sobre">
+    <p class="kicker" id="end-kicker">la flor, sin un solo pétalo, dice</p>
+    <p class="q-echo" id="end-q"></p>
+    <p class="mensaje" id="end-msg"></p>
+    <div class="share">
+      <button class="ink" id="sh-native" type="button" hidden>Compartir</button>
+      <a class="ink" id="sh-wa" href="https://wa.me/" target="_blank" rel="noopener">WhatsApp</a>
+      <a class="ink ghost" id="sh-x" href="https://twitter.com/" target="_blank" rel="noopener">X</a>
+      <button class="ink ghost" id="sh-copy" type="button">Copiar link</button>
+    </div>
+    <p class="copied" id="copied" role="status" aria-live="polite"></p>
+    <p class="firma">Diseño <b>Lucía Alonso</b><br>Creación <b>ivavala</b></p>
+  </div>
+</div>
+
+</div>
+</div>
+
+<div class="bajo rv">
+  <button id="btn-again" type="button">Preguntar otra cosa</button>
+  <a href="botella">Probá la botella &#8594;</a>
+</div>
+
+<a class="back rv" href="../index.html#componentes">&#8592; volver a los componentes</a>
+
+</div>
+</div>
+<div class="rail l">
+<svg class="b" viewBox="0 0 60 1200" preserveAspectRatio="none"><path d="M30 0 Q6 150 30 300 Q54 450 30 600 Q6 750 30 900 Q54 1050 30 1200"/></svg>
+<svg class="e" viewBox="0 0 60 1200" preserveAspectRatio="none"><path d="M30 0 Q6 150 30 300 Q54 450 30 600 Q6 750 30 900 Q54 1050 30 1200"/></svg>
+</div>
+<div class="rail r">
+<svg class="b" viewBox="0 0 60 1200" preserveAspectRatio="none"><path d="M30 0 Q6 150 30 300 Q54 450 30 600 Q6 750 30 900 Q54 1050 30 1200"/></svg>
+<svg class="e" viewBox="0 0 60 1200" preserveAspectRatio="none"><path d="M30 0 Q6 150 30 300 Q54 450 30 600 Q6 750 30 900 Q54 1050 30 1200"/></svg>
+</div>
+<script>
+var toggle=document.getElementById('theme-toggle');
+var syncToggle=function(){toggle.innerHTML=document.documentElement.getAttribute('data-theme')==='light'?'&#9680;':'&#9681;'};
+toggle.addEventListener('click',function(){
+  var cur=document.documentElement.getAttribute('data-theme');
+  var next=cur==='light'?'dark':'light';
+  document.documentElement.setAttribute('data-theme',next);
+  try{localStorage.setItem('theme',next)}catch(e){}
+  syncToggle();
+});
+syncToggle();
+(function(){
+if(!('IntersectionObserver' in window))return;
+var io=new IntersectionObserver(function(es){
+  es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})
+},{rootMargin:'0px 0px -8% 0px',threshold:.05});
+[].forEach.call(document.querySelectorAll('.rv'),function(el){io.observe(el)});
+})();
+
+/* ── me quiere ───────────────────────────────────────────────────────────
+   Todo pasa en el navegador: no hay servidor, la pregunta no se guarda en
+   ningun lado y la respuesta no es al azar. Sale de un hash de la pregunta,
+   asi la misma pregunta da siempre el mismo mensaje: una tirada que cambia
+   cada vez que se recarga no es un oraculo, es una maquina de ruido.
+   Lo unico que viaja son tres eventos anonimos del embudo (juega / termina /
+   comparte), los mismos que mide el resto del sitio.
+   ────────────────────────────────────────────────────────────────────── */
+(function(){
+var LANG='es';
+var URL_BASE='https://ivavala.com/piezas/flor';
+var MAXQ=140;
+
+var sent={};
+function ev(name){
+  if(sent[name])return; sent[name]=1;
+  var body=JSON.stringify({n:name,p:location.pathname,l:LANG,r:document.referrer});
+  try{ if(navigator.sendBeacon&&navigator.sendBeacon('/api/e',new Blob([body],{type:'application/json'})))return; }catch(e){}
+  try{ fetch('/api/e',{method:'POST',body:body,headers:{'content-type':'application/json'},keepalive:true}); }catch(e){}
+}
+
+// Frases de espera, una tanda por petalo arrancado. La quinta no dice nada:
+// deja el silencio justo antes del mensaje.
+var FRASES=[
+  ['La flor te escuchó. Todavía no dice nada.',
+   'Primero el silencio. La respuesta viene atrás.',
+   'Algo se acomodó cuando lo preguntaste en voz alta.',
+   'Ya está: la pregunta salió. Eso solo ya mueve algo.'],
+  ['Sí. Pero no todavía.',
+   'Hay una parte que ya está pasando y no la viste.',
+   'El tiempo está de tu lado, aunque hoy no lo parezca.',
+   'Lo que estás esperando ya arrancó, sin avisarte.'],
+  ['Mitad de camino. La flor se pone seria.',
+   'Falta menos de lo que creés.',
+   'Acá es donde la mayoría se baja. Vos seguí.',
+   'Se está inclinando para tu lado.'],
+  ['Queda uno. Respirá.',
+   'La flor ya sabe. Vos casi.',
+   'Último pétalo: la respuesta está abajo de todo.',
+   'No adivines todavía. Un pétalo más.'],
+  ['…']
+];
+
+// Mensajes finales: todos miran para adelante. La flor no esta para decirte
+// que no; esta para dejarte esperando algo con menos culpa.
+var MENSAJES=[
+  'Sí. Y va a llegar de una forma que hoy no estás mirando.',
+  'Sí, pero no como lo imaginaste: mejor, y un poco más tarde.',
+  'La respuesta es sí. Lo que falta es que vos te des permiso.',
+  'Va a salir. Y el día que salga te vas a acordar de esta pregunta.',
+  'Sí. Lo que esperás ya está en camino, solo que sin hacer ruido.',
+  'Sí. Y lo que hoy parece un problema va a ser la parte buena de la historia.',
+  'Sí. No hace falta apurarlo: la espera también es parte.',
+  'Sí, y vas a mirar con cariño a esta versión tuya que preguntaba.',
+  'Sí. Y no vas a estar solo cuando pase.',
+  'Sí. Insistí una vez más de las que tenías pensadas.',
+  'Sí. Y lo mejor no es la respuesta: es lo que se te ocurre después de leerla.',
+  'Sí. El único pétalo que contaba era el último, y salió para tu lado.',
+  'Sí. Lo que sembraste en silencio ya está creciendo.',
+  'Sí. Y va a durar más de lo que dudaste.',
+  'Sí. Guardá la pregunta: dentro de un año la vas a leer como una anécdota.',
+  'Sí. Y la parte que te da miedo es justo la que va a salir bien.'
+];
+
+// Hash estable de la pregunta (FNV-1a de 32 bits sobre el texto normalizado).
+// Misma pregunta, mismo mensaje, en cualquier navegador y cualquier dia.
+function hash(s){
+  s=String(s).toLowerCase().replace(/\s+/g,' ').trim();
+  var h=2166136261;
+  for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=(h*16777619)>>>0;}
+  return h>>>0;
+}
+function pick(arr,h,salt){ return arr[((h*(salt*2+1))>>>0)%arr.length]; }
+
+// La pregunta viaja en el link en base64url para que quien lo recibe vea la
+// misma tirada. Se limpia siempre a texto plano y se pinta con textContent.
+function limpiar(s){
+  return String(s||'').replace(/[\u0000-\u001f\u007f]+/g,' ').replace(/\s+/g,' ').trim().slice(0,MAXQ);
+}
+function enc(s){
+  try{
+    return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  }catch(e){return ''}
+}
+function dec(s){
+  try{
+    var b=String(s).replace(/-/g,'+').replace(/_/g,'/');
+    while(b.length%4)b+='=';
+    return limpiar(decodeURIComponent(escape(atob(b))));
+  }catch(e){return ''}
+}
+
+var sAsk=document.getElementById('s-ask'),sPlay=document.getElementById('s-play'),sEnd=document.getElementById('s-end');
+var qEl=document.getElementById('q'),askErr=document.getElementById('ask-err');
+var qEcho=document.getElementById('q-echo'),chant=document.getElementById('chant'),frase=document.getElementById('frase'),quedan=document.getElementById('quedan');
+var flower=document.getElementById('flower');
+var endQ=document.getElementById('end-q'),endMsg=document.getElementById('end-msg'),endKicker=document.getElementById('end-kicker');
+var copied=document.getElementById('copied'),btnAgain=document.getElementById('btn-again');
+var petalos=[].slice.call(flower.querySelectorAll('.petalo'));
+
+var pregunta='',hq=0,sacados=0,cerrando=false;
+
+function show(el){
+  [sAsk,sPlay,sEnd].forEach(function(s){s.classList.remove('on')});
+  el.classList.add('on');
+}
+
+// El textarea crece con lo que se escribe: en el telefono, una pregunta de dos
+// renglones no puede quedar tapada por su propio scroll.
+function autoSize(){ qEl.style.height='auto'; qEl.style.height=Math.max(qEl.scrollHeight,52)+'px'; }
+qEl.addEventListener('input',function(){ autoSize(); askErr.textContent=''; });
+qEl.addEventListener('keydown',function(e){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();empezar();} });
+
+function empezar(){
+  var v=limpiar(qEl.value);
+  if(v.length<3){ askErr.textContent='Escribí la pregunta primero.'; qEl.focus(); return; }
+  pregunta=v; hq=hash(v); sacados=0; cerrando=false;
+  qEcho.textContent='«'+v+'»';
+  flower.classList.remove('pelada');
+  petalos.forEach(function(p){ p.classList.remove('cae'); p.disabled=false; });
+  chant.textContent=''; chant.className='chant';
+  frase.textContent='Tocá un pétalo.'; frase.className='frase';
+  quedan.textContent='5 pétalos';
+  show(sPlay);
+  ev('flor:jugar');
+}
+document.getElementById('btn-start').addEventListener('click',empezar);
+
+petalos.forEach(function(p){
+  p.addEventListener('click',function(){
+    if(p.disabled||cerrando)return;
+    p.disabled=true;
+    p.classList.add('cae');
+    sacados++;
+    // Cinco petalos: arranca y termina en "me quiere".
+    var quiere=(sacados%2)===1;
+    chant.textContent=quiere?'me quiere':'no me quiere';
+    chant.className='chant'+(quiere?' si':'');
+    frase.className='frase';
+    void frase.offsetWidth;
+    frase.textContent=pick(FRASES[sacados-1],hq,sacados);
+    frase.className='frase nueva';
+    var faltan=5-sacados;
+    quedan.textContent=faltan===0?'ningún pétalo':(faltan===1?'1 pétalo':faltan+' pétalos');
+    if(faltan===0){
+      cerrando=true;
+      flower.classList.add('pelada');
+      setTimeout(terminar,1500);
+    }
+  });
+});
+
+function terminar(){
+  endKicker.textContent='la flor, sin un solo pétalo, dice';
+  endQ.textContent='«'+pregunta+'»';
+  endMsg.textContent=pick(MENSAJES,hq,7);
+  copied.textContent='';
+  armarShare();
+  show(sEnd);
+  ev('flor:final');
+}
+
+function armarShare(){
+  var link=URL_BASE+'?q='+enc(pregunta);
+  var texto='Le pregunté a la flor: «'+pregunta+'» y me dijo: '+endMsg.textContent;
+  document.getElementById('sh-wa').href='https://wa.me/?text='+encodeURIComponent(texto+'\n'+link);
+  document.getElementById('sh-x').href='https://twitter.com/intent/tweet?text='+encodeURIComponent(texto)+'&url='+encodeURIComponent(link);
+  var nat=document.getElementById('sh-native');
+  if(navigator.share){
+    nat.hidden=false;
+    nat.onclick=function(){ ev('flor:share'); navigator.share({title:'Me quiere',text:texto,url:link})['catch'](function(){}); };
+  }
+  document.getElementById('sh-copy').onclick=function(){
+    ev('flor:share');
+    var ok=function(){ copied.textContent='Link copiado. Mandáselo a quien tenga la misma duda.'; };
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(link).then(ok,function(){ copied.textContent=link; });
+    }else{ copied.textContent=link; }
+  };
+  document.getElementById('sh-wa').onclick=function(){ ev('flor:share'); };
+  document.getElementById('sh-x').onclick=function(){ ev('flor:share'); };
+}
+
+btnAgain.addEventListener('click',function(){
+  qEl.value=''; autoSize(); askErr.textContent=''; copied.textContent='';
+  show(sAsk);
+  qEl.focus();
+});
+
+// Si el link trae una pregunta, se entra directo por el final: quien recibe el
+// link ve la tirada del otro y despues juega la suya.
+(function(){
+  var m=location.search.match(/[?&]q=([^&]*)/);
+  if(!m)return;
+  var v=dec(decodeURIComponent(m[1]));
+  if(v.length<3)return;
+  pregunta=v; hq=hash(v); sacados=5;
+  endKicker.textContent='alguien preguntó, y la flor contestó';
+  endQ.textContent='«'+v+'»';
+  endMsg.textContent=pick(MENSAJES,hq,7);
+  armarShare();
+  show(sEnd);
+  btnAgain.textContent='Ahora preguntá lo tuyo';
+})();
+})();
+</script>
+</body>
+</html>

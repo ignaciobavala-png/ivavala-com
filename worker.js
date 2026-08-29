@@ -63,6 +63,7 @@ const LLMS = `# Ignacio Vavala
 - ${ORIGIN}/ — inicio (espanol)
 - ${ORIGIN}/en/ — inicio (ingles)
 - ${ORIGIN}/piezas/botella — pieza interactiva
+- ${ORIGIN}/piezas/flor — pieza interactiva (me quiere, no me quiere)
 `;
 
 const ROBOTS_BLOCK = `User-agent: *
@@ -103,6 +104,11 @@ const SITEMAP = `<?xml version="1.0" encoding="UTF-8"?>
     <xhtml:link rel="alternate" hreflang="x-default" href="${ORIGIN}/piezas/botella"/>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>${ORIGIN}/piezas/flor</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
   </url>
 </urlset>
 `;
@@ -524,6 +530,7 @@ const EVENTS = new Set([
   "view",
   "sec:servicios", "sec:trabajo", "sec:componentes", "sec:stack", "sec:faq", "sec:contacto",
   "svc:click", "work:click", "pieza:click",
+  "flor:jugar", "flor:final", "flor:share",
   "form:start", "form:ok",
   "out:whatsapp", "out:mail", "out:github",
 ]);
