@@ -28,6 +28,11 @@ td.n{text-align:right;font-variant-numeric:tabular-nums}
 .msg{color:var(--dim);margin-top:1rem}
 .err{color:#f87171}
 .scroll{overflow-x:auto}
+label{font-size:.8rem;color:var(--dim);display:flex;gap:.4rem;align-items:center;cursor:pointer}
+label input{width:auto}
+#repFrame{width:100%;height:520px;border:1px solid var(--border);border-radius:8px;background:#fff6eb}
+button.sec{background:var(--card);color:var(--text);border:1px solid var(--border);font-weight:400}
+button.sec:hover{border-color:var(--accent)}
 </style>
 </head>
 <body>
@@ -44,6 +49,15 @@ td.n{text-align:right;font-variant-numeric:tabular-nums}
   <button id="go">Ver</button>
 </div>
 <p class="msg" id="msg"></p>
+
+<h2>Reporte de visitas</h2>
+<div class="row">
+  <button id="repPrev" class="sec">Vista previa</button>
+  <button id="repSend">Enviar ahora</button>
+  <label><input type="checkbox" id="repForce"> reenviar este mes</label>
+</div>
+<p class="msg" id="repMsg"></p>
+<div id="repPrevBox" hidden><iframe id="repFrame" sandbox="" title="Vista previa del informe"></iframe></div>
 
 <div id="out" hidden>
   <h2>Embudo</h2>
@@ -127,6 +141,61 @@ function cargar(){
 $('go').addEventListener('click', cargar);
 $('pin').addEventListener('keydown', function(e){ if(e.key === 'Enter') cargar(); });
 $('days').addEventListener('change', function(){ if(!$('out').hidden) cargar(); });
+
+// ── reporte de visitas ────────────────────────────────────────────────────
+function repPin(){
+  var pin = $('pin').value.trim();
+  if(!pin){ $('repMsg').className = 'msg err'; $('repMsg').textContent = 'Falta el PIN.'; return null; }
+  return pin;
+}
+function repDays(){
+  return 'days=' + encodeURIComponent($('days').value);
+}
+
+// Vista previa: el panel pide el HTML con el PIN en el header y lo dibuja en
+// un iframe con srcdoc — el PIN nunca viaja en la URL. El iframe va con
+// sandbox="" porque el HTML de un mail no ejecuta scripts.
+$('repPrev').addEventListener('click', function(){
+  var pin = repPin(); if(!pin) return;
+  $('repMsg').className = 'msg'; $('repMsg').textContent = 'Armando vista previa…';
+  fetch('/api/reportes?preview=1&' + repDays(), { headers: { 'x-panel-pin': pin } })
+    .then(function(r){
+      if(r.status === 403) throw new Error('PIN incorrecto.');
+      if(!r.ok) throw new Error('Error ' + r.status + '.');
+      return r.text();
+    })
+    .then(function(html){
+      $('repPrevBox').hidden = false;
+      $('repFrame').srcdoc = html;
+      $('repMsg').textContent = 'Vista previa: es exactamente lo que llega por mail.';
+    })
+    .catch(function(e){
+      $('repMsg').className = 'msg err';
+      $('repMsg').textContent = e.message || 'No se pudo armar la vista previa.';
+    });
+});
+
+$('repSend').addEventListener('click', function(){
+  var pin = repPin(); if(!pin) return;
+  var url = '/api/reportes?' + repDays() + ($('repForce').checked ? '&force=1' : '');
+  $('repMsg').className = 'msg'; $('repMsg').textContent = 'Enviando…';
+  fetch(url, { headers: { 'x-panel-pin': pin } })
+    .then(function(r){
+      if(r.status === 403) throw new Error('PIN incorrecto.');
+      return r.json().then(function(j){
+        if(!r.ok || !j.ok) throw new Error(j.motivo || ('Error ' + r.status + '.'));
+        return j;
+      });
+    })
+    .then(function(j){
+      var canal = j.canal === 'resend' ? 'Resend' : 'Cloudflare (send_email)';
+      $('repMsg').textContent = 'Enviado por ' + canal + ' → ' + j.to.join(', ') + ' · ' + j.subject;
+    })
+    .catch(function(e){
+      $('repMsg').className = 'msg err';
+      $('repMsg').textContent = e.message || 'No se pudo enviar.';
+    });
+});
 </script>
 </body>
 </html>
