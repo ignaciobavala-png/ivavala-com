@@ -19,9 +19,6 @@
       "database_id": "1cc790cb-70d3-4d56-9a67-a5035e8914a1"
     }
   ],
-  "triggers": {
-    "crons": ["0 12 1 * *"]
-  },
   "routes": [
     { "pattern": "ivavala.com", "custom_domain": true },
     { "pattern": "www.ivavala.com", "custom_domain": true }

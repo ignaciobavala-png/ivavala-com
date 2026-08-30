@@ -1,6 +1,6 @@
 // Redirige HTTP -> HTTPS y www -> apex, sirve robots.txt / sitemap.xml,
 // y mantiene fuera del indice cualquier hostname que no sea el canonico.
-import { runReport, previewReport } from "./reportes.js";
+import { componerHTML, guardarReporte, enviarReporte, listarReportes, borrarReporte } from "./reportes.js";
 
 const CANONICAL = "ivavala.com";
 const ORIGIN = "https://" + CANONICAL;
@@ -542,6 +542,7 @@ const EVENTS = new Set([
   "flor:jugar", "flor:final", "flor:share",
   "form:start", "form:ok",
   "aud:start", "aud:ok", "aud:cta",
+  "cta:hero", "cta:pill", "cta:nav", "cta:svcfoot", "cta:auditoria",
   "out:whatsapp", "out:mail", "out:github",
 ]);
 
@@ -722,12 +723,20 @@ async function audPesar(u) {
     const len = h.headers.get("content-length");
     if (h.ok && len) return { bytes: parseInt(len, 10), tipo: h.headers.get("content-type") || "" };
   } catch (e) {}
+  // Muchos origenes (Cloudflare Assets entre ellos) no contestan HEAD con
+  // largo, y varios ignoran el Range y devuelven 200 con el archivo entero.
+  // Por eso se mira content-range Y content-length, y recien si no hay ninguno
+  // se cuenta a mano. El cuerpo se cancela apenas se sabe el numero.
   try {
     const g = await fetch(u, { ...opts, method: "GET", headers: { ...opts.headers, range: "bytes=0-0" } });
+    const tipo = g.headers.get("content-type") || "";
     const cr = g.headers.get("content-range");
-    try { if (g.body) await g.body.cancel(); } catch (e) {}
     const m = cr && cr.match(/\/(\d+)\s*$/);
-    if (m) return { bytes: parseInt(m[1], 10), tipo: g.headers.get("content-type") || "" };
+    if (m) { try { if (g.body) await g.body.cancel(); } catch (e) {} return { bytes: parseInt(m[1], 10), tipo }; }
+    const len = g.headers.get("content-length");
+    if (len && g.status === 200) { try { if (g.body) await g.body.cancel(); } catch (e) {} return { bytes: parseInt(len, 10), tipo }; }
+    const leido = await audLeer(g, 12000000);
+    if (leido.bytes) return { bytes: leido.bytes, tipo };
   } catch (e) {}
   return null;
 }
@@ -750,7 +759,6 @@ async function audAnalizar(u) {
   if (!/text\/html|application\/xhtml/i.test(ctype)) return { error: "Esa dirección no devuelve una página web." };
 
   const finalUrl = res.url || u.toString();
-  const comprimido = /gzip|br|zstd|deflate/i.test(res.headers.get("content-encoding") || "");
   const cuerpo = await audLeer(res, AUD_HTML_MAX);
   const html = cuerpo.texto || "";
 
@@ -809,29 +817,58 @@ async function audAnalizar(u) {
     ...cupo(jsUrls, 5).map((u2) => ["js", u2]),
   ].slice(0, AUD_ASSETS);
 
+  // Un HTML minusculo, sin titulo y sin un solo asset no es un sitio: es un
+  // muro anti-bots, un redirect por JavaScript o una pagina de error. Emitir
+  // seis hallazgos seguros sobre eso es la forma mas rapida de perder la
+  // confianza del que vino a que le digan la verdad.
+  if (!d.title.trim() && imgUrls.length + cssUrls.length + jsUrls.length === 0 && html.length < 5000) {
+    return { error: "Ese sitio no me dejó ver su contenido: me devolvió una página vacía. Suele pasar cuando hay protección contra visitas automáticas. Probá con otra dirección." };
+  }
+
   const pesados = await Promise.all(objetivo.map(async ([k, u2]) => [k, u2, await audPesar(u2)]));
 
-  let bImg = 0, bCss = 0, bJs = 0, sinPeso = 0;
+  let bImg = 0, bCss = 0, bJs = 0, sinPeso = 0, imgOk = 0;
   const grandes = [];
   for (const [k, u2, r] of pesados) {
     if (!r || !isFinite(r.bytes)) { sinPeso++; continue; }
-    if (k === "img") { bImg += r.bytes; grandes.push({ u: u2, bytes: r.bytes, tipo: r.tipo }); }
+    if (k === "img") { bImg += r.bytes; imgOk++; grandes.push({ u: u2, bytes: r.bytes, tipo: r.tipo }); }
     else if (k === "css") bCss += r.bytes;
     else bJs += r.bytes;
   }
   grandes.sort((a, b) => b.bytes - a.bytes);
 
+  // Solo se pesan las primeras 20 imagenes: un diario con 120 daria un total
+  // ridiculamente bajo, y justo en los sitios cargados de fotos es donde el
+  // dato importa. Se estima el resto con el promedio de la muestra y la
+  // pagina avisa que es una estimacion sobre una muestra, no un conteo.
+  const imgMuestra = imgOk < imgUrls.length;
+  if (imgOk > 0 && imgMuestra) bImg = Math.round((bImg / imgOk) * imgUrls.length);
+
   const bHtml = cuerpo.bytes || 0;
   const total = bHtml + bImg + bCss + bJs;
   const requests = 1 + imgUrls.length + cssUrls.length + jsUrls.length;
 
+  // Lo que viaja no es lo que pesa. El runtime de Workers descomprime solo y
+  // borra el content-encoding, asi que desde aca la compresion no se puede ni
+  // medir ni auditar: cualquier chequeo daria "sin comprimir" para todos. Lo
+  // que si se puede es no mentir en el tiempo — hoy practicamente todo hosting
+  // manda el texto comprimido, y brotli lo deja en torno a un tercio. Las
+  // imagenes ya vienen comprimidas y viajan tal cual.
+  const AUD_TEXTO = 3.5;
+  const transfer = Math.round(bImg + (bHtml + bCss + bJs) / AUD_TEXTO);
+
+  // Un sitio que arma el contenido con JavaScript esconde sus imagenes del
+  // HTML inicial: se avisa en vez de dar por bueno un peso que no es.
+  const parcial = d.imgs.length <= 2 && (jsUrls.length >= 2 || html.length > 60000);
+
   // El numero que le importa al dueno: cuanto tarda en abrir desde un celular.
-  const segundos = Math.round((AUD_HANDSHAKE + ttfb + total / 1024 / AUD_KBPS) * 10) / 10;
+  const segundos = Math.round((AUD_HANDSHAKE + ttfb + transfer / 1024 / AUD_KBPS) * 10) / 10;
 
   return {
     url: finalUrl, ttfb: Math.round(ttfb * 100) / 100, segundos,
-    bytes: { html: bHtml, img: bImg, css: bCss, js: bJs, total },
-    requests, sinPeso, comprimido,
+    bytes: { html: bHtml, img: bImg, css: bCss, js: bJs, total, transfer },
+    requests, sinPeso, parcial,
+    muestra: imgMuestra ? { medidas: imgOk, de: imgUrls.length } : null,
     imgs: { total: d.imgs.length, medidas: imgUrls.length, sinLazy: d.imgs.filter((i) => !i.lazy).length, sinDims: d.imgs.filter((i) => !i.dims).length },
     grandes: grandes.slice(0, 5),
     bloquean: d.scripts.filter((s) => s.bloquea).length,
@@ -893,11 +930,6 @@ function audHallazgos(a) {
     push("medio", "Hay " + a.bloquean + " archivo" + (a.bloquean > 1 ? "s" : "") + " que frena" + (a.bloquean > 1 ? "n" : "") + " el dibujo de la página",
       "Son scripts que el navegador tiene que bajar y ejecutar antes de mostrar nada. Mientras tanto el visitante ve una pantalla en blanco.",
       "Agregarles defer o async, o moverlos al final del documento.");
-  }
-  if (!a.comprimido) {
-    push("medio", "El servidor manda la página sin comprimir",
-      "Es una casilla que se prende en el hosting y hace que el texto viaje hasta 70% más liviano. No hay que tocar el sitio.",
-      "Activar compresión gzip o brotli en el servidor o el CDN.");
   }
   if (a.imgs.sinDims > 4) {
     push("medio", "El contenido salta mientras carga",
@@ -975,8 +1007,8 @@ async function handleAuditoria(request, env, ctx) {
   if (db) ctx.waitUntil(db.prepare("INSERT INTO events (name, path, lang) VALUES ('aud:run', '/auditoria', 'es')").run().catch(() => {}));
 
   return json({ ok: true, dominio: new URL(a.url).hostname.replace(/^www\./, ""), url: a.url,
-    segundos: a.segundos, seVan, ttfb: a.ttfb, bytes: a.bytes, peso: audKB(a.bytes.total),
-    requests: a.requests, sinPeso: a.sinPeso, imgs: a.imgs,
+    segundos: a.segundos, seVan, ttfb: a.ttfb, bytes: a.bytes, peso: audKB(a.bytes.transfer),
+    requests: a.requests, sinPeso: a.sinPeso, parcial: a.parcial, muestra: a.muestra, imgs: a.imgs,
     grandes: a.grandes.map((g) => ({ nombre: decodeURIComponent(new URL(g.u).pathname.split("/").pop() || "").slice(0, 60), peso: audKB(g.bytes) })),
     hallazgos });
 }
@@ -1034,31 +1066,44 @@ export default {
       return handleContacto(request, env, ctx);
     }
 
-    // Informe de visitas a demanda: mismo PIN que el panel de estadisticas.
-    // ?preview=1 devuelve el HTML sin enviar (para verlo en el panel).
+    // Reportes de visitas (compositor manual): las acciones van en el body
+    // JSON, todas detras del PIN del panel. preview devuelve el HTML sin
+    // enviar ni guardar; guardar/es enviar/lista/borrar tocan la tabla.
     if (url.pathname === "/api/reportes") {
-      if (request.method !== "GET") return json({ error: "method_not_allowed" }, 405);
+      if (request.method !== "POST") return json({ error: "method_not_allowed" }, 405);
       const pin = request.headers.get("x-panel-pin") || "";
       if (!env.BOTTLE_PIN || !safeEqual(pin, env.BOTTLE_PIN))
         return json({ error: "forbidden" }, 403);
-      const force = url.searchParams.get("force") === "1";
-      const preview = url.searchParams.get("preview") === "1";
-      const days = Math.min(
-        Math.max(parseInt(url.searchParams.get("days") || "30", 10) || 30, 1),
-        365
-      );
-      if (preview) {
-        try {
-          const out = await previewReport(env, { days });
-          return new Response(out.html, {
-            headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" },
-          });
-        } catch (err) {
-          return json({ ok: false, motivo: err.message }, 500);
-        }
+      const db = env.portafolio_db;
+      if (!db) return json({ error: "db_unavailable" }, 503);
+
+      let data;
+      try {
+        data = await request.json();
+      } catch {
+        return json({ error: "bad_request" }, 400);
       }
-      const out = await runReport(env, ctx, { force, days });
-      return json(out);
+
+      try {
+        switch (data.accion) {
+          case "preview":
+            return new Response(componerHTML(data.datos), {
+              headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" },
+            });
+          case "guardar":
+            return json(await guardarReporte(db, data.datos, data.id));
+          case "enviar":
+            return json(await enviarReporte(env, db, data.id));
+          case "lista":
+            return json({ ok: true, reportes: await listarReportes(db) });
+          case "borrar":
+            return json(await borrarReporte(db, data.id));
+          default:
+            return json({ error: "unknown_action" }, 422);
+        }
+      } catch (err) {
+        return json({ ok: false, motivo: err.message }, 500);
+      }
     }
 
     const botella = await botellaRoute(request, env, ctx);
@@ -1069,18 +1114,5 @@ export default {
     if (url.pathname === "/sitemap.xml") return text(SITEMAP, "application/xml");
 
     return env.ASSETS.fetch(request);
-  },
-
-  // Cron mensual: informe de visitas. Arranca apagado por defecto; se enciende
-  // con el secret ALLOW_SCHEDULED (cualquier valor). Sin eso, el primer mes no
-  // sale solo hasta probarlo a mano por /api/reportes.
-  async scheduled(event, env, ctx) {
-    if (!env.ALLOW_SCHEDULED) return;
-    try {
-      const out = await runReport(env, ctx);
-      console.log("reporte:", JSON.stringify(out));
-    } catch (err) {
-      console.error("reporte falló:", err && err.message);
-    }
   },
 };

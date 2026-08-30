@@ -33,6 +33,10 @@ label input{width:auto}
 #repFrame{width:100%;height:520px;border:1px solid var(--border);border-radius:8px;background:#fff6eb}
 button.sec{background:var(--card);color:var(--text);border:1px solid var(--border);font-weight:400}
 button.sec:hover{border-color:var(--accent)}
+textarea{width:100%;min-height:60px;resize:vertical;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:.5rem .7rem;font:inherit}
+.row.cols{flex-direction:column;gap:.5rem}
+#repHist td button{font-size:.7rem;padding:.25rem .5rem;margin-right:.3rem;background:var(--card);color:var(--text);border:1px solid var(--border)}
+#repHist td button:hover{border-color:var(--accent)}
 </style>
 </head>
 <body>
@@ -51,13 +55,48 @@ button.sec:hover{border-color:var(--accent)}
 <p class="msg" id="msg"></p>
 
 <h2>Reporte de visitas</h2>
-<div class="row">
-  <button id="repPrev" class="sec">Vista previa</button>
-  <button id="repSend">Enviar ahora</button>
-  <label><input type="checkbox" id="repForce"> reenviar este mes</label>
+<div class="row" id="repToolbar">
+  <button id="repNuevo">Nuevo reporte</button>
+  <button id="repLista" class="sec">Refrescar historial</button>
 </div>
-<p class="msg" id="repMsg"></p>
-<div id="repPrevBox" hidden><iframe id="repFrame" sandbox="" title="Vista previa del informe"></iframe></div>
+<div class="scroll"><table id="repHist"></table></div>
+
+<div id="repForm" hidden>
+  <div class="row">
+    <input id="repNombre" placeholder="Sitio / cliente (ej. Escuela Sónica)">
+    <input id="repURL" placeholder="URL (opcional)">
+    <input id="repPeriodo" placeholder="Período (ej. Agosto 2026)">
+  </div>
+  <div class="row">
+    <input id="repPara" list="repParaDl" placeholder="Email del cliente (varios separados por coma)">
+    <datalist id="repParaDl">
+      <option value="ignaciobavala@gmail.com">
+      <option value="jardintierradulce@gmail.com">
+      <option value="pampstudio@gmail.com">
+    </datalist>
+  </div>
+  <div class="row">
+    <input id="repVisitas" type="number" min="0" placeholder="Visitas">
+    <input id="repUnicas" type="number" min="0" placeholder="Únicas">
+    <input id="repWhatsapp" type="number" min="0" placeholder="Clics a WhatsApp">
+    <input id="repLeads" type="number" min="0" placeholder="Mensajes / leads">
+    <input id="repConversion" placeholder="Conversión (ej. 8,2%)">
+  </div>
+  <div class="row cols">
+    <textarea id="repFuentes" placeholder="De dónde llegan (uno por línea)&#10;instagram.com&#10;google.com&#10;referidos"></textarea>
+    <textarea id="repPaises" placeholder="Países (ej. Argentina, España)"></textarea>
+    <textarea id="repNota" placeholder="Nota / observación (opcional)"></textarea>
+  </div>
+  <div class="row">
+    <button id="repPrev" class="sec">Vista previa</button>
+    <button id="repSave">Guardar</button>
+    <button id="repSend">Guardar y enviar</button>
+    <button id="repCancel" class="sec">Cancelar</button>
+  </div>
+  <input type="hidden" id="repId">
+  <p class="msg" id="repMsg"></p>
+  <div id="repPrevBox" hidden><iframe id="repFrame" sandbox="" title="Vista previa del informe"></iframe></div>
+</div>
 
 <div id="out" hidden>
   <h2>Embudo</h2>
@@ -142,60 +181,130 @@ $('go').addEventListener('click', cargar);
 $('pin').addEventListener('keydown', function(e){ if(e.key === 'Enter') cargar(); });
 $('days').addEventListener('change', function(){ if(!$('out').hidden) cargar(); });
 
-// ── reporte de visitas ────────────────────────────────────────────────────
+// ── reportes manuales ────────────────────────────────────────────────────
 function repPin(){
   var pin = $('pin').value.trim();
   if(!pin){ $('repMsg').className = 'msg err'; $('repMsg').textContent = 'Falta el PIN.'; return null; }
   return pin;
 }
-function repDays(){
-  return 'days=' + encodeURIComponent($('days').value);
+function repForm(){
+  return {
+    nombre: $('repNombre').value, url: $('repURL').value, periodo: $('repPeriodo').value,
+    para: $('repPara').value, visitas: $('repVisitas').value, unicas: $('repUnicas').value,
+    whatsapp: $('repWhatsapp').value, leads: $('repLeads').value, conversion: $('repConversion').value,
+    fuentes: $('repFuentes').value, paises: $('repPaises').value, nota: $('repNota').value
+  };
 }
-
-// Vista previa: el panel pide el HTML con el PIN en el header y lo dibuja en
-// un iframe con srcdoc — el PIN nunca viaja en la URL. El iframe va con
-// sandbox="" porque el HTML de un mail no ejecuta scripts.
-$('repPrev').addEventListener('click', function(){
-  var pin = repPin(); if(!pin) return;
-  $('repMsg').className = 'msg'; $('repMsg').textContent = 'Armando vista previa…';
-  fetch('/api/reportes?preview=1&' + repDays(), { headers: { 'x-panel-pin': pin } })
+function repFill(r){
+  $('repNombre').value = r.nombre || ''; $('repURL').value = r.url || ''; $('repPeriodo').value = r.periodo || '';
+  $('repPara').value = r.para || '';
+  $('repVisitas').value = r.visitas == null ? '' : r.visitas;
+  $('repUnicas').value = r.unicas == null ? '' : r.unicas;
+  $('repWhatsapp').value = r.whatsapp == null ? '' : r.whatsapp;
+  $('repLeads').value = r.leads == null ? '' : r.leads;
+  $('repConversion').value = r.conversion || '';
+  $('repFuentes').value = r.fuentes || ''; $('repPaises').value = r.paises || ''; $('repNota').value = r.nota || '';
+  $('repId').value = r.id || '';
+}
+function repClear(){
+  ['repNombre','repURL','repPeriodo','repPara','repVisitas','repUnicas','repWhatsapp','repLeads','repConversion','repFuentes','repPaises','repNota','repId'].forEach(function(i){ $(i).value=''; });
+  $('repPrevBox').hidden = true;
+  $('repMsg').className = 'msg'; $('repMsg').textContent = '';
+}
+function repPost(payload){
+  var pin = repPin(); if(!pin) return Promise.reject(new Error('Falta el PIN.'));
+  $('repMsg').className = 'msg';
+  return fetch('/api/reportes', { method:'POST', headers:{ 'content-type':'application/json', 'x-panel-pin': pin }, body: JSON.stringify(payload) })
     .then(function(r){
       if(r.status === 403) throw new Error('PIN incorrecto.');
-      if(!r.ok) throw new Error('Error ' + r.status + '.');
-      return r.text();
-    })
-    .then(function(html){
-      $('repPrevBox').hidden = false;
-      $('repFrame').srcdoc = html;
-      $('repMsg').textContent = 'Vista previa: es exactamente lo que llega por mail.';
-    })
-    .catch(function(e){
-      $('repMsg').className = 'msg err';
-      $('repMsg').textContent = e.message || 'No se pudo armar la vista previa.';
-    });
-});
-
-$('repSend').addEventListener('click', function(){
-  var pin = repPin(); if(!pin) return;
-  var url = '/api/reportes?' + repDays() + ($('repForce').checked ? '&force=1' : '');
-  $('repMsg').className = 'msg'; $('repMsg').textContent = 'Enviando…';
-  fetch(url, { headers: { 'x-panel-pin': pin } })
-    .then(function(r){
-      if(r.status === 403) throw new Error('PIN incorrecto.');
+      if(r.status === 422) throw new Error('Acción desconocida.');
+      var ct = r.headers.get('content-type') || '';
+      if(ct.indexOf('text/html') === 0) return r.text();
       return r.json().then(function(j){
-        if(!r.ok || !j.ok) throw new Error(j.motivo || ('Error ' + r.status + '.'));
+        if(!r.ok || j.ok === false) throw new Error(j.motivo || j.error || ('Error ' + r.status));
         return j;
       });
-    })
-    .then(function(j){
-      var canal = j.canal === 'resend' ? 'Resend' : 'Cloudflare (send_email)';
-      $('repMsg').textContent = 'Enviado por ' + canal + ' → ' + j.to.join(', ') + ' · ' + j.subject;
-    })
-    .catch(function(e){
-      $('repMsg').className = 'msg err';
-      $('repMsg').textContent = e.message || 'No se pudo enviar.';
     });
+}
+function repRowDatos(r){
+  return { nombre:r.nombre, url:r.url, periodo:r.periodo, para:r.para, visitas:r.visitas, unicas:r.unicas,
+    whatsapp:r.whatsapp, leads:r.leads, conversion:r.conversion, fuentes:r.fuentes, paises:r.paises, nota:r.nota };
+}
+function cargarLista(){
+  repPost({ accion:'lista' }).then(function(j){
+    var rows = j.reportes || [];
+    $('repHist').innerHTML = rows.length
+      ? '<tr><th>Período</th><th>Sitio</th><th>Para</th><th>Estado</th><th>Enviado</th><th></th></tr>' +
+        rows.map(function(r){
+          return '<tr><td>' + esc(r.periodo) + '</td><td>' + esc(r.nombre) + '</td><td>' + esc(r.para) + '</td>' +
+            '<td>' + (r.estado === 'enviado' ? 'enviado' : 'borrador') + '</td>' +
+            '<td>' + (r.enviado_at || '—') + '</td>' +
+            '<td>' +
+              '<button data-act="prev" data-id="' + r.id + '">Ver</button>' +
+              '<button data-act="edit" data-id="' + r.id + '">Editar</button>' +
+              '<button data-act="send" data-id="' + r.id + '">Enviar</button>' +
+              '<button data-act="del" data-id="' + r.id + '">Borrar</button>' +
+            '</td></tr>';
+        }).join('')
+      : '<tr><td class="msg">Todavía no hay reportes.</td></tr>';
+  }).catch(function(e){ $('repMsg').className = 'msg err'; $('repMsg').textContent = e.message; });
+}
+
+$('repHist').addEventListener('click', function(e){
+  var b = e.target.closest('button'); if(!b) return;
+  var id = parseInt(b.getAttribute('data-id'), 10);
+  var act = b.getAttribute('data-act');
+  if(act === 'edit'){ $('repForm').hidden = false; $('repPrevBox').hidden = true; }
+  repPost({ accion:'lista' }).then(function(j){
+    var r = (j.reportes || []).filter(function(x){ return x.id === id; })[0];
+    if(!r) return;
+    if(act === 'edit'){ repFill(r); return; }
+    if(act === 'prev'){
+      return repPost({ accion:'preview', datos: repRowDatos(r) }).then(function(html){
+        $('repPrevBox').hidden = false; $('repFrame').srcdoc = html;
+      });
+    }
+    if(act === 'send'){
+      return repPost({ accion:'enviar', id: id }).then(function(s){
+        $('repMsg').textContent = 'Enviado por ' + (s.canal === 'resend' ? 'Resend' : 'Cloudflare') + ' → ' + s.to.join(', ');
+        cargarLista();
+      });
+    }
+    if(act === 'del'){
+      if(!confirm('¿Borrar este reporte?')) return;
+      return repPost({ accion:'borrar', id: id }).then(function(){ cargarLista(); $('repMsg').textContent = 'Borrado.'; });
+    }
+  }).catch(function(err){ $('repMsg').className = 'msg err'; $('repMsg').textContent = err.message; });
 });
+
+$('repNuevo').addEventListener('click', function(){ repClear(); $('repForm').hidden = false; $('repNombre').focus(); });
+$('repCancel').addEventListener('click', function(){ $('repForm').hidden = true; repClear(); });
+$('repLista').addEventListener('click', cargarLista);
+
+$('repPrev').addEventListener('click', function(){
+  $('repMsg').textContent = 'Armando vista previa…';
+  repPost({ accion:'preview', datos: repForm() })
+    .then(function(html){
+      $('repPrevBox').hidden = false; $('repFrame').srcdoc = html;
+      $('repMsg').textContent = 'Vista previa: es exactamente lo que llega por mail.';
+    })
+    .catch(function(e){ $('repMsg').className = 'msg err'; $('repMsg').textContent = e.message || 'No se pudo armar la vista previa.'; });
+});
+
+function repSaveEnviar(enviar){
+  $('repMsg').textContent = enviar ? 'Guardando y enviando…' : 'Guardando…';
+  repPost({ accion:'guardar', datos: repForm(), id: $('repId').value || null })
+    .then(function(g){
+      if(!enviar){ $('repMsg').textContent = 'Guardado (id ' + g.id + ').'; cargarLista(); return; }
+      return repPost({ accion:'enviar', id: g.id }).then(function(s){
+        $('repMsg').textContent = 'Enviado por ' + (s.canal === 'resend' ? 'Resend' : 'Cloudflare') + ' → ' + s.to.join(', ');
+        cargarLista();
+      });
+    })
+    .catch(function(e){ $('repMsg').className = 'msg err'; $('repMsg').textContent = e.message || 'No se pudo guardar.'; });
+}
+$('repSave').addEventListener('click', function(){ repSaveEnviar(false); });
+$('repSend').addEventListener('click', function(){ repSaveEnviar(true); });
 </script>
 </body>
 </html>
