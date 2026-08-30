@@ -63,6 +63,7 @@ const LLMS = `# Ignacio Vavala
 - ${ORIGIN}/ — inicio (espanol)
 - ${ORIGIN}/en/ — inicio (ingles)
 - ${ORIGIN}/piezas/botella — pieza interactiva
+- ${ORIGIN}/auditoria — herramienta gratuita: audita la velocidad y el SEO de un sitio y traduce el resultado a clientes perdidos
 - ${ORIGIN}/piezas/flor — pieza interactiva (me va a salir: la flor que nunca dice que no)
 `;
 
@@ -104,6 +105,12 @@ const SITEMAP = `<?xml version="1.0" encoding="UTF-8"?>
     <xhtml:link rel="alternate" hreflang="x-default" href="${ORIGIN}/piezas/botella"/>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>${ORIGIN}/auditoria</loc>
+    <lastmod>2026-08-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
   </url>
   <url>
     <loc>${ORIGIN}/piezas/flor</loc>
@@ -253,7 +260,7 @@ async function handleContacto(request, env, ctx) {
 
 // ── la botella: mensajes a la deriva ─────────────────────────────────────
 const MSG_MAX = 500;
-const RATE = { throw: 5, fish: 8, admin: 5, ev: 80, contacto: 3 }; // por IP cada 5 minutos
+const RATE = { throw: 5, fish: 8, admin: 5, ev: 80, contacto: 3, auditoria: 6 }; // por IP cada 5 minutos
 
 const safeEqual = (a, b) => {
   if (typeof a !== "string" || typeof b !== "string" || a.length !== b.length) return false;
@@ -532,6 +539,8 @@ const EVENTS = new Set([
   "svc:click", "work:click", "pieza:click",
   "flor:jugar", "flor:final", "flor:share",
   "form:start", "form:ok",
+  "aud:start", "aud:ok", "aud:cta",
+  "cta:hero", "cta:pill", "cta:nav", "cta:svcfoot", "cta:auditoria",
   "out:whatsapp", "out:mail", "out:github",
 ]);
 
@@ -627,6 +636,381 @@ async function handleStats(request, db, env) {
     countries: countries.results.map((r) => ({ ...r, name: countryName(r.country) || r.country })),
   });
 }
+// ── auditoria gratuita de sitios ──────────────────────────────────────────
+// Que hace y que no: no envuelve Lighthouse ni abre un navegador headless.
+// Baja el HTML, lo lee con HTMLRewriter y le pregunta el peso a los assets.
+// Eso no da un puntaje de Google, da algo mas util para el dueno de un
+// negocio: defectos con nombre y peso en kilobytes. El puntaje ya lo regala
+// PageSpeed; lo que no existe es la traduccion a plata.
+
+const AUD_TIMEOUT = 8000;      // por request; el total lo corta el subrequest budget
+const AUD_HTML_MAX = 1500000;  // 1,5 MB de HTML alcanza y sobra
+const AUD_ASSETS = 30;         // cuantos assets se pesan como maximo
+
+// Velocidad efectiva de una conexion movil tipica en AR y el costo fijo de
+// abrir la conexion. Son supuestos, y la pagina los dice en voz alta: el
+// numero sirve para comparar, no para peritar.
+const AUD_KBPS = 190;          // KB/s reales sobre 4G con senal media
+const AUD_HANDSHAKE = 0.55;    // segundos de DNS + TLS antes del primer byte
+
+// Se identifica: un sitio que no quiere ser auditado tiene que poder bloquearlo.
+const AUD_UA = "Mozilla/5.0 (compatible; ivavala-auditoria/1.0; +https://ivavala.com/auditoria)";
+
+// SSRF: la URL la escribe un desconocido. Se rechaza todo lo que no parezca
+// un dominio publico de verdad — nada de IPs literales, puertos raros,
+// credenciales en la URL ni TLDs internos. Un negocio real siempre tiene
+// dominio, asi que cerrar por completo estas puertas no pierde ningun caso.
+const AUD_TLD_MALO = /^(local|internal|localhost|home|lan|intranet|test|example|invalid|onion)$/i;
+
+function audUrl(raw) {
+  let s = String(raw || "").trim();
+  if (!s) return { error: "Escribí la dirección de tu sitio." };
+  if (s.length > 300) return { error: "Esa dirección es demasiado larga." };
+  if (!/^https?:\/\//i.test(s)) s = "https://" + s;
+  let u;
+  try { u = new URL(s); } catch (e) { return { error: "Esa dirección no se entiende. Probá con algo como mitienda.com.ar" }; }
+  if (u.protocol !== "https:" && u.protocol !== "http:") return { error: "Solo puedo mirar direcciones web." };
+  if (u.username || u.password) return { error: "Sacá el usuario y la contraseña de la dirección." };
+  if (u.port && u.port !== "80" && u.port !== "443") return { error: "Solo puedo mirar sitios en los puertos web habituales." };
+  const h = u.hostname.toLowerCase();
+  // Una IP literal (v4 o v6) nunca es el sitio de un negocio, y es justo la
+  // forma de pedirme que golpee una direccion interna.
+  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(h) || h.includes(":") || h.startsWith("[")) {
+    return { error: "Necesito un dominio, no una dirección IP." };
+  }
+  const partes = h.split(".");
+  if (partes.length < 2) return { error: "Falta el dominio completo. Probá con mitienda.com.ar" };
+  const tld = partes[partes.length - 1];
+  if (tld.length < 2 || AUD_TLD_MALO.test(tld)) return { error: "Ese dominio no es público." };
+  u.hash = "";
+  return { url: u };
+}
+
+// Lee el cuerpo con un tope duro: un content-length mentido no puede hacernos
+// tragar 200 MB.
+async function audLeer(res, max) {
+  const reader = res.body && res.body.getReader();
+  if (!reader) return { texto: "", bytes: 0 };
+  const partes = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.length;
+    if (total > max) { try { await reader.cancel(); } catch (e) {} break; }
+    partes.push(value);
+  }
+  const buf = new Uint8Array(total > max ? max : total);
+  let off = 0;
+  for (const p of partes) { buf.set(p, off); off += p.length; }
+  return { texto: new TextDecoder("utf-8").decode(buf), bytes: total };
+}
+
+const audAbs = (href, base) => { try { return new URL(href, base).toString(); } catch (e) { return null; } };
+const audMismoOrigen = (a, b) => { try { return new URL(a).origin === new URL(b).origin; } catch (e) { return false; } };
+
+// Pesa un asset sin bajarlo entero: primero HEAD, y si el servidor no lo
+// soporta o no informa el largo, un GET con Range de un byte. Si igual no
+// dice nada, se cuenta como desconocido y la pagina lo aclara — es preferible
+// a inventar un peso.
+async function audPesar(u) {
+  const opts = { redirect: "follow", signal: AbortSignal.timeout(AUD_TIMEOUT), headers: { "user-agent": AUD_UA } };
+  try {
+    const h = await fetch(u, { ...opts, method: "HEAD" });
+    const len = h.headers.get("content-length");
+    if (h.ok && len) return { bytes: parseInt(len, 10), tipo: h.headers.get("content-type") || "" };
+  } catch (e) {}
+  // Muchos origenes (Cloudflare Assets entre ellos) no contestan HEAD con
+  // largo, y varios ignoran el Range y devuelven 200 con el archivo entero.
+  // Por eso se mira content-range Y content-length, y recien si no hay ninguno
+  // se cuenta a mano. El cuerpo se cancela apenas se sabe el numero.
+  try {
+    const g = await fetch(u, { ...opts, method: "GET", headers: { ...opts.headers, range: "bytes=0-0" } });
+    const tipo = g.headers.get("content-type") || "";
+    const cr = g.headers.get("content-range");
+    const m = cr && cr.match(/\/(\d+)\s*$/);
+    if (m) { try { if (g.body) await g.body.cancel(); } catch (e) {} return { bytes: parseInt(m[1], 10), tipo }; }
+    const len = g.headers.get("content-length");
+    if (len && g.status === 200) { try { if (g.body) await g.body.cancel(); } catch (e) {} return { bytes: parseInt(len, 10), tipo }; }
+    const leido = await audLeer(g, 12000000);
+    if (leido.bytes) return { bytes: leido.bytes, tipo };
+  } catch (e) {}
+  return null;
+}
+
+async function audAnalizar(u) {
+  const t0 = Date.now();
+  let res;
+  try {
+    res = await fetch(u.toString(), {
+      redirect: "follow",
+      signal: AbortSignal.timeout(AUD_TIMEOUT),
+      headers: { "user-agent": AUD_UA, accept: "text/html,application/xhtml+xml" },
+    });
+  } catch (e) {
+    return { error: "No pude abrir ese sitio. Puede estar caído, tardar demasiado o estar bloqueando visitas automáticas." };
+  }
+  const ttfb = (Date.now() - t0) / 1000;
+  if (!res.ok) return { error: "El sitio respondió con un error " + res.status + ". Revisá que la dirección sea la correcta." };
+  const ctype = res.headers.get("content-type") || "";
+  if (!/text\/html|application\/xhtml/i.test(ctype)) return { error: "Esa dirección no devuelve una página web." };
+
+  const finalUrl = res.url || u.toString();
+  const cuerpo = await audLeer(res, AUD_HTML_MAX);
+  const html = cuerpo.texto || "";
+
+  // Lo que se saca del HTML. Se hace con una pasada de HTMLRewriter porque es
+  // streaming y nativo del runtime: nada de meter un parser en el bundle.
+  const d = {
+    imgs: [], scripts: [], css: [], viewport: false, title: "", desc: "",
+    h1: 0, lang: "", favicon: false, og: false,
+  };
+  let enHead = true;
+  await new HTMLRewriter()
+    .on("html", { element(el) { d.lang = el.getAttribute("lang") || ""; } })
+    .on("body", { element() { enHead = false; } })
+    .on("title", { text(t) { if (d.title.length < 200) d.title += t.text; } })
+    .on('meta[name="viewport"]', { element() { d.viewport = true; } })
+    .on('meta[name="description"]', { element(el) { d.desc = el.getAttribute("content") || ""; } })
+    .on('meta[property="og:image"]', { element() { d.og = true; } })
+    .on('link[rel~="icon"]', { element() { d.favicon = true; } })
+    .on("h1", { element() { d.h1++; } })
+    .on("img", {
+      element(el) {
+        if (d.imgs.length >= 120) return;
+        const src = el.getAttribute("src") || el.getAttribute("data-src") || "";
+        if (!src || src.startsWith("data:")) return;
+        d.imgs.push({
+          src,
+          lazy: (el.getAttribute("loading") || "").toLowerCase() === "lazy",
+          dims: !!(el.getAttribute("width") && el.getAttribute("height")),
+        });
+      },
+    })
+    .on("script[src]", {
+      element(el) {
+        if (d.scripts.length >= 60) return;
+        d.scripts.push({
+          src: el.getAttribute("src"),
+          bloquea: enHead && el.getAttribute("async") === null && el.getAttribute("defer") === null,
+        });
+      },
+    })
+    .on('link[rel="stylesheet"]', { element(el) { if (d.css.length < 40) d.css.push(el.getAttribute("href")); } })
+    .transform(new Response(html))
+    .arrayBuffer();
+
+  // Se pesan los assets propios: los de terceros (fuentes de Google, pixeles)
+  // no los puede arreglar el dueno del sitio, asi que ensucian el diagnostico.
+  const uniq = (arr) => [...new Set(arr.filter(Boolean))];
+  const imgUrls = uniq(d.imgs.map((i) => audAbs(i.src, finalUrl))).filter((x) => x && audMismoOrigen(x, finalUrl));
+  const cssUrls = uniq(d.css.map((h) => audAbs(h, finalUrl))).filter((x) => x && audMismoOrigen(x, finalUrl));
+  const jsUrls = uniq(d.scripts.map((s) => audAbs(s.src, finalUrl))).filter((x) => x && audMismoOrigen(x, finalUrl));
+
+  const cupo = (arr, n) => arr.slice(0, n);
+  const objetivo = [
+    ...cupo(imgUrls, 20).map((u2) => ["img", u2]),
+    ...cupo(cssUrls, 5).map((u2) => ["css", u2]),
+    ...cupo(jsUrls, 5).map((u2) => ["js", u2]),
+  ].slice(0, AUD_ASSETS);
+
+  // Un HTML minusculo, sin titulo y sin un solo asset no es un sitio: es un
+  // muro anti-bots, un redirect por JavaScript o una pagina de error. Emitir
+  // seis hallazgos seguros sobre eso es la forma mas rapida de perder la
+  // confianza del que vino a que le digan la verdad.
+  if (!d.title.trim() && imgUrls.length + cssUrls.length + jsUrls.length === 0 && html.length < 5000) {
+    return { error: "Ese sitio no me dejó ver su contenido: me devolvió una página vacía. Suele pasar cuando hay protección contra visitas automáticas. Probá con otra dirección." };
+  }
+
+  const pesados = await Promise.all(objetivo.map(async ([k, u2]) => [k, u2, await audPesar(u2)]));
+
+  let bImg = 0, bCss = 0, bJs = 0, sinPeso = 0, imgOk = 0;
+  const grandes = [];
+  for (const [k, u2, r] of pesados) {
+    if (!r || !isFinite(r.bytes)) { sinPeso++; continue; }
+    if (k === "img") { bImg += r.bytes; imgOk++; grandes.push({ u: u2, bytes: r.bytes, tipo: r.tipo }); }
+    else if (k === "css") bCss += r.bytes;
+    else bJs += r.bytes;
+  }
+  grandes.sort((a, b) => b.bytes - a.bytes);
+
+  // Solo se pesan las primeras 20 imagenes: un diario con 120 daria un total
+  // ridiculamente bajo, y justo en los sitios cargados de fotos es donde el
+  // dato importa. Se estima el resto con el promedio de la muestra y la
+  // pagina avisa que es una estimacion sobre una muestra, no un conteo.
+  const imgMuestra = imgOk < imgUrls.length;
+  if (imgOk > 0 && imgMuestra) bImg = Math.round((bImg / imgOk) * imgUrls.length);
+
+  const bHtml = cuerpo.bytes || 0;
+  const total = bHtml + bImg + bCss + bJs;
+  const requests = 1 + imgUrls.length + cssUrls.length + jsUrls.length;
+
+  // Lo que viaja no es lo que pesa. El runtime de Workers descomprime solo y
+  // borra el content-encoding, asi que desde aca la compresion no se puede ni
+  // medir ni auditar: cualquier chequeo daria "sin comprimir" para todos. Lo
+  // que si se puede es no mentir en el tiempo — hoy practicamente todo hosting
+  // manda el texto comprimido, y brotli lo deja en torno a un tercio. Las
+  // imagenes ya vienen comprimidas y viajan tal cual.
+  const AUD_TEXTO = 3.5;
+  const transfer = Math.round(bImg + (bHtml + bCss + bJs) / AUD_TEXTO);
+
+  // Un sitio que arma el contenido con JavaScript esconde sus imagenes del
+  // HTML inicial: se avisa en vez de dar por bueno un peso que no es.
+  const parcial = d.imgs.length <= 2 && (jsUrls.length >= 2 || html.length > 60000);
+
+  // El numero que le importa al dueno: cuanto tarda en abrir desde un celular.
+  const segundos = Math.round((AUD_HANDSHAKE + ttfb + transfer / 1024 / AUD_KBPS) * 10) / 10;
+
+  return {
+    url: finalUrl, ttfb: Math.round(ttfb * 100) / 100, segundos,
+    bytes: { html: bHtml, img: bImg, css: bCss, js: bJs, total, transfer },
+    requests, sinPeso, parcial,
+    muestra: imgMuestra ? { medidas: imgOk, de: imgUrls.length } : null,
+    imgs: { total: d.imgs.length, medidas: imgUrls.length, sinLazy: d.imgs.filter((i) => !i.lazy).length, sinDims: d.imgs.filter((i) => !i.dims).length },
+    grandes: grandes.slice(0, 5),
+    bloquean: d.scripts.filter((s) => s.bloquea).length,
+    viewport: d.viewport, title: d.title.trim(), desc: String(d.desc || "").trim(),
+    h1: d.h1, lang: d.lang, favicon: d.favicon, og: d.og,
+    https: finalUrl.startsWith("https:"),
+  };
+}
+
+// Cuanta gente se va antes de que abra. Es una estimacion a partir del tiempo
+// de carga, no una medicion de las visitas reales del sitio, y la pagina lo
+// dice. Curva monotona y conservadora: sirve para ordenar y comparar.
+function audSeVan(seg) {
+  const pts = [[1, 3], [2, 6], [2.5, 9], [3, 14], [4, 24], [5, 32], [6, 38], [8, 45], [12, 55]];
+  if (seg <= pts[0][0]) return pts[0][1];
+  for (let i = 1; i < pts.length; i++) {
+    if (seg <= pts[i][0]) {
+      const [x0, y0] = pts[i - 1], [x1, y1] = pts[i];
+      return Math.round(y0 + ((seg - x0) / (x1 - x0)) * (y1 - y0));
+    }
+  }
+  return 60;
+}
+
+const audKB = (b) => (b >= 1048576 ? (b / 1048576).toFixed(1) + " MB" : Math.round(b / 1024) + " KB");
+
+// Los hallazgos. Cada uno dice que pasa en criollo, cuanto cuesta y que se
+// hace. El orden es por gravedad, no por categoria: el dueno lee los dos
+// primeros y cierra.
+function audHallazgos(a) {
+  const h = [];
+  const push = (sev, titulo, detalle, arreglo) => h.push({ sev, titulo, detalle, arreglo });
+
+  if (!a.viewport) {
+    push("alto", "Tu sitio no está preparado para celulares",
+      "Falta la instrucción que le dice al teléfono cómo mostrar la página. En un celular se ve la versión de computadora achicada: hay que agrandar con los dedos para leer. Hoy la mayoría de tus clientes te busca desde el celular.",
+      "Agregar la etiqueta viewport y revisar el diseño en pantalla chica.");
+  }
+  if (!a.https) {
+    push("alto", "El navegador avisa que tu sitio no es seguro",
+      "El sitio abre por HTTP. Chrome y Safari muestran un cartel de «No es seguro» al lado de la dirección, y mucha gente se va ahí mismo.",
+      "Instalar un certificado y redirigir todo a HTTPS. En la mayoría de los casos es gratis.");
+  }
+  if (a.bytes.img > 2500000) {
+    push("alto", "Las fotos son el problema principal",
+      "Pesan " + audKB(a.bytes.img) + " entre " + a.imgs.medidas + " imágenes. Es lo que más tarda en aparecer, y en un celular con datos se nota muchísimo.",
+      "Convertir a WebP y achicarlas al tamaño real en que se muestran. Se suele bajar un 80% sin que se note la diferencia.");
+  } else if (a.bytes.img > 1000000) {
+    push("medio", "Las fotos se pueden achicar bastante",
+      "Pesan " + audKB(a.bytes.img) + ". No es grave, pero es la mejora más barata que tenés disponible.",
+      "Convertir a WebP y servirlas al tamaño en que se ven.");
+  }
+  if (a.imgs.sinLazy > 6) {
+    push("medio", "El sitio carga de una todas las fotos, incluso las que no se ven",
+      a.imgs.sinLazy + " de " + a.imgs.total + " imágenes se descargan apenas entrás, aunque estén al final de la página y el visitante nunca baje hasta ahí.",
+      'Agregar loading="lazy" a las imágenes que no están en la primera pantalla.');
+  }
+  if (a.bloquean > 0) {
+    push("medio", "Hay " + a.bloquean + " archivo" + (a.bloquean > 1 ? "s" : "") + " que frena" + (a.bloquean > 1 ? "n" : "") + " el dibujo de la página",
+      "Son scripts que el navegador tiene que bajar y ejecutar antes de mostrar nada. Mientras tanto el visitante ve una pantalla en blanco.",
+      "Agregarles defer o async, o moverlos al final del documento.");
+  }
+  if (a.imgs.sinDims > 4) {
+    push("medio", "El contenido salta mientras carga",
+      a.imgs.sinDims + " imágenes no declaran su tamaño, así que el texto se corre solo a medida que van apareciendo. Es la razón por la que a veces tocás un botón y terminás en otro lado.",
+      "Poner width y height en cada imagen.");
+  }
+  if (a.ttfb > 1.2) {
+    push("medio", "El servidor tarda en contestar",
+      "Tarda " + a.ttfb + " segundos en devolver el primer dato, antes de bajar una sola foto. Eso es hosting, no diseño.",
+      "Revisar el plan de hosting, activar caché o mover el sitio a una red de distribución.");
+  }
+  if (!a.title || a.title.length < 10) {
+    push("alto", "Google no sabe cómo se llama tu sitio",
+      a.title ? "El título es «" + a.title + "», demasiado corto para decir qué hacés y dónde." : "La página no tiene título. Es el renglón azul que Google muestra en los resultados.",
+      "Escribir un título de 50-60 caracteres con qué hacés y en qué zona.");
+  }
+  if (!a.desc) {
+    push("medio", "Falta el texto que Google muestra abajo del título",
+      "Sin descripción, Google inventa un fragmento agarrando cualquier texto suelto de la página. Suele quedar feo y no invita a entrar.",
+      "Escribir una descripción de 150 caracteres, como un aviso corto.");
+  }
+  if (a.h1 === 0) {
+    push("medio", "La página no tiene un título principal",
+      "Falta el encabezado que le dice a Google de qué se trata la página.",
+      "Poner un h1 con lo que hacés.");
+  } else if (a.h1 > 3) {
+    push("bajo", "Hay " + a.h1 + " títulos principales compitiendo",
+      "Cuando todo es el título principal, ninguno lo es, y Google no sabe con cuál quedarse.",
+      "Dejar un solo h1 por página.");
+  }
+  if (!a.og) {
+    push("medio", "Cuando comparten tu link por WhatsApp no se ve nada",
+      "No hay imagen de vista previa configurada. El link llega como texto pelado, sin foto ni descripción, y se toca mucho menos.",
+      "Agregar las etiquetas Open Graph con una imagen de 1200x630.");
+  }
+  if (!a.favicon) {
+    push("bajo", "Falta el iconito de la pestaña",
+      "Sin favicon, el navegador muestra una hoja gris genérica. Es un detalle, pero es de los que se notan.",
+      "Agregar un favicon.");
+  }
+  if (!a.lang) {
+    push("bajo", "La página no declara que está en español",
+      "Sin eso, el navegador ofrece traducir un sitio que ya está en español, y los lectores de pantalla lo pronuncian en inglés.",
+      'Poner lang="es" en la etiqueta html.');
+  }
+  const orden = { alto: 0, medio: 1, bajo: 2 };
+  return h.sort((x, y) => orden[x.sev] - orden[y.sev]);
+}
+
+async function handleAuditoria(request, env, ctx) {
+  const db = env.portafolio_db;
+  let data;
+  try { data = await request.json(); } catch (e) { return json({ error: "bad_json" }, 400); }
+
+  if (db) {
+    const rate = await allowRate(db, ipOf(request), "auditoria");
+    if (!rate.ok) {
+      return json({ error: "rate_limited", retry_after: rate.retry,
+        mensaje: "Esperá unos minutos: ya miré varios sitios desde acá." }, 429, { "retry-after": String(rate.retry) });
+    }
+  }
+
+  const v = audUrl(data.url);
+  if (v.error) return json({ error: "url_invalida", mensaje: v.error }, 400);
+
+  let a;
+  try { a = await audAnalizar(v.url); }
+  catch (e) { return json({ error: "fallo", mensaje: "Algo salió mal mirando ese sitio. Probá de nuevo en un rato." }, 502); }
+  if (a.error) return json({ error: "no_alcanzable", mensaje: a.error }, 422);
+
+  const hallazgos = audHallazgos(a);
+  const seVan = audSeVan(a.segundos);
+  // El evento va sin la URL auditada: interesa cuanta gente usa la herramienta,
+  // no que sitio miro cada uno.
+  if (db) ctx.waitUntil(db.prepare("INSERT INTO events (name, path, lang) VALUES ('aud:run', '/auditoria', 'es')").run().catch(() => {}));
+
+  return json({ ok: true, dominio: new URL(a.url).hostname.replace(/^www\./, ""), url: a.url,
+    segundos: a.segundos, seVan, ttfb: a.ttfb, bytes: a.bytes, peso: audKB(a.bytes.transfer),
+    requests: a.requests, sinPeso: a.sinPeso, parcial: a.parcial, muestra: a.muestra, imgs: a.imgs,
+    grandes: a.grandes.map((g) => ({ nombre: decodeURIComponent(new URL(g.u).pathname.split("/").pop() || "").slice(0, 60), peso: audKB(g.bytes) })),
+    hallazgos });
+}
+
+
 
 export default {
   async fetch(request, env, ctx) {
@@ -666,6 +1050,13 @@ export default {
       const db = env.portafolio_db;
       if (!db) return json({ error: "db_unavailable" }, 503);
       return handleStats(request, db, env);
+    }
+
+    if (url.pathname === "/api/auditoria") {
+      if (request.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+      const db = env.portafolio_db;
+      if (db) sweepRates(db, ctx);
+      return handleAuditoria(request, env, ctx);
     }
 
     if (url.pathname === "/api/contacto") {

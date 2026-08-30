@@ -205,6 +205,9 @@ h2{font-family:var(--display);text-wrap:balance;margin:.35rem 0 1rem;font-size:c
 .hero-cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:1.3rem}
 .hero-cta a{display:inline-flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.72rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:.7rem 1.1rem;border-radius:6px;text-decoration:none;transition:filter .15s,color .15s,border-color .15s}
 .hero-cta .p{background:var(--accent);color:var(--btn-text)}
+.freebie{margin-top:1.1rem;border:1px dashed var(--border);border-radius:8px;padding:.85rem 1rem;display:flex;flex-wrap:wrap;align-items:baseline;gap:.4rem .6rem;font-size:.92rem;line-height:1.5;color:var(--dim)}
+.freebie b{color:var(--text);font-weight:600}
+.freebie a{font-family:var(--mono);font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
 .hero-cta .p:hover{filter:brightness(1.13);text-decoration:none}
 .hero-cta .s{border:1px solid var(--border);color:var(--dim);font-weight:400}
 .hero-cta .s:hover{color:var(--accent);border-color:var(--accent);text-decoration:none}
@@ -255,7 +258,7 @@ h2{font-family:var(--display);text-wrap:balance;margin:.35rem 0 1rem;font-size:c
 <div class="page">
 <nav class="nav">
 <div class="nav-inner">
-<div class="nav-links"><a href="#servicios">servicios</a><span class="sep"> / </span><a href="#trabajo">trabajo</a><span class="sep"> / </span><a href="#componentes">componentes</a><span class="sep"> / </span><a href="#stack">stack</a><span class="sep"> / </span><a href="#faq">faq</a><span class="sep"> / </span><a href="#contacto">contacto</a></div>
+<div class="nav-links"><a href="#servicios">servicios</a><span class="sep"> / </span><a href="#trabajo">trabajo</a><span class="sep"> / </span><a href="#componentes">componentes</a><span class="sep"> / </span><a href="#stack">stack</a><span class="sep"> / </span><a href="#faq">faq</a><span class="sep"> / </span><a href="/auditoria">auditor&#237;a</a><span class="sep"> / </span><a href="#contacto">contacto</a></div>
 <div class="nav-tools"><button class="theme-toggle" id="theme-toggle" aria-label="Cambiar tema">&#9681;</button><a href="/en/">EN</a></div>
 </div>
 </nav>
@@ -271,6 +274,8 @@ h2{font-family:var(--display);text-wrap:balance;margin:.35rem 0 1rem;font-size:c
 
 <p class="punch rv">Los construyo, me hago cargo de que sigan funcionando y, si algo falla, ya est&#225; resuelto antes de que lo notes.</p>
 <div class="hero-cta rv"><a class="p" href="#contacto" data-svc="Todavía no sé, arrancá vos">Contame tu proyecto &#8594;</a><a class="s" href="#trabajo">Ver trabajos</a></div>
+
+<div class="freebie rv"><span>&#191;Ya ten&#233;s sitio? <b>Te digo gratis qu&#233; lo est&#225; frenando</b> y cu&#225;nta gente se va antes de verlo.</span><a href="/auditoria">Revisarlo &#8594;</a></div>
 
 <hr>
 
@@ -302,7 +307,7 @@ h2{font-family:var(--display);text-wrap:balance;margin:.35rem 0 1rem;font-size:c
 <span class="ex">Torres del Paine · LABITCONF</span>
 </a>
 </div>
-<p class="svc-foot rv">¿Ninguna encaja del todo? <a href="#contacto" data-svc="Todavía no sé, arrancá vos">Contame qué necesitás</a> y lo pensamos juntos.</p>
+<p class="svc-foot rv">¿Ninguna encaja del todo? <a href="#contacto" data-svc="Todavía no sé, arrancá vos">Contame qué necesitás</a> y lo pensamos juntos. ¿Todavía mirando? <a href="/auditoria">Revisá tu sitio gratis</a>.</p>
 
 </div>
 </details>
@@ -667,8 +672,11 @@ if(location.hash)abrirDestino(location.hash);
 
   // Cada seccion desplegada, una sola vez por visita: interesa cuanta gente
   // llego a mirarla, no cuantas veces la abrio y cerro.
+  // Solo cuenta la seccion que alguien decide abrir. Las que ya vienen
+  // abiertas (servicios, trabajo) no se registran: disparaban en cada carga y
+  // daban exactamente el mismo numero que 'view', o sea que no median interes
+  // sino que la pagina existia.
   [].forEach.call(document.querySelectorAll('details.acc'), function(d){
-    if(d.id && d.open) ev('sec:' + d.id, true);
     d.addEventListener('toggle', function(){ if(d.open && d.id) ev('sec:' + d.id, true); });
   });
 
@@ -678,6 +686,14 @@ if(location.hash)abrirDestino(location.hash);
     if(t.closest('a[href*="wa.me"]')) ev('out:whatsapp');
     else if(t.closest('a[href^="mailto:"]')) ev('out:mail');
     else if(t.closest('a[href*="github.com"]')) ev('out:github');
+    else if(t.closest('a[href="/auditoria"]')) ev('cta:auditoria');
+    // Las puertas al contacto se separan: antes las cuatro dejaban el mismo
+    // sec:contacto y encima deduplicado, asi que no habia forma de saber cual
+    // funciona. Ahora cada una deja su rastro.
+    else if(t.closest('#cta-pill')) ev('cta:pill');
+    else if(t.closest('.hero-cta a.p')) ev('cta:hero');
+    else if(t.closest('.svc-foot a')) ev('cta:svcfoot');
+    else if(t.closest('.nav-links a[href="#contacto"]')) ev('cta:nav');
     else if(t.closest('.svc')) ev('svc:click');
     else if(t.closest('.work-card')) ev('work:click');
     else if(t.closest('.piece-card')) ev('pieza:click');
