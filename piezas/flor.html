@@ -3,20 +3,20 @@
 <head>
 <meta charset=utf-8>
 <meta content="width=device-width,initial-scale=1" name=viewport>
-<title>Me quiere — la flor que responde · Ignacio Vavala</title>
-<meta content="Escribí una pregunta, deshojá la flor de a un pétalo y quedate con lo que tiene para decirte." name=description>
+<title>Me va a salir — la flor que nunca dice que no · Ignacio Vavala</title>
+<meta content="Escribí lo que estás esperando, deshojá la flor de a un pétalo y quedate con lo que tiene para decirte." name=description>
 <meta name="theme-color" content="#0a0a0a">
 <link rel="preload" href="/fonts/courier-prime-700-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/geist-mono-100-900-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/img/flor/pergamino.webp" as="image">
 <link rel="canonical" href="https://ivavala.com/piezas/flor">
 <meta property="og:site_name" content="Ignacio Vavala">
-<meta property="og:title" content="Me quiere — la flor que responde">
-<meta property="og:description" content="Escribí una pregunta, deshojá la flor de a un pétalo y quedate con lo que tiene para decirte.">
+<meta property="og:title" content="Me va a salir — la flor que nunca dice que no">
+<meta property="og:description" content="Escribí lo que estás esperando y deshojá la flor de a un pétalo. Cuando no quede ninguno, contesta.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://ivavala.com/piezas/flor">
 <meta property="og:image" content="https://ivavala.com/img/flor/og-flor.jpg">
-<meta property="og:image:alt" content="Me quiere — pieza interactiva de Ignacio Vavala">
+<meta property="og:image:alt" content="Me va a salir — pieza interactiva de Ignacio Vavala">
 <meta property="og:locale" content="es_AR">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="../favicon.png" type="image/png">
@@ -160,6 +160,15 @@ h1::after{content:"_";color:var(--accent);opacity:.4}
 .mensaje{font-family:var(--display);font-size:clamp(1.25rem,4.6vw,1.7rem);line-height:1.35;letter-spacing:-.02em;color:#2f2417;text-wrap:balance;margin:.4rem 0 0}
 .firma{margin-top:1.1rem;padding-top:.8rem;border-top:2px dashed rgba(74,56,28,.32);font-family:var(--mono);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:#7a6238;line-height:1.9}
 .firma b{color:#2f2417;font-weight:700}
+/* El segundo latido: despues del mensaje, la flor confiesa que nunca dice que
+   no. Entra sola, unos segundos mas tarde, para que el mensaje llegue primero
+   y la confesion no se lea como parte de la respuesta. */
+.reveal{margin-top:1.3rem;padding-top:1rem;border-top:1px solid rgba(74,56,28,.28)}
+.js .reveal{opacity:0}
+.js .reveal.on{opacity:1;transition:opacity 1s ease}
+.reveal-k{font-family:var(--mono);font-size:.62rem;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#7a6238}
+.reveal-t{font-family:var(--display);font-size:1rem;line-height:1.5;color:#6b5636;max-width:400px;margin:.45rem auto 0;text-wrap:pretty}
+
 .share{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-top:1.1rem}
 .share .ink{margin-top:0;padding:.6rem 1rem;font-size:.66rem}
 .copied{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;line-height:1.5;color:#3f6b46;min-height:1.3em;margin-top:.6rem;overflow-wrap:anywhere}
@@ -196,6 +205,7 @@ h1::after{content:"_";color:var(--accent);opacity:.4}
   .rail svg{animation:none}
   .js .flower,.flower.pelada .centro{animation:none}
   .js .screen.on,.js .frase.nueva{animation:none}
+  .js .reveal{opacity:1;transition:none}
   /* El petalo igual tiene que irse: sin animacion, desaparece de una. */
   .petalo.cae{animation:none;opacity:0;visibility:hidden}
 }
@@ -205,14 +215,14 @@ h1::after{content:"_";color:var(--accent);opacity:.4}
 <div class="page">
 <nav class="nav">
 <div class="nav-inner">
-<div class="nav-links"><a href="../index.html#componentes">~/componentes</a><span class="sep"> / </span><span>me quiere</span></div>
+<div class="nav-links"><a href="../index.html#componentes">~/componentes</a><span class="sep"> / </span><span>me va a salir</span></div>
 <div class="nav-tools"><button class="theme-toggle" id="theme-toggle" aria-label="Cambiar tema">&#9681;</button></div>
 </div>
 </nav>
 <div class="main">
 
-<h1 class="rv">Me quiere</h1>
-<p class="sub rv">Escribí una pregunta y deshojá la flor de a un pétalo. Cuando no quede ninguno, la flor contesta.</p>
+<h1 class="rv">Me va a salir</h1>
+<p class="sub rv">Escribí lo que estás esperando y deshojá la flor de a un pétalo. Cuando no quede ninguno, la flor contesta.</p>
 <p class="punch rv">Nadie deshoja una flor para saber la verdad. Se deshoja para darse permiso de esperar algo.</p>
 
 <div class="board rv">
@@ -221,15 +231,16 @@ h1::after{content:"_";color:var(--accent);opacity:.4}
 <!-- ── 1. la pregunta ─────────────────────────────────────────────── -->
 <div class="screen on" id="s-ask">
   <p class="kicker">preguntale a la flor</p>
-  <h2 class="ask-title">¿Qué querés saber?</h2>
+  <h2 class="ask-title">¿Qué estás esperando?</h2>
   <p class="ask-hint">Escribilo como se lo dirías a alguien de confianza.</p>
   <textarea class="q-field" id="q" rows="2" maxlength="140" placeholder="¿Va a salir lo que estoy esperando?" aria-label="Tu pregunta"></textarea>
-  <button class="ink" id="btn-start" type="button">Conoc&#233; tu destino &#8594;</button>
+  <button class="ink" id="btn-start" type="button">Deshoj&#225; la flor &#8594;</button>
   <p class="ask-err" id="ask-err" role="status" aria-live="polite"></p>
 </div>
 
 <!-- ── 2. la flor ─────────────────────────────────────────────────── -->
 <div class="screen" id="s-play">
+  <p class="kicker" id="play-kicker" hidden>alguien te dej&#243; esta pregunta</p>
   <p class="q-echo" id="q-echo"></p>
   <div class="flower" id="flower">
     <button class="petalo" type="button" style="left:59.171%;top:53.110%;width:37.879%;height:35.965%;--ox:-14.105%;--oy:-5.765%;--dx:.834;--dy:.552;--spin:128deg;z-index:5" aria-label="Arrancar un pétalo"><img src="/img/flor/petalo-0.webp" alt="" width="288" height="273" decoding="async"></button>
@@ -252,6 +263,10 @@ h1::after{content:"_";color:var(--accent);opacity:.4}
     <p class="kicker" id="end-kicker">la flor, sin un solo pétalo, dice</p>
     <p class="q-echo" id="end-q"></p>
     <p class="mensaje" id="end-msg"></p>
+    <div class="reveal" id="reveal">
+      <p class="reveal-k">&#183; la flor nunca dice que no &#183;</p>
+      <p class="reveal-t">Ya lo sab&#237;as. Igual necesitabas que alguien lo dijera en voz alta.</p>
+    </div>
     <div class="share">
       <button class="ink" id="sh-native" type="button" hidden>Compartir</button>
       <a class="ink" id="sh-wa" href="https://wa.me/" target="_blank" rel="noopener">WhatsApp</a>
@@ -302,11 +317,19 @@ var io=new IntersectionObserver(function(es){
 [].forEach.call(document.querySelectorAll('.rv'),function(el){io.observe(el)});
 })();
 
-/* ── me quiere ───────────────────────────────────────────────────────────
+/* ── me va a salir ───────────────────────────────────────────────────────
+   La flor siempre dice que si. No es un bug del sorteo: es la pieza. El canto
+   binario ("me va a salir / no me va a salir") existe para sostener el
+   suspenso de los cinco petalos, y el final lo confiesa. Por eso la revelacion
+   entra despues del mensaje y no junto con el: si llegan juntos, se lee como
+   una aclaracion legal; separados, se lee como un regalo.
+
    Todo pasa en el navegador: no hay servidor, la pregunta no se guarda en
    ningun lado y la respuesta no es al azar. Sale de un hash de la pregunta,
    asi la misma pregunta da siempre el mismo mensaje: una tirada que cambia
-   cada vez que se recarga no es un oraculo, es una maquina de ruido.
+   cada vez que se recarga no es un oraculo, es una maquina de ruido. Ademas,
+   asi el que recibe un link deshoja y le sale exactamente lo mismo que le
+   salio a quien se lo mando.
    Lo unico que viaja son tres eventos anonimos del embudo (juega / termina /
    comparte), los mismos que mide el resto del sitio.
    ────────────────────────────────────────────────────────────────────── */
@@ -397,12 +420,13 @@ function dec(s){
 var sAsk=document.getElementById('s-ask'),sPlay=document.getElementById('s-play'),sEnd=document.getElementById('s-end');
 var qEl=document.getElementById('q'),askErr=document.getElementById('ask-err');
 var qEcho=document.getElementById('q-echo'),chant=document.getElementById('chant'),frase=document.getElementById('frase'),quedan=document.getElementById('quedan');
+var playKicker=document.getElementById('play-kicker'),reveal=document.getElementById('reveal');
 var flower=document.getElementById('flower');
 var endQ=document.getElementById('end-q'),endMsg=document.getElementById('end-msg'),endKicker=document.getElementById('end-kicker');
 var copied=document.getElementById('copied'),btnAgain=document.getElementById('btn-again');
 var petalos=[].slice.call(flower.querySelectorAll('.petalo'));
 
-var pregunta='',hq=0,sacados=0,cerrando=false;
+var pregunta='',hq=0,sacados=0,cerrando=false,revealT=0,dePorOtro=false;
 
 function show(el){
   [sAsk,sPlay,sEnd].forEach(function(s){s.classList.remove('on')});
@@ -415,18 +439,26 @@ function autoSize(){ qEl.style.height='auto'; qEl.style.height=Math.max(qEl.scro
 qEl.addEventListener('input',function(){ autoSize(); askErr.textContent=''; });
 qEl.addEventListener('keydown',function(e){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();empezar();} });
 
-function empezar(){
-  var v=limpiar(qEl.value);
-  if(v.length<3){ askErr.textContent='Escribí la pregunta primero.'; qEl.focus(); return; }
-  pregunta=v; hq=hash(v); sacados=0; cerrando=false;
+// Una sola puerta a la flor: da igual si la pregunta la escribiste vos o si te
+// la dejo alguien en un link. En los dos casos hay que deshojar.
+function arrancar(v,porOtro){
+  pregunta=v; hq=hash(v); sacados=0; cerrando=false; dePorOtro=!!porOtro;
+  clearTimeout(revealT); reveal.classList.remove('on');
+  playKicker.hidden=!porOtro;
   qEcho.textContent='«'+v+'»';
   flower.classList.remove('pelada');
   petalos.forEach(function(p){ p.classList.remove('cae'); p.disabled=false; });
   chant.textContent=''; chant.className='chant';
   frase.textContent='Tocá un pétalo.'; frase.className='frase';
   quedan.textContent='5 pétalos';
+  copied.textContent='';
   show(sPlay);
   ev('flor:jugar');
+}
+function empezar(){
+  var v=limpiar(qEl.value);
+  if(v.length<3){ askErr.textContent='Escribí lo que estás esperando.'; qEl.focus(); return; }
+  arrancar(v,false);
 }
 document.getElementById('btn-start').addEventListener('click',empezar);
 
@@ -436,9 +468,9 @@ petalos.forEach(function(p){
     p.disabled=true;
     p.classList.add('cae');
     sacados++;
-    // Cinco petalos: arranca y termina en "me quiere".
+    // Cinco petalos: arranca y termina en "me va a salir".
     var quiere=(sacados%2)===1;
-    chant.textContent=quiere?'me quiere':'no me quiere';
+    chant.textContent=quiere?'me va a salir':'no me va a salir';
     chant.className='chant'+(quiere?' si':'');
     frase.className='frase';
     void frase.offsetWidth;
@@ -455,28 +487,38 @@ petalos.forEach(function(p){
 });
 
 function terminar(){
-  endKicker.textContent='la flor, sin un solo pétalo, dice';
+  endKicker.textContent=dePorOtro?'la flor que te dejaron, sin un solo pétalo, dice':'la flor, sin un solo pétalo, dice';
   endQ.textContent='«'+pregunta+'»';
   endMsg.textContent=pick(MENSAJES,hq,7);
   copied.textContent='';
   armarShare();
   show(sEnd);
+  // La confesion llega sola, unos segundos despues del mensaje.
+  clearTimeout(revealT);
+  revealT=setTimeout(function(){ reveal.classList.add('on'); },2400);
   ev('flor:final');
 }
 
+// El texto que se comparte lleva la pregunta y no la respuesta. Mandar el
+// mensaje final es mandar el spoiler: el que lo recibe ya lo leyo todo y no
+// tiene ningun motivo para abrir el link ni para deshojar.
 function armarShare(){
   var link=URL_BASE+'?q='+enc(pregunta);
-  var texto='Le pregunté a la flor: «'+pregunta+'» y me dijo: '+endMsg.textContent;
+  var texto=(dePorOtro?'Me dejaron esta pregunta en la flor: «':'Le pregunté a la flor: «')+pregunta+'». Deshojala vos y fijate qué te dice.';
   document.getElementById('sh-wa').href='https://wa.me/?text='+encodeURIComponent(texto+'\n'+link);
   document.getElementById('sh-x').href='https://twitter.com/intent/tweet?text='+encodeURIComponent(texto)+'&url='+encodeURIComponent(link);
   var nat=document.getElementById('sh-native');
   if(navigator.share){
     nat.hidden=false;
-    nat.onclick=function(){ ev('flor:share'); navigator.share({title:'Me quiere',text:texto,url:link})['catch'](function(){}); };
+    // La URL va embebida en el `text` ademas de en `url`: en el share sheet de
+    // iOS varios destinos se quedan con el `text` y descartan el `url`, y aca
+    // el `?q=` no es un extra, es la pregunta entera. Cuesta un link duplicado
+    // en los destinos que soportan los dos campos.
+    nat.onclick=function(){ ev('flor:share'); navigator.share({title:'Me va a salir',text:texto+'\n'+link,url:link})['catch'](function(){}); };
   }
   document.getElementById('sh-copy').onclick=function(){
     ev('flor:share');
-    var ok=function(){ copied.textContent='Link copiado. Mandáselo a quien tenga la misma duda.'; };
+    var ok=function(){ copied.textContent='Link copiado. Mandáselo a alguien que hoy necesita un sí.'; };
     if(navigator.clipboard&&navigator.clipboard.writeText){
       navigator.clipboard.writeText(link).then(ok,function(){ copied.textContent=link; });
     }else{ copied.textContent=link; }
@@ -486,24 +528,22 @@ function armarShare(){
 }
 
 btnAgain.addEventListener('click',function(){
+  clearTimeout(revealT); reveal.classList.remove('on');
   qEl.value=''; autoSize(); askErr.textContent=''; copied.textContent='';
   show(sAsk);
   qEl.focus();
 });
 
-// Si el link trae una pregunta, se entra directo por el final: quien recibe el
-// link ve la tirada del otro y despues juega la suya.
+// Si el link trae una pregunta, el que lo recibe entra por la flor con esa
+// pregunta ya cargada y la deshoja el mismo. Antes caia en el final resuelto:
+// veia la respuesta ajena sin haber tocado un solo petalo, que es justo la
+// parte que da ganas de pasarlo.
 (function(){
   var m=location.search.match(/[?&]q=([^&]*)/);
   if(!m)return;
   var v=dec(decodeURIComponent(m[1]));
   if(v.length<3)return;
-  pregunta=v; hq=hash(v); sacados=5;
-  endKicker.textContent='alguien preguntó, y la flor contestó';
-  endQ.textContent='«'+v+'»';
-  endMsg.textContent=pick(MENSAJES,hq,7);
-  armarShare();
-  show(sEnd);
+  arrancar(v,true);
   btnAgain.textContent='Ahora preguntá lo tuyo';
 })();
 })();

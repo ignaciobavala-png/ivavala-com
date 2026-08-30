@@ -63,7 +63,7 @@ const LLMS = `# Ignacio Vavala
 - ${ORIGIN}/ — inicio (espanol)
 - ${ORIGIN}/en/ — inicio (ingles)
 - ${ORIGIN}/piezas/botella — pieza interactiva
-- ${ORIGIN}/piezas/flor — pieza interactiva (me quiere, no me quiere)
+- ${ORIGIN}/piezas/flor — pieza interactiva (me va a salir: la flor que nunca dice que no)
 `;
 
 const ROBOTS_BLOCK = `User-agent: *
