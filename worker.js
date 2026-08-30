@@ -149,6 +149,61 @@ const json = (obj, status, extra) =>
     },
   });
 
+// ── Resend ────────────────────────────────────────────────────────────────
+// Por que hay dos caminos de mail y no uno: el binding de Cloudflare solo
+// puede escribirle a la casilla verificada en wrangler.jsonc, asi que sirve
+// para avisarme a mi y para nada mas. Resend escribe a cualquiera, que es lo
+// que hace falta para contestarle a quien escribio.
+//
+// El aviso a mi sigue yendo por el binding a proposito: es el mail que no se
+// puede perder, y no depende de una API key ajena que se puede vencer.
+const ACUSE_FROM = "Ignacio Vavala <hola@ivavala.com>";
+const ACUSE_REPLY = DEST;
+
+async function enviarResend(env, { to, subject, text, replyTo }) {
+  if (!env.RESEND_API_KEY) throw new Error("falta RESEND_API_KEY");
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${env.RESEND_API_KEY}`,
+      "content-type": "application/json",
+    },
+    // reply_to va en snake_case: es la API HTTP, no el SDK de Node.
+    body: JSON.stringify({
+      from: ACUSE_FROM,
+      to: [to],
+      subject,
+      text,
+      ...(replyTo ? { reply_to: replyTo } : {}),
+    }),
+    signal: AbortSignal.timeout(8000),
+  });
+  if (!res.ok) {
+    throw new Error(`resend ${res.status}: ${(await res.text()).slice(0, 200)}`);
+  }
+  return res.json();
+}
+
+// El acuse que hoy no existe: el formulario promete respuesta en 24 horas
+// habiles y despues no le llega nada a la persona hasta que contesto a mano.
+function buildAcuse({ nombre, tipo, mensaje }) {
+  return [
+    `Hola ${nombre},`,
+    "",
+    "Recibí tu mensaje. Te respondo dentro de las 24 horas hábiles.",
+    "",
+    "Esto es lo que me llegó:",
+    `  Necesitás: ${tipo}`,
+    "",
+    mensaje ? mensaje.split("\n").map((l) => "  " + l).join("\n") : "  (sin mensaje)",
+    "",
+    "Si es urgente, escribime por WhatsApp: https://wa.me/5491127343775",
+    "",
+    "Ignacio Vavala",
+    "https://ivavala.com",
+  ].join("\n");
+}
+
 function buildMime({ nombre, email, whatsapp, tipo, mensaje }) {
   const subject = `Consulta de ${nombre} — ${tipo}`;
   const body = [
@@ -248,6 +303,20 @@ async function handleContacto(request, env, ctx) {
     console.error("send_email fallo:", err && err.message);
     return json({ error: "send_failed" }, 502);
   }
+
+  // El acuse al visitante va despues y aparte: si Resend falla, esta caido o
+  // todavia no verifico el dominio, la consulta ya esta a salvo en mi casilla
+  // y la persona ve el "listo" igual. Nunca puede tumbar el formulario.
+  if (env.RESEND_API_KEY) {
+    const acuse = enviarResend(env, {
+      to: email,
+      subject: "Recibí tu mensaje — Ignacio Vavala",
+      text: buildAcuse({ nombre, tipo, mensaje }),
+      replyTo: ACUSE_REPLY,
+    }).catch((err) => console.error("acuse resend fallo:", err && err.message));
+    if (ctx && ctx.waitUntil) ctx.waitUntil(acuse);
+  }
+
   return json({ ok: true });
 }
 
