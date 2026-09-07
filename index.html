@@ -5,7 +5,7 @@
 <meta content="width=device-width,initial-scale=1" name=viewport>
 <title>Ignacio Vavala — Desarrollador web full-stack</title>
 <meta content="Desarrollo webs, tiendas online y sistemas a medida con Next.js, Supabase y Cloudflare. Trabajo remoto para clientes de cualquier país, mantenimiento incluido." name=description>
-<link rel="preload" href="/fonts/courier-prime-700-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/space-grotesk-300-700-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/geist-mono-100-900-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="canonical" href="https://ivavala.com/">
 <link rel="alternate" hreflang="es" href="https://ivavala.com/">
@@ -29,67 +29,91 @@ document.documentElement.className+=' js';
 (function(){try{var t=localStorage.getItem('theme');document.documentElement.setAttribute('data-theme',t||'dark')}catch(e){document.documentElement.setAttribute('data-theme','dark')}})();
 </script>
 <style>
-/* Dos voces, repartidas por funcion. Courier Prime dice lo que dice una
+/* Dos voces, repartidas por funcion. Space Grotesk dice lo que dice una
    persona (el nombre, la promesa, los titulos); Geist Mono dice lo que dice la
    maquina (nav, botones, etiquetas, stack). Los parrafos largos siguen en la
-   sans del sistema: un monoespaciado es ancho y de renglon corto, y el texto
-   largo cansa — por eso el FAQ y las descripciones no van en Courier.
+   sans del sistema, mas comoda para leer de corrido.
    Autoalojadas: sin pedido a Google, sin filtrar la IP del visitante. */
-@font-face {font-family: 'Courier Prime'; font-style: normal; font-weight: 700; font-display: swap; src: url(/fonts/courier-prime-700-normal-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}
-@font-face {font-family: 'Courier Prime'; font-style: normal; font-weight: 700; font-display: swap; src: url(/fonts/courier-prime-700-normal-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
+@font-face {font-family: 'Space Grotesk'; font-style: normal; font-weight: 300 700; font-display: swap; src: url(/fonts/space-grotesk-300-700-normal-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}
+@font-face {font-family: 'Space Grotesk'; font-style: normal; font-weight: 300 700; font-display: swap; src: url(/fonts/space-grotesk-300-700-normal-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
 @font-face {font-family: 'Geist Mono'; font-style: normal; font-weight: 100 900; font-display: swap; src: url(/fonts/geist-mono-100-900-normal-latin-ext.woff2) format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}
 @font-face {font-family: 'Geist Mono'; font-style: normal; font-weight: 100 900; font-display: swap; src: url(/fonts/geist-mono-100-900-normal-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
 
 :root{
-  --display:"Courier Prime",Courier,"Courier New",monospace;
+  --display:"Space Grotesk","Courier Prime",Courier,"Courier New",monospace;
   --mono:"Geist Mono",ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
   --sans:-apple-system,BlinkMacSystemFont,"avenir next",avenir,helvetica,"helvetica neue",ubuntu,roboto,noto,"segoe ui",arial,sans-serif;
-  --bg:#0a0a0a;
-  --card:#101010;
-  --text:#e0e0e0;
-  --dim:#777;
-  --accent:#6ee7b7;
-  --accent2:#a78bfa;
-  --link:#6ee7b7;
-  --border:#222;
-  --input-bg:#0a0a0a;
-  --btn-text:#0a0a0a;
+  --bg:#172112;
+  --bg2:#1f2c18;
+  --card:#1d2a16;
+  --text:#eef2ea;
+  --dim:#8fa083;
+  --accent:#81e925;
+  --accent2:#ebbcce;
+  --link:#81e925;
+  --border:#2b3a22;
+  --input-bg:#141c10;
+  --btn-text:#172112;
   --rail:#fff;
   --rail-glow:rgba(255,255,255,.9);
   color-scheme:dark;
 }
 :root[data-theme="light"]{
-  --bg:#f7f6f3;
-  --card:#fff;
-  --text:#1b1b1b;
-  --dim:#5c5c5c;
-  --accent:#089e7e;
-  --accent2:#6b3fd4;
-  --link:#089e7e;
-  --border:#e3e3e0;
-  --input-bg:#fff;
-  --btn-text:#fff;
-  --rail:#1b1b1b;
+  --bg:#f6faf4;
+  --bg2:#ffffff;
+  --card:#ffffff;
+  --text:#172112;
+  --dim:#5b6b52;
+  --accent:#15803d;
+  --accent2:#c25b8c;
+  --link:#15803d;
+  --border:#e3e8df;
+  --input-bg:#ffffff;
+  --btn-text:#ffffff;
+  --rail:#172112;
   --rail-glow:rgba(0,0,0,.45);
   color-scheme:light;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;line-height:1.7;font-size:1rem;font-family:var(--sans)}
+body{background:var(--bg) radial-gradient(120% 70% at 50% -5%,var(--bg2),var(--bg) 55%);color:var(--text);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;line-height:1.7;font-size:1rem;font-family:var(--sans)}
+body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:140px 140px}
 a{color:var(--link);text-decoration:none;font-weight:500}a:hover{text-decoration:underline}
 ul{padding:0}li{list-style:none}
 hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
 
 .page{position:relative}
 
-.main{max-width:640px;margin:0 auto;padding:60px 20px 140px;position:relative;z-index:2}
-.main>*{max-width:600px}
+.main{max-width:1120px;margin:0 auto;padding:0 40px 140px;position:relative;z-index:2}
+.header{min-height:100svh;display:flex;flex-direction:column;justify-content:center}
 
-.header{display:flex;align-items:center;gap:1.2rem}
-.avatar{width:88px;height:88px;border-radius:50%;object-fit:cover;border:1px solid var(--border);flex-shrink:0}
-h1{font-family:var(--display);font-size:clamp(2.4rem,7vw,3.5rem);font-weight:700;letter-spacing:-.04em;line-height:1;color:var(--text);text-wrap:balance;font-optical-sizing:auto}
-h1::after{content:"_";color:var(--accent);opacity:.4}
+.hero-head{display:flex;align-items:center;gap:.7rem;margin-bottom:1.8rem}
+.avatar{width:42px;height:42px;border-radius:50%;object-fit:cover;border:1px solid var(--border)}
+.hero-kicker{display:inline-flex;align-items:center;gap:.55rem;font-family:var(--mono);font-size:.7rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
+.hero-kicker .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0;animation:pulse 2.4s ease-in-out infinite}
+.hero-name{font-family:var(--display);font-weight:700;letter-spacing:-.04em;line-height:.86;font-size:clamp(3rem,10vw,8rem);color:var(--text)}
+.hero-name .w{display:block;overflow:hidden}
+.hero-name .wi{display:inline-block}
+.js .hero-name .wi{transform:translateY(120%)}
+.js .hero-name.in .wi{transform:none;transition:transform .95s cubic-bezier(.2,.7,.3,1)}
+.js .hero-name.in .w:nth-child(2) .wi{transition-delay:.14s}
 @keyframes blink{50%{opacity:0}}
-.sub{font-size:clamp(1.02rem,2.7vw,1.15rem);color:var(--dim);margin-top:.5rem;font-weight:400;line-height:1.55;text-wrap:pretty}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:2.5rem 3.5rem;align-items:start;margin-top:2.4rem}
+.hero-main{max-width:34rem}
+.sub{font-size:clamp(1.02rem,2.4vw,1.18rem);color:var(--dim);font-weight:400;line-height:1.55;text-wrap:pretty}
+.hero-side{border-left:1px solid var(--border);padding-left:2.2rem}
+.hero-facts{margin-top:1.5rem;border-top:1px solid var(--border)}
+.hero-facts li{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;padding:.75rem 0;border-bottom:1px solid var(--border);font-size:.85rem;color:var(--dim)}
+.hero-facts .n{font-family:var(--display);font-size:1.45rem;letter-spacing:-.02em;color:var(--text);white-space:nowrap}
+@media (max-width:760px){
+  .hero-grid{grid-template-columns:1fr;gap:2rem}
+  .hero-side{border-left:none;padding-left:0}
+  .hero-main{max-width:none}
+}
+@media (max-width:640px){
+  .main{padding:0 20px 120px}
+  .nav-inner{padding:14px 20px}
+  .hero-name{line-height:.9}
+}
 .sub b{color:var(--accent);font-weight:700;font-family:var(--display);font-size:.94em;letter-spacing:-.02em}
 .tw-caret{display:inline-block;width:.5ch;height:1.02em;vertical-align:-.15em;margin-left:.08em;background:var(--accent);animation:blink 1.05s steps(1) infinite}
 .punch{color:var(--text);font-size:clamp(1.02rem,2.5vw,1.12rem);line-height:1.6;letter-spacing:-.01em;text-wrap:pretty;margin-top:1.1rem}
@@ -109,14 +133,24 @@ h2{font-family:var(--display);text-wrap:balance;margin:.35rem 0 1rem;font-size:c
 .form-card select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%23777'/></svg>");background-repeat:no-repeat;background-position:right .7rem center}
 .form-card input:focus,.form-card textarea:focus,.form-card select:focus{border-color:var(--accent)}
 .form-card textarea{resize:vertical;min-height:84px}
-.form-card .btn{display:block;width:100%;margin-top:1.2rem;background:var(--accent);color:var(--btn-text);border:none;border-radius:6px;padding:.7rem;font-family:var(--mono);font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:filter .15s}
+.form-actions{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.2rem}
+.form-card .btn{display:inline-flex;align-items:center;justify-content:center;width:auto;background:var(--accent);color:var(--btn-text);border:none;border-radius:6px;padding:.75rem 1.4rem;font-family:var(--mono);font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:filter .15s}
 .form-card .btn:hover{filter:brightness(1.15)}
 .form-card .btn:active{filter:brightness(.9)}
 .form-card .btn[disabled]{opacity:.5;cursor:wait}
 .form-card label .opt{text-transform:none;letter-spacing:0;opacity:.7}
 .form-card .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
-.form-card .btn-alt{display:block;width:100%;margin-top:.6rem;background:none;color:var(--dim);border:1px solid var(--border);border-radius:6px;padding:.65rem;font-family:var(--mono);font-size:.7rem;font-weight:400;letter-spacing:.08em;text-transform:uppercase;text-align:center;text-decoration:none;transition:color .15s,border-color .15s}
+.form-card .btn-alt{display:inline-flex;align-items:center;justify-content:center;width:auto;background:none;color:var(--dim);border:1px solid var(--border);border-radius:6px;padding:.65rem 1.1rem;font-family:var(--mono);font-size:.7rem;font-weight:400;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;transition:color .15s,border-color .15s}
 .form-card .btn-alt:hover{color:var(--accent);border-color:var(--accent);text-decoration:none}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.form-row label{margin-top:0}
+@media (max-width:520px){.form-row{grid-template-columns:1fr}}
+
+.stack-list{margin-top:.2rem;border-top:1px solid var(--border)}
+.stack-item{display:grid;grid-template-columns:200px 1fr;gap:1.5rem;padding:1.05rem 0;border-bottom:1px solid var(--border);align-items:baseline}
+.stack-item .k{font-family:var(--mono);font-size:.85rem;font-weight:600;color:var(--text);letter-spacing:.01em}
+.stack-item .d{font-size:.9rem;color:var(--dim);line-height:1.6;text-wrap:pretty}
+@media (max-width:640px){.stack-item{grid-template-columns:1fr;gap:.25rem}}
 .form-status{margin-top:.9rem;font-family:var(--mono);font-size:.8rem;line-height:1.5}
 .form-status.ok{color:var(--accent)}
 .form-status.err{color:#f87171}
@@ -128,21 +162,32 @@ h2{font-family:var(--display);text-wrap:balance;margin:.35rem 0 1rem;font-size:c
 .group{font-family:var(--mono);font-size:.65rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin:2rem 0 .5rem}
 .group::after{content:" —";color:var(--dim)}
 
-.work-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1rem;margin-top:.6rem}
-.work-card{display:block;background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;text-decoration:none;color:var(--text);transition:border-color .15s,transform .15s}
-.work-card:hover{border-color:var(--accent);text-decoration:none;transform:translateY(-2px)}
-.work-card img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;background:#000;border-bottom:1px solid var(--border)}
-.work-card .meta{padding:.75rem .9rem .85rem}
-.work-card h4{font-family:var(--display);font-size:.85rem;font-weight:700;letter-spacing:-.01em;color:var(--text)}
-.work-card p{font-size:.82rem;color:var(--dim);line-height:1.5;margin-top:.2rem}
-.work-card .tag{display:inline-block;margin-top:.55rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.05em;color:var(--accent2);border:1px solid var(--border);padding:.12rem .5rem;border-radius:3px}
-@media (max-width:640px){
-  .work-grid{grid-template-columns:1fr}
+.work-list{border-top:1px solid var(--border);margin-top:.6rem}
+.work-row{display:grid;grid-template-columns:3rem 1fr auto;gap:1rem 2rem;align-items:start;padding:1.6rem 0;border-bottom:1px solid var(--border);text-decoration:none;color:var(--text)}
+.work-row .idx{font-family:var(--mono);font-size:.72rem;font-weight:700;color:var(--dim);padding-top:.55rem;letter-spacing:.05em}
+.work-row .wr-body{display:flex;flex-direction:column;gap:.4rem;min-width:0}
+.work-row .wr-title{font-family:var(--display);font-size:clamp(1.5rem,4.5vw,2.9rem);font-weight:700;letter-spacing:-.02em;line-height:1.02;color:var(--text);transition:color .2s,transform .25s cubic-bezier(.2,.7,.3,1)}
+.work-row .wr-meta{font-size:.92rem;color:var(--dim);line-height:1.5;max-width:52ch;text-wrap:pretty}
+.work-row .wr-tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.3rem}
+.work-row .tag{font-family:var(--mono);font-size:.62rem;letter-spacing:.05em;color:var(--accent2);border:1px solid var(--border);padding:.14rem .55rem;border-radius:3px}
+.work-row .wr-thumb{display:none;width:100%;aspect-ratio:16/10;object-fit:cover;border:1px solid var(--border);border-radius:6px;margin-top:.4rem}
+.work-row .wr-arr{font-family:var(--mono);font-size:1.2rem;line-height:1;color:var(--dim);padding-top:.35rem;transition:color .2s,transform .25s cubic-bezier(.2,.7,.3,1)}
+@media (hover:hover){
+  .work-row:hover .wr-title{color:var(--accent);transform:translateX(8px)}
+  .work-row:hover .wr-arr{color:var(--accent);transform:translate(4px,-4px)}
 }
+@media (max-width:760px){
+  .work-row{grid-template-columns:2.2rem 1fr;gap:1rem}
+  .work-row .wr-arr{display:none}
+  .work-row .wr-thumb{display:block}
+}
+.work-all{margin-top:1.6rem}
+.work-all a{display:inline-flex;align-items:center;gap:.55rem;font-family:var(--mono);font-size:.72rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);border:1px solid var(--border);border-radius:6px;padding:.65rem 1.1rem;text-decoration:none;transition:color .15s,border-color .15s}
+.work-all a:hover{color:var(--accent);border-color:var(--accent);text-decoration:none}
 
 /* ── navbar ── */
 .nav{position:sticky;top:0;z-index:40;background:var(--bg);border-bottom:1px solid var(--border)}
-.nav-inner{max-width:640px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.nav-inner{max-width:1120px;margin:0 auto;padding:14px 40px;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .nav-links{display:flex;align-items:center;flex-wrap:wrap;font-family:var(--mono);font-size:.72rem;letter-spacing:.02em;overflow-x:auto;scrollbar-width:none}
 .nav-links::-webkit-scrollbar{display:none}
 .nav-links a{padding:2px 6px;color:var(--dim);white-space:nowrap}
@@ -166,18 +211,19 @@ h2{font-family:var(--display);text-wrap:balance;margin:.35rem 0 1rem;font-size:c
 
 .faq{margin-top:.4rem;border-top:1px solid var(--border)}
 .faq details{border-bottom:1px solid var(--border)}
-.faq summary{cursor:pointer;list-style:none;padding:.85rem 1.8rem .85rem 0;font-size:.93rem;color:var(--text);position:relative;transition:color .15s}
+.faq summary{cursor:pointer;list-style:none;padding:1.1rem 2.6rem 1.1rem 0;font-family:var(--display);font-size:clamp(1.2rem,2.8vw,1.6rem);font-weight:700;letter-spacing:-.01em;line-height:1.2;color:var(--text);position:relative;transition:color .15s}
 .faq summary::-webkit-details-marker{display:none}
-.faq summary::after{content:"+";position:absolute;right:.3rem;top:.78rem;font-family:var(--mono);font-size:1rem;color:var(--dim);transition:color .15s}
+.faq summary::after{content:"+";position:absolute;right:.4rem;top:1.05rem;font-family:var(--mono);font-size:1.4rem;color:var(--dim);transition:color .15s}
 .faq details[open] summary::after{content:"\2013"}
 .faq summary:hover,.faq summary:hover::after{color:var(--accent)}
 .faq summary:focus-visible{outline:1px solid var(--accent);outline-offset:2px}
-.faq .a{padding:0 1.8rem 1rem 0;color:var(--dim);font-size:.88rem;line-height:1.65;text-wrap:pretty}
-.faq-cta{margin-top:1rem;font-size:.88rem;color:var(--dim)}
+.faq .a{padding:0 2.6rem 1.3rem 0;color:var(--dim);font-size:1rem;line-height:1.7;text-wrap:pretty;max-width:68ch}
+.faq-cta{margin-top:1.2rem;font-size:.95rem;color:var(--dim)}
 @media (prefers-reduced-motion:reduce){
   .rail svg{animation:none}
   .tw-caret{animation:none}
-  .work-card:hover{transform:none}
+  .work-row:hover .wr-title{transform:none}
+  .work-row:hover .wr-arr{transform:none}
 }
 
 /* ── movimiento ── */
@@ -191,23 +237,30 @@ h2{font-family:var(--display);text-wrap:balance;margin:.35rem 0 1rem;font-size:c
 @media (prefers-reduced-motion:reduce){
   .js .rv{opacity:1;transform:none}
   .now::before{animation:none}
+  .hero-kicker .dot{animation:none}
+  .js .hero-name .wi{transform:none}
 }
 
-.svc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:.2rem}
-@media (max-width:640px){.svc-grid{grid-template-columns:1fr}}
-.svc{display:block;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.95rem 1rem 1rem;text-decoration:none;color:var(--text);transition:border-color .15s,transform .15s}
-.svc:hover{border-color:var(--accent);text-decoration:none;transform:translateY(-2px)}
-.svc h4{font-family:var(--display);font-size:.82rem;font-weight:700;letter-spacing:-.01em;color:var(--text);line-height:1.35}
-.svc p{font-size:.83rem;color:var(--dim);line-height:1.55;margin-top:.3rem}
-.svc .ex{display:block;margin-top:.5rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.05em;text-transform:uppercase;color:var(--accent2)}
-.svc-foot{margin-top:.9rem;font-size:.86rem;color:var(--dim)}
+.svc-list{border-top:1px solid var(--border);margin-top:.6rem}
+.svc-row{display:grid;grid-template-columns:3rem 1fr auto;gap:1rem 2rem;align-items:start;padding:1.5rem 0;border-bottom:1px solid var(--border);text-decoration:none;color:var(--text)}
+.svc-row .idx{font-family:var(--mono);font-size:.72rem;font-weight:700;color:var(--dim);padding-top:.6rem;letter-spacing:.05em}
+.svc-row .svc-body{display:flex;flex-direction:column;gap:.45rem;min-width:0}
+.svc-row .svc-title{font-family:var(--display);font-size:clamp(1.5rem,4vw,2.5rem);font-weight:700;letter-spacing:-.02em;line-height:1.05;color:var(--text);transition:color .2s,transform .25s cubic-bezier(.2,.7,.3,1)}
+.svc-row .svc-desc{font-size:.95rem;color:var(--dim);line-height:1.55;max-width:52ch;text-wrap:pretty}
+.svc-row .arr{font-family:var(--mono);font-size:1.2rem;line-height:1;color:var(--dim);padding-top:.45rem;transition:color .2s,transform .25s cubic-bezier(.2,.7,.3,1)}
+@media (hover:hover){
+  .svc-row:hover .svc-title{color:var(--accent);transform:translateX(8px)}
+  .svc-row:hover .arr{color:var(--accent);transform:translateX(4px)}
+}
+@media (max-width:760px){.svc-row{grid-template-columns:2.2rem 1fr;gap:1rem}.svc-row .arr{display:none}}
+.svc-foot{margin-top:1.1rem;font-size:.86rem;color:var(--dim)}
 
 .hero-cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:1.3rem}
 .hero-cta a{display:inline-flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.72rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:.7rem 1.1rem;border-radius:6px;text-decoration:none;transition:filter .15s,color .15s,border-color .15s}
 .hero-cta .p{background:var(--accent);color:var(--btn-text)}
 .hero-cta .p:hover{filter:brightness(1.13);text-decoration:none}
-.hero-cta .s{border:1px solid var(--border);color:var(--dim);font-weight:400}
-.hero-cta .s:hover{color:var(--accent);border-color:var(--accent);text-decoration:none}
+.hero-cta .s{border:1px solid var(--accent);color:var(--accent);font-weight:700}
+.hero-cta .s:hover{background:var(--accent);color:var(--btn-text);border-color:var(--accent);text-decoration:none}
 .cta-pill{position:fixed;right:22px;bottom:22px;z-index:30;display:inline-flex;align-items:center;gap:.45rem;background:var(--accent);color:var(--btn-text);font-family:var(--mono);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.75rem 1.1rem;border-radius:999px;text-decoration:none;box-shadow:0 8px 28px rgba(0,0,0,.38);opacity:0;transform:translateY(14px);pointer-events:none;transition:opacity .3s ease,transform .3s ease}
 .cta-pill.on{opacity:1;transform:none;pointer-events:auto}
 .cta-pill:hover{filter:brightness(1.13);text-decoration:none}
@@ -238,173 +291,89 @@ h2{font-family:var(--display);text-wrap:balance;margin:.35rem 0 1rem;font-size:c
 .acc:last-of-type{border-bottom:1px solid var(--border)}
 .acc>summary{cursor:pointer;list-style:none;display:grid;grid-template-columns:1fr auto;align-items:start;column-gap:1rem;padding:1.1rem 0}
 .acc>summary::-webkit-details-marker{display:none}
-.acc-tag{grid-column:1;display:flex;align-items:center;gap:.5rem;font-family:var(--mono);font-size:.7rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}
-.acc-tag::after{content:"";flex:0 0 28px;height:1px;background:var(--border)}
-.acc-title{grid-column:1;margin:.3rem 0 0;font-family:var(--display);font-size:clamp(1.7rem,4.8vw,2.4rem);font-weight:700;letter-spacing:-.03em;line-height:1;text-transform:uppercase;color:var(--text);transition:color .15s}
-.acc-meta{grid-column:1;margin-top:.35rem;font-size:.85rem;line-height:1.5;color:var(--dim);text-wrap:pretty}
-.acc-sign{grid-column:2;grid-row:1/span 3;align-self:center;font-family:var(--mono);font-size:1.6rem;line-height:1;color:var(--dim);transition:color .15s,transform .25s ease}
+.acc-title{grid-column:1;margin:0;font-family:var(--display);font-size:clamp(2rem,6vw,3.2rem);font-weight:700;letter-spacing:-.03em;line-height:1;text-transform:uppercase;color:var(--text);transition:color .15s}
+.acc-meta{grid-column:1;margin-top:.4rem;font-size:.9rem;line-height:1.5;color:var(--dim);text-wrap:pretty}
+.acc-sign{grid-column:2;grid-row:1/span 2;align-self:center;font-family:var(--mono);font-size:1.6rem;line-height:1;color:var(--dim);transition:color .15s,transform .25s ease}
 .acc[open]>summary .acc-sign{transform:rotate(45deg)}
 .acc>summary:hover .acc-title,.acc>summary:hover .acc-sign{color:var(--accent)}
 .acc>summary:focus-visible{outline:1px solid var(--accent);outline-offset:3px}
 .acc-body{padding-bottom:2.2rem}
 .acc-body>.sect:first-child{margin-top:0}
 @media (prefers-reduced-motion:reduce){.acc-sign{transition:none}}
+.aurora{position:fixed;top:0;right:0;width:0;height:100vh;transform:rotate(10deg);transform-origin:top right;z-index:1;pointer-events:none;opacity:.2;overflow:visible}
+.aurora i{position:absolute;top:0;right:0;height:100vh;width:0;animation:aurora-slide linear infinite;will-change:transform}
+@keyframes aurora-slide{from{transform:translateX(25vw)}to{transform:translateX(-125vw)}}
+@media (prefers-reduced-motion:reduce){.aurora{display:none}}
 </style>
 </head>
 <body>
 <div class="page">
+<div class="aurora" id="aurora" aria-hidden="true"></div>
 <nav class="nav">
 <div class="nav-inner">
-<div class="nav-links"><a href="#servicios">servicios</a><span class="sep"> / </span><a href="#trabajo">proyectos</a><span class="sep"> / </span><a href="#componentes">componentes</a><span class="sep"> / </span><a href="#stack">stack</a><span class="sep"> / </span><a href="#faq">faq</a><span class="sep"> / </span><a href="#contacto">contacto</a></div>
+<div class="nav-links"><a href="#servicios">servicios</a><span class="sep"> / </span><a href="/proyectos/">proyectos</a><span class="sep"> / </span><a href="#componentes">componentes</a><span class="sep"> / </span><a href="#stack">stack</a><span class="sep"> / </span><a href="#faq">faq</a><span class="sep"> / </span><a href="#contacto">contacto</a></div>
 <div class="nav-tools"><button class="theme-toggle" id="theme-toggle" aria-label="Cambiar tema">&#9681;</button><a href="/en/">EN</a></div>
 </div>
 </nav>
 <div class="main">
 
 <div class="header">
+<div class="hero-head">
 <img class="avatar" src="yo.jpg" alt="Ignacio Vavala">
-<div>
-<h1>Ignacio Vavala</h1>
+<p class="hero-kicker"><span class="dot" aria-hidden="true"></span> Disponible para proyectos</p>
+</div>
+<h1 class="hero-name"><span class="w"><span class="wi">Ignacio</span></span><span class="w"><span class="wi">Vavala</span></span></h1>
+<div class="hero-grid">
+<div class="hero-main">
 <p class="sub">Desarrollador web full-stack. Hago <b><span id="tw" data-full="webs y sistemas que no se rompen">webs y sistemas que no se rompen</span><span class="tw-caret" aria-hidden="true"></span></b>.<br>Sitios y sistemas que funcionan solos, con mantenimiento incluido.</p>
-</div>
-</div>
-
 <p class="punch rv">Los construyo, me hago cargo de que sigan funcionando y, si algo falla, ya est&#225; resuelto antes de que lo notes.</p>
-<div class="hero-cta rv"><a class="p" href="#contacto" data-svc="Todavía no sé, arrancá vos">Contame tu proyecto &#8594;</a><a class="s" href="#trabajo">Ver proyectos</a></div>
+<div class="hero-cta rv"><a class="p" href="#contacto" data-svc="Todavía no sé, arrancá vos">Contame tu proyecto &#8594;</a><a class="s" href="/proyectos/">Ver proyectos &#8594;</a></div>
+</div>
+<div class="hero-side">
+<div class="now rv">ahora</div>
+<p class="note rv">Escuela S&#243;nica (web de escuela de m&#250;sica), Escriban&#237;a Tocagni (automatizaciones del estudio).</p>
+<ul class="hero-facts rv">
+<li><span class="n" data-count="10">10</span> proyectos en producci&#243;n</li>
+<li><span class="n" data-count="1">1</span> pieza para probar</li>
+<li><span class="n">24&thinsp;h</span> de respuesta</li>
+</ul>
+</div>
+</div>
+</div>
 
 <hr>
 
-<div class="now rv">ahora</div>
-<p class="note rv">Escuela S&#243;nica (web de escuela de m&#250;sica), Escriban&#237;a Tocagni (automatizaciones del estudio).</p>
-
 <details class="acc" id="servicios" open>
-<summary><span class="acc-tag">&#9889; 01</span><h2 class="acc-title">Servicios</h2><span class="acc-meta">4 formas de trabajar juntos</span><span class="acc-sign" aria-hidden="true">+</span></summary>
+<summary><h2 class="acc-title">Servicios</h2><span class="acc-meta">4 formas de trabajar juntos</span><span class="acc-sign" aria-hidden="true">+</span></summary>
 <div class="acc-body">
-<div class="svc-grid">
-<a class="svc rv" href="#contacto" data-svc="Web para mi negocio">
-<h4>Tu web, y la actualizás vos</h4>
-<p>Precios, fotos y novedades los publicás desde un panel, sin llamar a nadie ni esperar a que alguien tenga tiempo.</p>
-<span class="ex">Escribanía Tocagni · GonzalezOliva</span>
+<div class="svc-list">
+<a class="svc-row rv" href="#contacto" data-svc="Web para mi negocio">
+<span class="idx">01</span>
+<span class="svc-body"><span class="svc-title">Tu web, y la actualizás vos</span><span class="svc-desc">Precios, fotos y novedades los publicás desde un panel, sin llamar a nadie ni esperar a que alguien tenga tiempo.</span></span>
+<span class="arr" aria-hidden="true">&#8594;</span>
 </a>
-<a class="svc rv" href="#contacto" data-svc="Tienda online con pagos">
-<h4>Una tienda que cobra sola</h4>
-<p>MercadoPago o cierre por WhatsApp, lo que convierta mejor para tu negocio. Con stock y precios que manejás vos.</p>
-<span class="ex">Malasaña Boutique · Reunata</span>
+<a class="svc-row rv" href="#contacto" data-svc="Tienda online con pagos">
+<span class="idx">02</span>
+<span class="svc-body"><span class="svc-title">Una tienda que cobra sola</span><span class="svc-desc">MercadoPago o cierre por WhatsApp, lo que convierta mejor para tu negocio. Con stock y precios que manejás vos.</span></span>
+<span class="arr" aria-hidden="true">&#8594;</span>
 </a>
-<a class="svc rv" href="#contacto" data-svc="App o sistema interno">
-<h4>El sistema que hoy es una planilla</h4>
-<p>Barra, entradas y finanzas en vivo, con todo el equipo mirando el mismo número al mismo tiempo.</p>
-<span class="ex">Manso Club</span>
+<a class="svc-row rv" href="#contacto" data-svc="App o sistema interno">
+<span class="idx">03</span>
+<span class="svc-body"><span class="svc-title">El sistema que hoy es una planilla</span><span class="svc-desc">Barra, entradas y finanzas en vivo, con todo el equipo mirando el mismo número al mismo tiempo.</span></span>
+<span class="arr" aria-hidden="true">&#8594;</span>
 </a>
-<a class="svc rv" href="#contacto" data-svc="Evento: registro, barra, entradas">
-<h4>Tu evento, del registro a la puerta</h4>
-<p>Inscripción con códigos de invitación, cobro y control de acceso, sin filas ni listas en papel.</p>
-<span class="ex">Torres del Paine · LABITCONF</span>
+<a class="svc-row rv" href="#contacto" data-svc="Evento: registro, barra, entradas">
+<span class="idx">04</span>
+<span class="svc-body"><span class="svc-title">Tu evento, del registro a la puerta</span><span class="svc-desc">Inscripción con códigos de invitación, cobro y control de acceso, sin filas ni listas en papel.</span></span>
+<span class="arr" aria-hidden="true">&#8594;</span>
 </a>
 </div>
 <p class="svc-foot rv">¿Ninguna encaja del todo? <a href="#contacto" data-svc="Todavía no sé, arrancá vos">Contame qué necesitás</a> y lo pensamos juntos.</p>
 
 </div>
 </details>
-<details class="acc" id="trabajo" open>
-<summary><span class="acc-tag">&#x1f6e0; 02</span><h2 class="acc-title">Proyectos realizados</h2><span class="acc-meta">10 en producci&#243;n</span><span class="acc-sign" aria-hidden="true">+</span></summary>
-<div class="acc-body">
-<h3 class="group rv">Plataformas</h3>
-<div class="work-grid">
-<a class="work-card rv" target="_blank" rel="noopener" href="https://www.labitconf.com/">
-<img src="img/trabajos/labitconf.webp" alt="LABITCONF 26 — Landing del evento con speakers y contenido en vivo" loading="lazy">
-<div class="meta">
-<h4>LABITCONF 26</h4>
-<p>Landing del evento con speakers y contenido en vivo.</p>
-<span class="tag">Next.js + Realtime</span>
-</div>
-</a>
-<a class="work-card rv" target="_blank" rel="noopener" href="https://mansoclub.com.ar/">
-<img src="img/trabajos/manso-club.webp" alt="Manso Club — Apps de evento: barra, entradas y finanzas en vivo" loading="lazy">
-<div class="meta">
-<h4>Manso Club</h4>
-<p>Apps de evento: barra, entradas y finanzas en vivo.</p>
-<span class="tag">Next.js + Supabase</span>
-</div>
-</a>
-<a class="work-card rv" target="_blank" rel="noopener" href="https://www.pampaestudio.com/">
-<img src="img/trabajos/pampa-estudio.webp" alt="Pampa Estudio — Reservas de clases y packs para un estudio de pilates y yoga" loading="lazy">
-<div class="meta">
-<h4>Pampa Estudio</h4>
-<p>Reservas de clases y packs para un estudio de pilates y yoga.</p>
-<span class="tag">Next.js + Supabase</span>
-</div>
-</a>
-</div>
-
-<h3 class="group rv">E-commerce</h3>
-<div class="work-grid">
-<a class="work-card rv" target="_blank" rel="noopener" href="https://malasanaboutique.com/">
-<img src="img/trabajos/malasana.webp" alt="Malasaña Boutique — Tienda online con cierre de compra por WhatsApp" loading="lazy">
-<div class="meta">
-<h4>Malasaña Boutique</h4>
-<p>Tienda online con cierre de compra por WhatsApp.</p>
-<span class="tag">Cloudflare Workers</span>
-</div>
-</a>
-<a class="work-card rv" target="_blank" rel="noopener" href="https://www.reunata.com.ar/">
-<img src="img/trabajos/reunata.webp" alt="Reunata — E-commerce mayorista con precios por usuario" loading="lazy">
-<div class="meta">
-<h4>Reunata</h4>
-<p>E-commerce mayorista con precios por usuario.</p>
-<span class="tag">Next.js + Supabase</span>
-</div>
-</a>
-</div>
-
-<h3 class="group rv">Landing</h3>
-<div class="work-grid">
-<a class="work-card rv" target="_blank" rel="noopener" href="https://www.productoracalafate.com/torres-del-paine-2026">
-<img src="img/trabajos/torres-del-paine.webp" alt="Torres del Paine Summit — Registro y onboarding de la expedición con códigos de invitación y pagos" loading="lazy">
-<div class="meta">
-<h4>Torres del Paine Summit</h4>
-<p>Registro y onboarding de la expedición con códigos de invitación y pagos.</p>
-<span class="tag">Next.js</span>
-</div>
-</a>
-<a class="work-card rv" target="_blank" rel="noopener" href="https://arqgonzalezoliva.com/">
-<img src="img/trabajos/gonzalezoliva.webp" alt="GonzalezOliva — Portfolio de estudio de arquitectura con galería y carga rápida" loading="lazy">
-<div class="meta">
-<h4>GonzalezOliva</h4>
-<p>Portfolio de estudio de arquitectura con galería y carga rápida.</p>
-<span class="tag">Astro + Cloudflare</span>
-</div>
-</a>
-<a class="work-card rv" target="_blank" rel="noopener" href="https://elementosdeseguridadlp.com/">
-<img src="img/trabajos/elementos-seguridad.webp" alt="Elementos de Seguridad — Landing de seguridad e higiene laboral con cierre por WhatsApp" loading="lazy">
-<div class="meta">
-<h4>Elementos de Seguridad</h4>
-<p>Landing de seguridad e higiene laboral con cierre por WhatsApp.</p>
-<span class="tag">Astro + Cloudflare</span>
-</div>
-</a>
-<a class="work-card rv" target="_blank" rel="noopener" href="https://seguridadnuevosaires.com/">
-<img src="img/trabajos/seguridad-nuevos-aires.webp" alt="Seguridad Nuevos Aires — Landing de cámaras y alarmas pensada para búsquedas locales" loading="lazy">
-<div class="meta">
-<h4>Seguridad Nuevos Aires</h4>
-<p>Landing de cámaras y alarmas pensada para búsquedas locales.</p>
-<span class="tag">HTML + Cloudflare</span>
-</div>
-</a>
-<a class="work-card rv" target="_blank" rel="noopener" href="https://escribaniatocagni.com/">
-<img src="img/trabajos/escribania-tocagni.webp" alt="Escribanía Tocagni — Landing institucional de estudio notarial" loading="lazy">
-<div class="meta">
-<h4>Escribanía Tocagni</h4>
-<p>Landing institucional de estudio notarial.</p>
-<span class="tag">Astro + Cloudflare</span>
-</div>
-</a>
-</div>
-
-</div>
-</details>
 <details class="acc" id="componentes">
-<summary><span class="acc-tag">&#x1f9e9; 03</span><h2 class="acc-title">Componentes interactivos</h2><span class="acc-meta">2 piezas para probar ac&#225; mismo</span><span class="acc-sign" aria-hidden="true">+</span></summary>
+<summary><h2 class="acc-title">Componentes interactivos</h2><span class="acc-meta">1 pieza para probar ac&#225; mismo</span><span class="acc-sign" aria-hidden="true">+</span></summary>
 <div class="acc-body">
 <p class="note rv">Piezas que arm&#233; para probar ideas. Funcionan de verdad: clicke&#225; y probalos.</p>
 <div class="piece-grid">
@@ -414,25 +383,27 @@ h2{font-family:var(--display);text-wrap:balance;margin:.35rem 0 1rem;font-size:c
 <p>Escrib&#237; un mensaje, tiralo al mar y otro visitante lo pesca al azar.</p>
 <span class="tag">D1 · Workers · Canvas</span>
 </a>
-<a class="piece-card rv" href="piezas/flor">
-<span class="piece-status">experimental</span>
-<h4>Pieza 02 &#8212; Me va a salir</h4>
-<p>Escrib&#237; lo que est&#225;s esperando, deshoj&#225; la flor de a un p&#233;talo y qued&#225;te con lo que tiene para decirte.</p>
-<span class="tag">CSS &#183; Sprites &#183; Sin servidor</span>
-</a>
 </div>
 
 </div>
 </details>
 <details class="acc" id="stack">
-<summary><span class="acc-tag">&#x1f9f0; 04</span><h2 class="acc-title">Stack</h2><span class="acc-meta">con qu&#233; est&#225; construido</span><span class="acc-sign" aria-hidden="true">+</span></summary>
+<summary><h2 class="acc-title">Stack</h2><span class="acc-meta">con qu&#233; est&#225; construido, y por qu&#233;</span><span class="acc-sign" aria-hidden="true">+</span></summary>
 <div class="acc-body">
-<p class="note rv">Next.js 16 &#183; Supabase &#183; Tailwind CSS v4 &#183; Astro &#183; Cloudflare Workers &#183; TypeScript</p>
+<p class="note rv">Herramientas elegidas por lo que ahorran: menos servidores, menos JavaScript, menos cosas que romper.</p>
+<div class="stack-list rv">
+<div class="stack-item"><span class="k">Next.js 16</span><span class="d">App Router + React Server Components: el servidor entrega HTML listo y el navegador solo recibe el JavaScript que de verdad necesita.</span></div>
+<div class="stack-item"><span class="k">Supabase</span><span class="d">Postgres de verdad con auth, storage y seguridad a nivel de fila. Una base completa sin armar ni mantener un backend propio.</span></div>
+<div class="stack-item"><span class="k">Tailwind CSS v4</span><span class="d">CSS-first con tokens @theme: el estilo vive en el CSS, no en un archivo de configuraci&#243;n aparte.</span></div>
+<div class="stack-item"><span class="k">Astro</span><span class="d">Contenido con cero JavaScript por defecto. Solo se hidrata lo interactivo, as&#237; que la p&#225;gina pesa lo m&#237;nimo.</span></div>
+<div class="stack-item"><span class="k">Cloudflare Workers</span><span class="d">C&#243;digo corriendo en el edge, cerca de cada visitante, con D1 (SQLite) para los datos. Sin servidores que mantener ni ca&#237;das de las que preocuparse.</span></div>
+<div class="stack-item"><span class="k">TypeScript</span><span class="d">Tipos de punta a punta, en strict: la mayor&#237;a de los errores se agarran antes de que el c&#243;digo salga a producci&#243;n.</span></div>
+</div>
 
 </div>
 </details>
 <details class="acc" id="faq">
-<summary><span class="acc-tag">&#10067; 05</span><h2 class="acc-title">Preguntas frecuentes</h2><span class="acc-meta">6 preguntas, 6 respuestas cortas</span><span class="acc-sign" aria-hidden="true">+</span></summary>
+<summary><h2 class="acc-title">Preguntas frecuentes</h2><span class="acc-meta">6 preguntas, 6 respuestas cortas</span><span class="acc-sign" aria-hidden="true">+</span></summary>
 <div class="acc-body">
 <div class="faq rv">
 <details name="faq">
@@ -464,20 +435,18 @@ h2{font-family:var(--display);text-wrap:balance;margin:.35rem 0 1rem;font-size:c
 </div>
 </details>
 <details class="acc" id="contacto">
-<summary><span class="acc-tag">&#9993; 06</span><h2 class="acc-title">Contacto</h2><span class="acc-meta">contame el tuyo en tres l&#237;neas</span><span class="acc-sign" aria-hidden="true">+</span></summary>
+<summary><h2 class="acc-title">Contacto</h2><span class="acc-meta">contame el tuyo en tres l&#237;neas</span><span class="acc-sign" aria-hidden="true">+</span></summary>
 <div class="acc-body">
 <p class="note rv">Contame tu proyecto en tres l&#237;neas: qu&#233; es, para cu&#225;ndo lo necesit&#225;s y qu&#233; esper&#225;s que haga. Con eso alcanza para arrancar.</p>
 
 <div class="form-card rv">
-<p>Complet&#225; esto y me llega un mail directo. Te respondo al mismo mail que dejes.</p>
+<p>Dej&#225; tu nombre, tu mail y un mensaje corto. Te respondo hoy.</p>
 <form id="contact-form" novalidate>
 <div class="hp" aria-hidden="true"><label for="f-empresa">Empresa</label><input id="f-empresa" name="empresa" type="text" tabindex="-1" autocomplete="off"></div>
-<label for="f-nombre">Nombre</label>
-<input id="f-nombre" type="text" name="nombre" placeholder="Tu nombre" autocomplete="name" required>
-<label for="f-email">Email</label>
-<input id="f-email" type="email" name="email" placeholder="donde te respondo" autocomplete="email" required>
-<label for="f-whatsapp">WhatsApp <span class="opt">(opcional)</span></label>
-<input id="f-whatsapp" type="tel" name="whatsapp" placeholder="por si prefer&#237;s que te escriba ah&#237;" autocomplete="tel">
+<div class="form-row">
+<div><label for="f-nombre">Nombre</label><input id="f-nombre" type="text" name="nombre" placeholder="Tu nombre" autocomplete="name" required></div>
+<div><label for="f-email">Email</label><input id="f-email" type="email" name="email" placeholder="donde te respondo" autocomplete="email" required></div>
+</div>
 <label for="f-tipo">Qu&#233; necesit&#225;s</label>
 <select id="f-tipo" name="tipo">
 <option>Web para mi negocio</option>
@@ -490,8 +459,10 @@ h2{font-family:var(--display);text-wrap:balance;margin:.35rem 0 1rem;font-size:c
 <label for="f-mensaje">Contame un poco</label>
 <textarea id="f-mensaje" name="mensaje" placeholder="Idea, deadline, lo que sea. Sin vueltas."></textarea>
 <div id="cf-ts"></div>
+<div class="form-actions">
 <button class="btn" type="submit">Enviar mensaje &#8594;</button>
 <a class="btn-alt" id="wa-fallback" href="https://wa.me/5491127343775">&#191;Prefer&#237;s WhatsApp?</a>
+</div>
 <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
 </form>
 <p class="alt-contact">O directo: <a href="https://wa.me/5491127343775">WhatsApp</a> <a href="mailto:ignacio@ivavala.com">mail</a> <a href="https://github.com/ignaciobavala-png" target="_blank" rel="noopener">GitHub</a></p>
@@ -537,7 +508,7 @@ var TS_KEY='0x4AAAAAAEd2UwMVyDyHqSFZ',tsId=null;
 var fail=function(){status.className='form-status err';status.textContent=T.err;btn.disabled=false;btn.textContent=T.btn};
 var post=function(token){
   fetch('/api/contacto',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({nombre:v('nombre'),email:v('email'),whatsapp:v('whatsapp'),
+    body:JSON.stringify({nombre:v('nombre'),email:v('email'),
       tipo:v('tipo'),mensaje:v('mensaje'),empresa:v('empresa'),turnstile:token||''})})
   .then(function(r){return r.ok?r.json():Promise.reject(r.status)})
   .then(function(){
@@ -585,7 +556,7 @@ var els=document.querySelectorAll('.rv');
 var io=new IntersectionObserver(function(es){
   es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})
 },{rootMargin:'0px 0px -8% 0px',threshold:.05});
-[].forEach.call(document.querySelectorAll('.work-grid'),function(g){
+[].forEach.call(document.querySelectorAll('.work-list'),function(g){
   [].forEach.call(g.children,function(c,i){c.style.transitionDelay=(i*80)+'ms'})
 });
 [].forEach.call(els,function(el){io.observe(el)});
@@ -696,8 +667,8 @@ if(location.hash)abrirDestino(location.hash);
     else if(t.closest('.hero-cta a.p')) ev('cta:hero');
     else if(t.closest('.svc-foot a')) ev('cta:svcfoot');
     else if(t.closest('.nav-links a[href="#contacto"]')) ev('cta:nav');
-    else if(t.closest('.svc')) ev('svc:click');
-    else if(t.closest('.work-card')) ev('work:click');
+    else if(t.closest('.svc-row')) ev('svc:click');
+    else if(t.closest('.work-row')) ev('work:click');
     else if(t.closest('.piece-card')) ev('pieza:click');
   }, true);
 
@@ -713,6 +684,84 @@ if(location.hash)abrirDestino(location.hash);
       }).observe(st, {attributes:true, attributeFilter:['class']});
     }
   }
+})();
+
+/* ── reveal del nombre en el hero ───────────────────────────────────── */
+// El nombre entra por palabra: una sola pasada, al cargar. Con motion
+// reducido no se mueve y se ve entero igual (el CSS ya lo deja visible).
+(function(){
+  var h=document.querySelector('.hero-name');
+  if(!h)return;
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  requestAnimationFrame(function(){requestAnimationFrame(function(){h.classList.add('in')})});
+})();
+
+/* ── hover magnetico en los botones principales ─────────────────────── */
+// El boton se inclina suavemente hacia el cursor y vuelve solo al salir.
+// Solo con mouse real (hover: hover): en touch no existe el mousemove.
+(function(){
+  if(!window.matchMedia('(hover: hover)').matches)return;
+  [].forEach.call(document.querySelectorAll('.hero-cta .p, .form-card .btn'),function(el){
+    el.addEventListener('mousemove',function(e){
+      var r=el.getBoundingClientRect();
+      var x=e.clientX-r.left-r.width/2;
+      var y=e.clientY-r.top-r.height/2;
+      el.style.transition='transform .12s ease-out, filter .15s';
+      el.style.transform='translate('+(x*.1)+'px,'+(y*.16)+'px)';
+    });
+    el.addEventListener('mouseleave',function(){
+      el.style.transition='transform .5s cubic-bezier(.2,.7,.3,1), filter .15s';
+      el.style.transform='';
+    });
+  });
+})();
+
+/* ── contadores del hero ────────────────────────────────────────────── */
+// Los numeros reales (10 proyectos, 2 piezas) suben de 0 al entrar. El
+// valor queda escrito en el HTML: sin JS o con motion reducido se ve entero.
+(function(){
+  if(!('IntersectionObserver' in window))return;
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  [].forEach.call(document.querySelectorAll('.hero-facts .n[data-count]'),function(el){
+    var target=parseInt(el.getAttribute('data-count'),10);
+    if(!target)return;
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(!e.isIntersecting)return;
+        io.disconnect();
+        var t0=performance.now(),dur=900;
+        el.textContent='0';
+        (function step(t){
+          var p=Math.min((t-t0)/dur,1);
+          el.textContent=Math.round(target*(1-Math.pow(1-p,3)));
+          if(p<1)requestAnimationFrame(step);
+        })(t0);
+      });
+    },{threshold:.4});
+    io.observe(el);
+  });
+})();
+
+/* ── aurora de fondo ────────────────────────────────────────────────── */
+// Rayas de neon que se deslizan de derecha a izquierda, generadas en JS
+// para no escribir 25 reglas a mano. Solo desktop y con movimiento.
+(function(){
+  var A=document.getElementById('aurora');
+  if(!A)return;
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  if(window.innerWidth<768)return;
+  var cols=['rgb(232,121,249)','rgb(96,165,250)','rgb(94,234,212)'];
+  var N=16,T=45,frag=document.createDocumentFragment();
+  function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+  for(var i=0;i<N;i++){
+    var o=shuffle([0,1,2]);
+    var el=document.createElement('i');
+    el.style.boxShadow='-130px 0 80px 40px rgba(255,255,255,.85),-50px 0 50px 25px '+cols[o[0]]+',0 0 50px 25px '+cols[o[1]]+',50px 0 50px 25px '+cols[o[2]]+',130px 0 80px 40px rgba(255,255,255,.85)';
+    el.style.animationDuration=(T-T/N/2*i)+'s';
+    el.style.animationDelay=-(i/N*T)+'s';
+    frag.appendChild(el);
+  }
+  A.appendChild(frag);
 })();
 
 </script>
