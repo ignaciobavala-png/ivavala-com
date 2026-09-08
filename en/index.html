@@ -43,34 +43,34 @@ document.documentElement.className+=' js';
   --display:"Space Grotesk","Courier Prime",Courier,"Courier New",monospace;
   --mono:"Geist Mono",ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
   --sans:-apple-system,BlinkMacSystemFont,"avenir next",avenir,helvetica,"helvetica neue",ubuntu,roboto,noto,"segoe ui",arial,sans-serif;
-  --bg:#172112;
-  --bg2:#1f2c18;
-  --card:#1d2a16;
-  --text:#eef2ea;
-  --dim:#8fa083;
-  --accent:#81e925;
-  --accent2:#ebbcce;
-  --link:#81e925;
-  --border:#2b3a22;
-  --input-bg:#141c10;
-  --btn-text:#172112;
+  --bg:#0a1622;
+  --bg2:#0f2130;
+  --card:#101d2b;
+  --text:#e8f1f5;
+  --dim:#7d95a6;
+  --accent:#3ddbd9;
+  --accent2:#ff9d8a;
+  --link:#3ddbd9;
+  --border:#1c3040;
+  --input-bg:#08111b;
+  --btn-text:#0a1622;
   --rail:#fff;
   --rail-glow:rgba(255,255,255,.9);
   color-scheme:dark;
 }
 :root[data-theme="light"]{
-  --bg:#f6faf4;
+  --bg:#f3f8fa;
   --bg2:#ffffff;
   --card:#ffffff;
-  --text:#172112;
-  --dim:#5b6b52;
-  --accent:#15803d;
-  --accent2:#c25b8c;
-  --link:#15803d;
-  --border:#e3e8df;
+  --text:#0a1622;
+  --dim:#546a78;
+  --accent:#0d7490;
+  --accent2:#a8484a;
+  --link:#0d7490;
+  --border:#dde7ec;
   --input-bg:#ffffff;
   --btn-text:#ffffff;
-  --rail:#172112;
+  --rail:#0a1622;
   --rail-glow:rgba(0,0,0,.45);
   color-scheme:light;
 }
@@ -740,7 +740,7 @@ if(location.hash)abrirDestino(location.hash);
   // En mobile va tambien, pero con menos rayas y glow mas chico: la pantalla
   // es angosta y el box-shadow grande es caro para la GPU del telefono.
   var mob=window.innerWidth<768;
-  var cols=['rgb(232,121,249)','rgb(96,165,250)','rgb(94,234,212)'];
+  var cols=['rgb(61,219,217)','rgb(96,165,250)','rgb(255,157,138)'];
   var N=mob?4:7,T=mob?11:15,frag=document.createDocumentFragment();
   var s=mob?.55:1;
   function px(n){return Math.round(n*s)+'px'}
