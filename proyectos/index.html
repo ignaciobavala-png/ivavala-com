@@ -172,7 +172,7 @@ ul{padding:0}li{list-style:none}
   .main{padding:40px 20px 100px}
   .nav-inner{padding:14px 20px}
 }
-.aurora{position:fixed;top:0;right:0;width:0;height:100vh;transform:rotate(10deg);transform-origin:top right;z-index:1;pointer-events:none;opacity:.2;overflow:visible}
+.aurora{position:fixed;top:0;right:0;width:0;height:100vh;transform:rotate(10deg);transform-origin:top right;z-index:1;pointer-events:none;opacity:.3;overflow:visible}
 .aurora i{position:absolute;top:0;right:0;height:100vh;width:0;animation:aurora-slide linear infinite;will-change:transform}
 @keyframes aurora-slide{from{transform:translateX(25vw)}to{transform:translateX(-125vw)}}
 @media (prefers-reduced-motion:reduce){.aurora{display:none}}
@@ -373,16 +373,24 @@ syncToggle();
   var A=document.getElementById('aurora');
   if(!A)return;
   if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-  if(window.innerWidth<768)return;
+  // En mobile va tambien, pero con menos rayas y glow mas chico: la pantalla
+  // es angosta y el box-shadow grande es caro para la GPU del telefono.
+  var mob=window.innerWidth<768;
   var cols=['rgb(232,121,249)','rgb(96,165,250)','rgb(94,234,212)'];
-  var N=16,T=45,frag=document.createDocumentFragment();
+  var N=mob?4:7,T=mob?11:15,frag=document.createDocumentFragment();
+  var s=mob?.55:1;
+  function px(n){return Math.round(n*s)+'px'}
   function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
   for(var i=0;i<N;i++){
     var o=shuffle([0,1,2]);
+    // Pocas rayas y angostas: si el glow es mas ancho que la separacion se
+    // superponen todas y el movimiento deja de leerse.
+    var d=T-T/N/2*i;
     var el=document.createElement('i');
-    el.style.boxShadow='-130px 0 80px 40px rgba(255,255,255,.85),-50px 0 50px 25px '+cols[o[0]]+',0 0 50px 25px '+cols[o[1]]+',50px 0 50px 25px '+cols[o[2]]+',130px 0 80px 40px rgba(255,255,255,.85)';
-    el.style.animationDuration=(T-T/N/2*i)+'s';
-    el.style.animationDelay=-(i/N*T)+'s';
+    el.style.boxShadow='-'+px(62)+' 0 '+px(40)+' '+px(14)+' rgba(255,255,255,.5),-'+px(26)+' 0 '+px(26)+' '+px(12)+' '+cols[o[0]]+',0 0 '+px(26)+' '+px(12)+' '+cols[o[1]]+','+px(26)+' 0 '+px(26)+' '+px(12)+' '+cols[o[2]]+','+px(62)+' 0 '+px(40)+' '+px(14)+' rgba(255,255,255,.5)';
+    el.style.animationDuration=d+'s';
+    // El desfase va sobre la duracion propia, no sobre T, para que queden repartidas.
+    el.style.animationDelay=-(i/N*d)+'s';
     frag.appendChild(el);
   }
   A.appendChild(frag);
