@@ -94,8 +94,18 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
 .main{max-width:1280px;margin:0 auto;padding:0 40px 140px;position:relative;z-index:2}
 .header{min-height:100svh;display:flex;flex-direction:column;justify-content:center}
 
-.hero-head{display:flex;align-items:center;gap:.7rem;margin-bottom:1.8rem}
-.avatar{width:42px;height:42px;border-radius:50%;object-fit:cover;border:1px solid var(--border)}
+/* La foto estaba arriba del nombre, de 42px, al lado del cartel de
+   disponible: a ese tamano no se ve una cara, se ve un punto. Pasa a la
+   izquierda del titulo, donde el nombre ocupa dos lineas y deja una columna
+   alta libre; ahi entra grande sin robarle aire a nada. */
+.hero-id{display:flex;align-items:center;gap:clamp(1rem,2.6vw,2.2rem)}
+.hero-id-text{min-width:0}
+.hero-head{margin-bottom:1rem}
+.avatar{width:clamp(84px,11vw,168px);height:clamp(84px,11vw,168px);border-radius:50%;object-fit:cover;object-position:center 22%;flex-shrink:0;border:1px solid var(--border);box-shadow:0 14px 40px rgba(0,0,0,.32)}
+@media (max-width:560px){
+  .hero-id{gap:1rem}
+  .avatar{width:72px;height:72px}
+}
 .hero-kicker{display:inline-flex;align-items:center;gap:.55rem;font-family:var(--mono);font-size:.7rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
 .hero-kicker .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0;animation:pulse 2.4s ease-in-out infinite}
 .hero-name{font-family:var(--display);font-weight:700;letter-spacing:-.04em;line-height:.86;font-size:clamp(3rem,10vw,8rem);color:var(--text)}
@@ -323,18 +333,6 @@ html{scroll-padding-top:92px}
   .work-card:hover .wc-shot img{transform:none}
 }
 
-/* piezas: auto-fit para que una sola ocupe el ancho en vez de dejar media
-   fila vacia, y el contenido en linea para que no quede un hueco a la derecha.
-   Cuando haya dos o tres, la misma regla las acomoda sin tocar nada. */
-.piece-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-top:1rem}
-.piece-card{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem 1.4rem;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.15rem 1.3rem;text-decoration:none;color:var(--text);transition:border-color .2s,transform .25s cubic-bezier(.2,.7,.3,1)}
-.piece-card:hover{border-color:var(--accent);text-decoration:none;transform:translateY(-3px)}
-.piece-card .piece-status{margin-bottom:0;flex:0 0 auto}
-.piece-card h4{flex:0 0 auto;font-family:var(--display);font-size:1.05rem;font-weight:700;letter-spacing:-.01em;color:var(--text);line-height:1.25;transition:color .2s}
-.piece-card:hover h4{color:var(--accent)}
-.piece-card p{flex:1 1 240px;margin-top:0;font-size:.88rem;color:var(--dim);line-height:1.5}
-.piece-card .tag{margin-top:0;flex:0 0 auto;display:inline-block;font-family:var(--mono);font-size:.62rem;letter-spacing:.05em;color:var(--accent2);border:1px solid var(--border);padding:.12rem .5rem;border-radius:3px}
-
 .faq{margin-top:.4rem;border-top:1px solid var(--border)}
 .faq details{border-bottom:1px solid var(--border)}
 .faq summary{cursor:pointer;list-style:none;padding:1.1rem 2.6rem 1.1rem 0;font-family:var(--display);font-size:clamp(1.2rem,2.8vw,1.6rem);font-weight:700;letter-spacing:-.01em;line-height:1.2;color:var(--text);position:relative;transition:color .15s}
@@ -405,21 +403,23 @@ html{scroll-padding-top:92px}
 <nav class="nav" id="nav">
 <div class="nav-inner">
 <a class="nav-brand" href="#top" aria-label="Volver arriba"><span class="mk" aria-hidden="true">IV</span><span class="nm">Ignacio Vavala</span></a>
-<div class="nav-links" id="nav-links"><span class="nav-ind" id="nav-ind" aria-hidden="true"></span><a href="#proyectos">proyectos</a><a href="#servicios">servicios</a><a href="#stack">stack</a><a href="#componentes">piezas</a><a href="#faq">faq</a><a href="#contacto">contacto</a></div>
+<div class="nav-links" id="nav-links"><span class="nav-ind" id="nav-ind" aria-hidden="true"></span><a href="#proyectos">proyectos</a><a href="#servicios">servicios</a><a href="#stack">stack</a><a href="#faq">faq</a><a href="#contacto">contacto</a></div>
 <div class="nav-tools"><button class="theme-toggle" id="theme-toggle" aria-label="Cambiar tema">&#9681;</button><a href="/en/">EN</a></div>
 <button class="nav-burger" id="nav-burger" type="button" aria-label="Abrir men&#250;" aria-expanded="false" aria-controls="nav-panel"><span></span><span></span></button>
 <span class="nav-prog" id="nav-prog" aria-hidden="true"></span>
 </div>
 </nav>
-<div class="nav-panel" id="nav-panel"><a href="#proyectos">Proyectos</a><a href="#servicios">Servicios</a><a href="#stack">Stack</a><a href="#componentes">Piezas</a><a href="#faq">FAQ</a><a href="#contacto">Contacto</a><p class="np-foot">ignacio@ivavala.com</p></div>
+<div class="nav-panel" id="nav-panel"><a href="#proyectos">Proyectos</a><a href="#servicios">Servicios</a><a href="#stack">Stack</a><a href="#faq">FAQ</a><a href="#contacto">Contacto</a><p class="np-foot">ignacio@ivavala.com</p></div>
 <div class="main">
 
 <div class="header">
-<div class="hero-head">
-<img class="avatar" src="yo.jpg" alt="Ignacio Vavala">
-<p class="hero-kicker"><span class="dot" aria-hidden="true"></span> Disponible para proyectos</p>
-</div>
+<div class="hero-id">
+<img class="avatar" src="yo.jpg" alt="Ignacio Vavala" width="168" height="168">
+<div class="hero-id-text">
+<p class="hero-kicker hero-head"><span class="dot" aria-hidden="true"></span> Disponible para proyectos</p>
 <h1 class="hero-name"><span class="w"><span class="wi">Ignacio</span></span><span class="w"><span class="wi">Vavala</span></span></h1>
+</div>
+</div>
 <div class="hero-grid">
 <div class="hero-main">
 <p class="sub">Desarrollador web full-stack. Hago <b><span id="tw" data-full="webs y sistemas que no se rompen">webs y sistemas que no se rompen</span><span class="tw-caret" aria-hidden="true"></span></b>.<br>Sitios y sistemas que funcionan solos, con mantenimiento incluido.</p>
@@ -431,7 +431,6 @@ html{scroll-padding-top:92px}
 <p class="note rv">Escuela S&#243;nica (web de escuela de m&#250;sica), Escriban&#237;a Tocagni (automatizaciones del estudio).</p>
 <ul class="hero-facts rv">
 <li><span class="n" data-count="10">10</span> proyectos en producci&#243;n</li>
-<li><span class="n" data-count="1">1</span> pieza para probar</li>
 <li><span class="n">24&thinsp;h</span> de respuesta</li>
 </ul>
 </div>
@@ -502,18 +501,6 @@ html{scroll-padding-top:92px}
 <div class="stack-cell rv"><span class="k">Astro</span><span class="d">Contenido con cero JavaScript por defecto. Solo se hidrata lo interactivo, as&#237; que la p&#225;gina pesa lo m&#237;nimo.</span></div>
 <div class="stack-cell rv"><span class="k">Cloudflare Workers</span><span class="d">C&#243;digo corriendo en el edge, cerca de cada visitante, con D1 (SQLite) para los datos. Sin servidores que mantener ni ca&#237;das de las que preocuparse.</span></div>
 <div class="stack-cell rv"><span class="k">TypeScript</span><span class="d">Tipos de punta a punta, en strict: la mayor&#237;a de los errores se agarran antes de que el c&#243;digo salga a producci&#243;n.</span></div>
-</div>
-</section>
-<section class="sec" id="componentes">
-<div class="sec-head rv"><h2>Componentes interactivos</h2><p class="sec-meta">1 pieza para probar ac&#225; mismo</p></div>
-<p class="note rv">Piezas que arm&#233; para probar ideas. Funcionan de verdad: clicke&#225; y probalos.</p>
-<div class="piece-grid">
-<a class="piece-card rv" href="piezas/botella">
-<span class="piece-status">experimental</span>
-<h4>Pieza 01 — La botella</h4>
-<p>Escrib&#237; un mensaje, tiralo al mar y otro visitante lo pesca al azar.</p>
-<span class="tag">D1 · Workers · Canvas</span>
-</a>
 </div>
 </section>
 <div class="close-grid">
@@ -823,7 +810,6 @@ watch(hero,'hero');watch(form,'form');
     else if(t.closest('.nav-links a[href="#contacto"],.nav-panel a[href="#contacto"]')) ev('cta:nav');
     else if(t.closest('.svc-card')) ev('svc:click');
     else if(t.closest('.work-card')) ev('work:click');
-    else if(t.closest('.piece-card')) ev('pieza:click');
   }, true);
 
   var f = document.getElementById('contact-form');
@@ -871,7 +857,7 @@ watch(hero,'hero');watch(form,'form');
 })();
 
 /* ── contadores del hero ────────────────────────────────────────────── */
-// Los numeros reales (10 proyectos, 2 piezas) suben de 0 al entrar. El
+// Los numeros reales (10 proyectos) suben de 0 al entrar. El
 // valor queda escrito en el HTML: sin JS o con motion reducido se ve entero.
 (function(){
   if(!('IntersectionObserver' in window))return;
