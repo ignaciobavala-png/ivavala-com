@@ -51,6 +51,10 @@ document.documentElement.className+=' js';
   --btn-text:#0a0a0a;
   --rail:#fff;
   --rail-glow:rgba(255,255,255,.9);
+  --glass:rgba(13,26,38,.58);
+  --glass-border:rgba(255,255,255,.09);
+  --glass-hover:rgba(255,255,255,.07);
+  --veil:rgba(10,22,34,.88);
   color-scheme:dark;
 }
 :root[data-theme="light"]{
@@ -66,6 +70,10 @@ document.documentElement.className+=' js';
   --btn-text:#fff;
   --rail:#1b1b1b;
   --rail-glow:rgba(0,0,0,.45);
+  --glass:rgba(255,255,255,.72);
+  --glass-border:rgba(10,22,34,.1);
+  --glass-hover:rgba(10,22,34,.06);
+  --veil:rgba(243,248,250,.92);
   color-scheme:light;
 }
 *{margin:0;padding:0;box-sizing:border-box}
@@ -76,21 +84,75 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
 
 .page{position:relative}
 
-/* ── navbar ── */
-.nav{position:sticky;top:0;z-index:40;background:var(--bg);border-bottom:1px solid var(--border)}
-.nav-inner{max-width:640px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.nav-links{display:flex;align-items:center;flex-wrap:wrap;gap:0;font-family:var(--mono);font-size:.72rem;letter-spacing:.02em;overflow-x:auto;scrollbar-width:none}
-.nav-links::-webkit-scrollbar{display:none}
-.nav-links a{padding:2px 6px;color:var(--dim);white-space:nowrap}
-.nav-links a:hover{color:var(--accent);text-decoration:none}
-.nav-links a.on{color:var(--accent)}
-.nav-links .sep{color:var(--border);user-select:none}
-.nav-tools{display:flex;gap:8px;align-items:center;flex-shrink:0}
-.nav-tools button{display:flex;align-items:center;justify-content:center;min-width:36px;height:30px;padding:0 10px;box-sizing:border-box;background:none;border:1px solid var(--border);border-radius:3px;color:var(--dim);font-family:var(--mono);font-size:.95rem;line-height:1;cursor:pointer;transition:color .15s,border-color .15s}
-.nav-tools button:hover{color:var(--accent);border-color:var(--accent)}
-.theme-toggle{font-size:1.05rem}
+/* ── dock de navegacion ──────────────────────────────────────────────
+   Antes era una barra pegada arriba de punta a punta, con los links en
+   mono separados por barras: lenguaje de terminal, del diseno anterior.
+   Ahora es un dock de vidrio flotante que entra cuando el hero se fue,
+   con un indicador que se desliza hasta la seccion activa y un hilo que
+   marca cuanto queda de pagina. En mobile se reduce a marca + boton y los
+   links pasan a una pantalla completa con la tipografia de los titulos. */
+.nav{position:fixed;top:14px;left:0;right:0;z-index:41;display:flex;justify-content:center;padding:0 16px;pointer-events:none}
+.nav-inner{position:relative;pointer-events:auto;display:flex;align-items:center;gap:8px;max-width:100%;padding:6px;border:1px solid var(--glass-border);border-radius:999px;background:var(--glass);box-shadow:0 12px 34px rgba(0,0,0,.28);backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%)}
+.js .nav-inner{opacity:0;transform:translateY(-18px) scale(.94);transition:opacity .35s ease,transform .5s cubic-bezier(.2,.7,.3,1)}
+.js .nav.on .nav-inner{opacity:1;transform:none}
+.nav-brand{display:flex;align-items:center;gap:.5rem;flex-shrink:0;padding-right:.3rem;font-family:var(--display);font-size:.8rem;font-weight:700;letter-spacing:-.01em;color:var(--text);text-decoration:none}
+.nav-brand:hover{color:var(--text);text-decoration:none}
+.nav-brand .mk{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;flex-shrink:0;background:var(--accent);color:var(--btn-text);font-family:var(--mono);font-size:.6rem;font-weight:700;letter-spacing:.04em;transition:transform .3s cubic-bezier(.2,.7,.3,1)}
+.nav-brand:hover .mk{transform:rotate(-8deg) scale(1.06)}
+.nav-links{position:relative;display:flex;align-items:center;gap:1px}
+.nav-links a{position:relative;z-index:1;padding:7px 12px;border-radius:999px;font-family:var(--mono);font-size:.68rem;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--dim);white-space:nowrap;text-decoration:none;transition:color .25s ease}
+.nav-links a:hover{color:var(--text);text-decoration:none}
+.nav-links a.on{color:var(--btn-text)}
+.nav-ind{position:absolute;left:0;top:0;height:100%;width:0;border-radius:999px;background:var(--accent);opacity:0;pointer-events:none;transition:transform .5s cubic-bezier(.2,.7,.3,1),width .5s cubic-bezier(.2,.7,.3,1),opacity .3s ease}
+.nav-prog{position:absolute;left:16px;bottom:2px;width:calc(100% - 32px);height:2px;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));transform:scaleX(0);transform-origin:left center;opacity:.85;pointer-events:none}
+.nav-tools{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.nav-tools button,.nav-tools a{display:flex;align-items:center;justify-content:center;min-width:32px;height:32px;padding:0 9px;box-sizing:border-box;background:none;border:none;border-radius:999px;color:var(--dim);font-family:var(--mono);font-size:.7rem;font-weight:600;letter-spacing:.06em;line-height:1;cursor:pointer;text-decoration:none;transition:color .2s,background-color .2s,transform .2s}
+.nav-tools button:hover,.nav-tools a:hover{color:var(--text);background:var(--glass-hover);text-decoration:none;transform:translateY(-1px)}
+.theme-toggle{font-size:1rem}
+.nav-burger{display:none;position:relative;width:34px;height:32px;flex-shrink:0;background:none;border:none;border-radius:999px;color:var(--text);cursor:pointer;padding:0}
+.nav-burger span{position:absolute;left:9px;width:16px;height:1.6px;border-radius:2px;background:currentColor;transition:transform .32s cubic-bezier(.2,.7,.3,1)}
+.nav-burger span:nth-child(1){top:13px}
+.nav-burger span:nth-child(2){top:18px}
+.nav-burger.on span:nth-child(1){transform:translateY(2.5px) rotate(45deg)}
+.nav-burger.on span:nth-child(2){transform:translateY(-2.5px) rotate(-45deg)}
+.nav-panel{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;justify-content:center;padding:0 26px;background:var(--veil);backdrop-filter:blur(22px) saturate(140%);-webkit-backdrop-filter:blur(22px) saturate(140%);opacity:0;pointer-events:none;transition:opacity .3s ease}
+.nav-panel.on{opacity:1;pointer-events:auto}
+.nav-panel a{display:block;padding:.3rem 0;font-family:var(--display);font-size:clamp(2rem,9vw,3rem);font-weight:700;line-height:1.04;letter-spacing:-.035em;text-transform:uppercase;color:var(--text);text-decoration:none;opacity:0;transform:translateY(24px)}
+.nav-panel a:active{color:var(--accent)}
+.nav-panel.on a{opacity:1;transform:none;transition:opacity .4s ease,transform .55s cubic-bezier(.2,.7,.3,1)}
+.nav-panel.on a:nth-child(1){transition-delay:.04s}
+.nav-panel.on a:nth-child(2){transition-delay:.09s}
+.nav-panel.on a:nth-child(3){transition-delay:.14s}
+.nav-panel.on a:nth-child(4){transition-delay:.19s}
+.nav-panel.on a:nth-child(5){transition-delay:.24s}
+.nav-panel.on a:nth-child(6){transition-delay:.29s}
+.nav-panel .np-foot{margin-top:1.8rem;font-family:var(--mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+@media (max-width:900px){.nav-brand .nm{display:none}}
+@media (max-width:760px){
+  .nav{top:10px;padding:0 12px}
+  .nav-inner{width:100%}
+  .nav-links{display:none}
+  .nav-tools{margin-left:auto}
+  .nav-burger{display:flex}
+}
+@media (min-width:761px){.nav-panel{display:none}}
+@media (prefers-reduced-motion:reduce){
+  .js .nav-inner,.nav-ind,.nav-burger span,.nav-brand .mk,.nav-panel,.nav-panel.on a{transition:none}
+  .js .nav-inner{opacity:1;transform:none}
+}
+/* Paginas sin hero (proyectos, piezas): dos o tres links que entran siempre,
+   asi que no hace falta el menu de pantalla completa. */
+.nav-links a.nav-here-a{color:var(--accent)}
+.nav-here{padding:7px 12px;font-family:var(--mono);font-size:.68rem;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--accent);white-space:nowrap}
+@media (max-width:760px){
+  .nav--flat .nav-inner{width:auto}
+  .nav--flat .nav-links{display:flex}
+  .nav--flat .nav-links a,.nav--flat .nav-here{padding:7px 9px;font-size:.63rem;letter-spacing:.05em}
+  .nav--flat .nav-tools{margin-left:0}
+}
+html{scroll-padding-top:92px}
 
-.main{max-width:640px;margin:0 auto;padding:48px 20px 140px;position:relative;z-index:2}
+.main{max-width:640px;margin:0 auto;padding:100px 20px 140px;position:relative;z-index:2}
 .main>*{max-width:600px}
 
 h1{font-family:var(--display);font-size:clamp(2rem,6vw,2.9rem);font-weight:700;letter-spacing:-.04em;line-height:1;color:var(--text);text-wrap:balance;font-optical-sizing:auto}
@@ -214,10 +276,12 @@ h2{font-family:var(--mono);text-wrap:balance;margin:.35rem 0 1rem;font-size:clam
 </head>
 <body>
 <div class="page">
-<nav class="nav">
+<nav class="nav nav--flat on" id="nav">
 <div class="nav-inner">
-<div class="nav-links"><a href="../index.html#componentes">~/components</a><span class="sep"> / </span><span>the bottle</span></div>
+<a class="nav-brand" href="/" aria-label="Ignacio Vavala &#8212; home"><span class="mk" aria-hidden="true">IV</span><span class="nm">Ignacio Vavala</span></a>
+<div class="nav-links" id="nav-links"><span class="nav-ind" id="nav-ind" aria-hidden="true"></span><a href="/en/#componentes">components</a><span class="nav-here">the bottle</span></div>
 <div class="nav-tools"><button class="theme-toggle" id="theme-toggle" aria-label="Switch theme">&#9681;</button></div>
+<span class="nav-prog" id="nav-prog" aria-hidden="true"></span>
 </div>
 </nav>
 <div class="main">
@@ -283,6 +347,85 @@ toggle.addEventListener('click',function(){
   if(window.seaTheme)window.seaTheme();
 });
 syncToggle();
+
+/* ── dock de navegacion ─────────────────────────────────────────────── */
+// Tres cosas en un mismo handler de scroll, para no encadenar listeners:
+// mostrar el dock cuando el hero se fue, correr el indicador a la seccion
+// activa y pintar cuanto de la pagina queda atras. El activo se calcula a
+// mano en vez de con IntersectionObserver porque las secciones viven dentro
+// de <details> plegables: cerradas miden 60px y el observer elegia siempre
+// la ultima que quedaba abierta.
+(function(){
+  var nav=document.getElementById('nav');
+  if(!nav)return;
+  var box=document.getElementById('nav-links');
+  var ind=document.getElementById('nav-ind');
+  var prog=document.getElementById('nav-prog');
+  var hero=document.querySelector('.header');
+  var links=box?[].slice.call(box.querySelectorAll('a[href^="#"]')):[];
+  var secs=links.map(function(a){try{return document.querySelector(a.getAttribute('href'))}catch(e){return null}});
+  var active=null,tick=false;
+
+  function place(a){
+    if(!ind)return;
+    if(!a){ind.style.opacity='0';return}
+    ind.style.width=a.offsetWidth+'px';
+    ind.style.transform='translateX('+a.offsetLeft+'px)';
+    ind.style.opacity='1';
+  }
+  function setActive(a){
+    if(a===active){if(a)place(a);return}
+    if(active)active.classList.remove('on');
+    active=a;
+    if(a)a.classList.add('on');
+    place(a);
+  }
+  // La linea de lectura esta al 32% de la ventana: una seccion se marca
+  // activa cuando su titulo pasa ese punto, no cuando asoma abajo de todo.
+  function pick(){
+    var line=window.scrollY+window.innerHeight*.32,found=null;
+    for(var i=0;i<secs.length;i++){
+      var s=secs[i];
+      if(!s)continue;
+      if(s.getBoundingClientRect().top+window.scrollY<=line)found=links[i];
+    }
+    return found;
+  }
+  function run(){
+    tick=false;
+    var y=window.pageYOffset||document.documentElement.scrollTop||0;
+    // Sin hero (proyectos, piezas) el dock esta siempre: no hay nada que lo tape.
+    if(hero)nav.classList.toggle('on',y>Math.min(hero.offsetHeight,window.innerHeight)*.5);
+    else nav.classList.add('on');
+    if(prog){
+      var h=document.documentElement.scrollHeight-window.innerHeight;
+      prog.style.transform='scaleX('+(h>0?Math.min(y/h,1):0)+')';
+    }
+    setActive(pick());
+  }
+  function onScroll(){if(!tick){tick=true;requestAnimationFrame(run)}}
+  window.addEventListener('scroll',onScroll,{passive:true});
+  window.addEventListener('resize',onScroll);
+  // Abrir o cerrar una seccion plegable mueve todo lo de abajo: hay que
+  // recalcular, si no el indicador queda apuntando a la seccion equivocada.
+  document.addEventListener('toggle',onScroll,true);
+  run();
+
+  /* menu de pantalla completa (mobile) */
+  var burger=document.getElementById('nav-burger'),panel=document.getElementById('nav-panel');
+  if(burger&&panel){
+    var setMenu=function(open){
+      panel.classList.toggle('on',open);
+      burger.classList.toggle('on',open);
+      burger.setAttribute('aria-expanded',open?'true':'false');
+      document.body.style.overflow=open?'hidden':'';
+    };
+    burger.addEventListener('click',function(){setMenu(!panel.classList.contains('on'))});
+    // Cerrar al elegir: el salto al ancla lo hace el navegador solo.
+    panel.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('a'))setMenu(false)});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'||e.keyCode===27)setMenu(false)});
+  }
+})();
 (function(){
 if(!('IntersectionObserver' in window))return;
 var io=new IntersectionObserver(function(es){
