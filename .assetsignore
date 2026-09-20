@@ -13,3 +13,12 @@ worker.js
 .gitignore
 migrations
 backups
+
+CHANGELOG.md
+
+node_modules/**
+.git/**
+.wrangler/**
+.claude/**
+migrations/**
+backups/**
