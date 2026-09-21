@@ -195,3 +195,8 @@ body.ambient-fallback{background:radial-gradient(ellipse at 25% 45%,#123d4b 0,tr
 .header .hero-cta a{padding:12px 19px;min-height:42px;font-size:.63rem;letter-spacing:.07em}
 @media(max-width:600px){.header .avatar{width:84px;height:84px}.header .hero-cta{margin-top:44px;gap:18px}.header .hero-cta a{padding:12px 14px;font-size:.58rem}}
 @media(max-height:550px){.header .avatar{width:64px;height:64px}.header .hero-cta{margin-top:32px}}
+
+/* A CSS-only ring survives unavailable WebGL, lost contexts and reduced motion. */
+.header::before{content:"";position:absolute;pointer-events:none;z-index:0;left:50%;top:50%;width:clamp(86svh,86vw,124svh);aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,transparent 61%,#3ddbd91c 64%,#69e6ee85 65%,#3ddbd920 65.5%,transparent 67%,#385dd84a 69%,transparent 70%)}
+body.webgl-active .header::before{display:none}
+@media(prefers-reduced-motion:reduce){body.webgl-active .header::before{display:block}}

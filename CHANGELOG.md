@@ -12,3 +12,11 @@
 ### Verificación
 
 Sintaxis de scripts y preparación de Wrangler verificadas antes de publicar. Inspección visual local de hero y proyectos. No se envían mensajes de prueba desde el formulario.
+
+## 2026-09-21 — Recuperación de WebGL y alternativa estática
+
+- Reconstrucción de shaders, programa, buffer y uniforms tras webglcontextrestored; suspensión del render al perder el contexto.
+- Anillo CSS en el hero por defecto, incluso sin JavaScript/WebGL; solo se oculta después del primer render. Movimiento reducido conserva el anillo estático.
+- Diagnósticos de compilación y enlace en consola, liberación de recursos tras fallos y captura de errores al crear el contexto.
+- Preferencia por highp cuando está disponible y fases periódicas acotadas para evitar degradación por acumulación del tiempo.
+- Versionado de CSS/JS actualizado en español e inglés.

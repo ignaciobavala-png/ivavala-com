@@ -2,15 +2,21 @@
 (()=>{
  const reduce=matchMedia('(prefers-reduced-motion: reduce)');
  const canvas=document.createElement('canvas');canvas.id='reactive-light';canvas.setAttribute('aria-hidden','true');document.body.prepend(canvas);
- const gl=canvas.getContext('webgl',{alpha:false,antialias:false,depth:false,stencil:false,preserveDrawingBuffer:false,powerPreference:'low-power'});
+ let gl;
+ try{gl=canvas.getContext('webgl',{alpha:false,antialias:false,depth:false,stencil:false,preserveDrawingBuffer:false,powerPreference:'low-power'});}catch(error){console.warn('[ambient] WebGL unavailable',error);}
  if(!gl){canvas.remove();document.body.classList.add('ambient-fallback');return;}
  const vertex=`attribute vec2 a_position;void main(){gl_Position=vec4(a_position,0.,1.);}`;
  const fragment=`
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+ precision highp float;
+#else
  precision mediump float;
+#endif
  uniform vec2 u_resolution;
  uniform float u_open;
  uniform vec3 u_color;
  uniform float u_time;
+ uniform float u_tick;
 
  uniform float u_light;
  void main(){
@@ -38,7 +44,7 @@
   float filament=.5+.5*sin(d*235.+travel*4.);
   float arc=pow(.5+.5*cos(travel),16.);
   float arc2=pow(.5+.5*cos(travel+2.),24.);
-  float ticks=step(.93,.5+.5*cos((angle-t*.08)*96.));
+  float ticks=step(.93,.5+.5*cos((angle-u_tick)*96.));
   float gauge=exp(-abs(d-.16)*230.)*ticks*(1.-u_open);
   vec3 blue=vec3(.16,.34,.95);
   vec3 cyan=mix(vec3(.15,.86,.95),u_color,.3);
@@ -55,26 +61,53 @@
   vec3 color=mix(base+energy*center,base-energy*.45*center,u_light);
   gl_FragColor=vec4(color,1.);
  }`;
- function shader(type,source){const s=gl.createShader(type);gl.shaderSource(s,source);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)){gl.deleteShader(s);return null;}return s;}
- const vs=shader(gl.VERTEX_SHADER,vertex),fs=shader(gl.FRAGMENT_SHADER,fragment);
- if(!vs||!fs){canvas.remove();document.body.classList.add('ambient-fallback');return;}
- const program=gl.createProgram();gl.attachShader(program,vs);gl.attachShader(program,fs);gl.linkProgram(program);
- if(!gl.getProgramParameter(program,gl.LINK_STATUS)){canvas.remove();document.body.classList.add('ambient-fallback');return;}
- gl.deleteShader(vs);gl.deleteShader(fs);gl.useProgram(program);
- const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
- const position=gl.getAttribLocation(program,'a_position');gl.enableVertexAttribArray(position);gl.vertexAttribPointer(position,2,gl.FLOAT,false,0,0);
- const uniforms=Object.fromEntries(['resolution','open','color','time','light'].map(key=>[key,gl.getUniformLocation(program,'u_'+key)]));
- let contextLost=false,lightTheme=document.documentElement.dataset.theme==='light';
- canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();contextLost=true;cancelAnimationFrame(raf);raf=0;canvas.style.display='none';document.body.classList.add('ambient-fallback')});
- canvas.dataset.renderer='webgl';
+ let uniforms,ready=false,contextLost=false,lightTheme=document.documentElement.dataset.theme==='light';
+ function fallback(reason){
+  ready=false;cancelAnimationFrame(raf);raf=0;
+  document.body.classList.remove('webgl-active');
+  document.body.classList.add('ambient-fallback');
+  canvas.style.display='none';canvas.dataset.renderer=reason;
+ }
+ function shader(type,source){
+  const shader=gl.createShader(type);if(!shader)throw new Error('Could not allocate shader');
+  gl.shaderSource(shader,source);gl.compileShader(shader);
+  if(!gl.getShaderParameter(shader,gl.COMPILE_STATUS)){
+   const message=gl.getShaderInfoLog(shader);gl.deleteShader(shader);throw new Error(message||'Shader compilation failed');
+  }
+  return shader;
+ }
+ function initialize(){
+  let vs,fs,program,buffer;
+  try{
+   vs=shader(gl.VERTEX_SHADER,vertex);fs=shader(gl.FRAGMENT_SHADER,fragment);
+   program=gl.createProgram();if(!program)throw new Error('Could not allocate program');
+   gl.attachShader(program,vs);gl.attachShader(program,fs);gl.linkProgram(program);
+   if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(program)||'Program linking failed');
+   gl.useProgram(program);
+   buffer=gl.createBuffer();if(!buffer)throw new Error('Could not allocate buffer');
+   gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+   const position=gl.getAttribLocation(program,'a_position');
+   gl.enableVertexAttribArray(position);gl.vertexAttribPointer(position,2,gl.FLOAT,false,0,0);
+   uniforms=Object.fromEntries(['resolution','open','color','time','tick','light'].map(key=>[key,gl.getUniformLocation(program,'u_'+key)]));
+   ready=true;contextLost=false;lastTime=0;
+   canvas.style.display='';canvas.dataset.renderer='webgl';
+   document.body.classList.remove('ambient-fallback');
+   resize();
+  }catch(error){
+   if(buffer)gl.deleteBuffer(buffer);if(program)gl.deleteProgram(program);
+   console.warn('[ambient] WebGL initialization failed',error);fallback('initialization-failed');
+  }finally{if(vs)gl.deleteShader(vs);if(fs)gl.deleteShader(fs)}
+ }
+ canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();contextLost=true;fallback('context-lost')});
+ canvas.addEventListener('webglcontextrestored',initialize);
 
  const cards=[...document.querySelectorAll('.work-card')], hero=document.querySelector('.header');
  const sections=[hero,...document.querySelectorAll('section')].filter(Boolean);
  const palettes=[[61,219,217],[202,242,86],[214,193,144],[138,175,230],[238,166,132],[123,199,158],[142,185,240]];
  const state={open:0,speed:1,r:61,g:219,b:217},target={...state};
- let w=0,h=0,raf=0,lastTime=0,clock=0;
- function resize(){w=innerWidth;h=innerHeight;const dpr=Math.min(devicePixelRatio||1,w<700?1:1.25);const scale=Math.min(1,Math.sqrt(1600000/(w*h*dpr*dpr)));canvas.width=Math.round(w*dpr*scale);canvas.height=Math.round(h*dpr*scale);gl.viewport(0,0,canvas.width,canvas.height);gl.uniform2f(uniforms.resolution,canvas.width,canvas.height);update();}
- function schedule(){if(!raf&&!contextLost&&!reduce.matches&&!document.hidden)raf=requestAnimationFrame(frame);}
+ let w=0,h=0,raf=0,lastTime=0,clock=0,tickClock=0;
+ function resize(){if(!ready||contextLost)return;w=Math.max(1,innerWidth);h=Math.max(1,innerHeight);const dpr=Math.min(devicePixelRatio||1,w<700?1:1.25);const scale=Math.min(1,Math.sqrt(1600000/(w*h*dpr*dpr)));canvas.width=Math.round(w*dpr*scale);canvas.height=Math.round(h*dpr*scale);gl.viewport(0,0,canvas.width,canvas.height);gl.uniform2f(uniforms.resolution,canvas.width,canvas.height);update();}
+ function schedule(){if(!raf&&ready&&!contextLost&&!reduce.matches&&!document.hidden)raf=requestAnimationFrame(frame);}
  function update(){
   const mid=h*.5;let nearest=0,best=Infinity;
   const depth=Math.max(0,scrollY)/Math.max(h,1);
@@ -96,22 +129,25 @@
  function draw(){
   gl.uniform1f(uniforms.open,state.open);
   gl.uniform3f(uniforms.color,state.r/255,state.g/255,state.b/255);
-  gl.uniform1f(uniforms.time,clock*.0003);
+  gl.uniform1f(uniforms.time,clock);
+  gl.uniform1f(uniforms.tick,tickClock);
   gl.uniform1f(uniforms.light,lightTheme?1:0);
   gl.drawArrays(gl.TRIANGLES,0,3);
  }
- function frame(time){raf=0;const dt=Math.min(40,time-lastTime||16);lastTime=time;const ease=1-Math.exp(-dt/220);
+ function frame(time){raf=0;if(!ready||contextLost||reduce.matches||document.hidden)return;const dt=Math.min(40,time-lastTime||16);lastTime=time;const ease=1-Math.exp(-dt/220);
   Object.keys(state).forEach(k=>{const delta=target[k]-state[k];state[k]+=delta*ease;});
-  clock+=dt*state.speed;
+  const advance=dt*state.speed*.0003;
+  clock=(clock+advance)%(Math.PI*2);tickClock=(tickClock+advance*.08)%(Math.PI*2);
   draw();
+  document.body.classList.add('webgl-active');
   schedule();
  }
  let scrollFrame=0;addEventListener('scroll',()=>{if(!scrollFrame)scrollFrame=requestAnimationFrame(()=>{scrollFrame=0;update()})},{passive:true});
  addEventListener('resize',resize,{passive:true});
  document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(raf);raf=0}else {lastTime=0;update()}});
- reduce.addEventListener('change',()=>{if(reduce.matches){cancelAnimationFrame(raf);raf=0;gl.clear(gl.COLOR_BUFFER_BIT)}update()});
+ reduce.addEventListener('change',()=>{if(reduce.matches){cancelAnimationFrame(raf);raf=0;document.body.classList.remove('webgl-active')}update()});
  new MutationObserver(()=>{lightTheme=document.documentElement.dataset.theme==='light';schedule()}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
  document.querySelector('.work-grid')?.addEventListener('projectchange',update);
 
- resize();
+ initialize();
 })();
