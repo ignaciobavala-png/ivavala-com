@@ -787,6 +787,10 @@ function registrable(host) {
 // GET y no HEAD: hay servidores que contestan mal a HEAD y darian una caida
 // falsa. El cuerpo se descarta sin leerlo.
 async function probe(url) {
+  // Un Worker no puede pedirse a si mismo por el dominio propio (da 522),
+  // y si esto esta corriendo, el sitio esta arriba.
+  const host = new URL(url).hostname;
+  if (host === CANONICAL || host === "www." + CANONICAL) return { up: true, code: 200, ms: null, blocked: false, error: null };
   const t0 = Date.now();
   try {
     const res = await fetch(url, {

@@ -231,7 +231,7 @@ if(/[?&]t=/.test(location.search)){var m=document.createElement('meta');m.name='
     if(!w.up)return {s:'bad',k:'Web',v:'No responde',d:w.error?w.error.charAt(0).toUpperCase()+w.error.slice(1)+'.':'Respondió con error '+w.code+'.'};
     if(w.code===401||w.code===403||w.code===429)return {s:'ok',k:'Web',v:'Responde',d:'Contestó '+w.code+': está online, con un filtro de bots adelante.'};
     var slow=w.ms>2500;
-    return {s:slow?'warn':'ok',k:'Web',v:'Responde en '+(w.ms<1000?w.ms+' ms':(w.ms/1000).toFixed(1).replace('.',',')+' s'),
+    return {s:slow?'warn':'ok',k:'Web',v:w.ms==null?'Responde':'Responde en '+(w.ms<1000?w.ms+' ms':(w.ms/1000).toFixed(1).replace('.',',')+' s'),
       d:slow?'Tarda: más de 2,5 segundos solo en empezar a responder. Mucha gente se va antes.':(w.ms<800?'Rápida.':'Bien, aunque hay margen para que sea más rápida.')};
   }
   function sslRow(x,host,https,pending){
