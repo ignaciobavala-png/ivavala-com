@@ -41,6 +41,10 @@ Dos páginas nuevas, solo en español, con el estilo de la home (marino fijo, do
 - Migración `0005_monitors.sql` (tabla `monitors`), aplicada en remoto.
 - Sitemap, `llms.txt` y eventos de analítica actualizados.
 
+### Home
+
+- Sección "Gratis" entre Servicios y Stack, con las dos herramientas en el mismo formato de filas que los servicios, y link en el menú. Clicks medidos como `tool:click` y llegada a la sección como `sec:herramientas`. Solo en la home en español.
+
 ### Verificación
 
 Flujo del monitor probado en local con `wrangler dev --test-scheduled`: chequeo, suscripción, confirmación, alerta de caída, recuperación y baja; URLs inválidas rechazadas. Capturas headless del link de WhatsApp en 1440 y 390 sin scroll horizontal. Pendiente: revisión visual del panel de resultados del monitor.

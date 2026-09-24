@@ -405,13 +405,13 @@ html{scroll-padding-top:92px}
 <nav class="nav" id="nav">
 <div class="nav-inner">
 <a class="nav-brand" href="#top" aria-label="Volver arriba"><span class="mk" aria-hidden="true">IV</span><span class="nm">Ignacio Vavala</span></a>
-<div class="nav-links" id="nav-links"><span class="nav-ind" id="nav-ind" aria-hidden="true"></span><a href="#proyectos">proyectos</a><a href="#servicios">servicios</a><a href="#stack">stack</a><a href="#faq">faq</a><a href="#contacto">contacto</a></div>
+<div class="nav-links" id="nav-links"><span class="nav-ind" id="nav-ind" aria-hidden="true"></span><a href="#proyectos">proyectos</a><a href="#servicios">servicios</a><a href="#herramientas">gratis</a><a href="#stack">stack</a><a href="#faq">faq</a><a href="#contacto">contacto</a></div>
 <div class="nav-tools"><a href="/en/">EN</a></div>
 <button class="nav-burger" id="nav-burger" type="button" aria-label="Abrir men&#250;" aria-expanded="false" aria-controls="nav-panel"><span></span><span></span></button>
 <span class="nav-prog" id="nav-prog" aria-hidden="true"></span>
 </div>
 </nav>
-<div class="nav-panel" id="nav-panel"><a href="#proyectos">Proyectos</a><a href="#servicios">Servicios</a><a href="#stack">Stack</a><a href="#faq">FAQ</a><a href="#contacto">Contacto</a><p class="np-foot">ignacio@ivavala.com</p></div>
+<div class="nav-panel" id="nav-panel"><a href="#proyectos">Proyectos</a><a href="#servicios">Servicios</a><a href="#herramientas">Gratis</a><a href="#stack">Stack</a><a href="#faq">FAQ</a><a href="#contacto">Contacto</a><p class="np-foot">ignacio@ivavala.com</p></div>
 <div class="main">
 
 <div class="header">
@@ -483,6 +483,19 @@ html{scroll-padding-top:92px}
 </a>
 </div>
 <p class="svc-foot rv">¿Ninguna encaja del todo? <a href="#contacto" data-svc="Todavía no sé, arrancá vos">Contame qué necesitás</a> y lo pensamos juntos.</p>
+</section>
+<section class="sec" id="herramientas">
+<div class="sec-head rv"><h2>Gratis</h2><p class="sec-meta">herramientas para tu negocio, sin registrarte</p></div>
+<div class="svc-grid">
+<a class="svc-card rv" href="/link-whatsapp/">
+<span class="svc-top"><span class="idx">01</span><span class="arr" aria-hidden="true">&#8594;</span></span>
+<span class="svc-title">Link y QR de WhatsApp</span><span class="svc-desc">Que te escriban con un toque y el mensaje ya armado. Te llevás el link, el QR y un cartel listo para imprimir y pegar en el mostrador.</span>
+</a>
+<a class="svc-card rv" href="/monitor-web/">
+<span class="svc-top"><span class="idx">02</span><span class="arr" aria-hidden="true">&#8594;</span></span>
+<span class="svc-title">Monitor de tu web</span><span class="svc-desc">Te aviso por mail si tu web se cae o si se está por vencer el certificado o el dominio, antes de que se enteren tus clientes.</span>
+</a>
+</div>
 </section>
 <section class="sec" id="stack">
 <div class="sec-head rv"><h2>Stack</h2><p class="sec-meta">con qu&#233; est&#225; construido, y por qu&#233;</p></div>
@@ -792,6 +805,7 @@ watch(hero,'hero');watch(form,'form');
     else if(t.closest('.hero-cta a.p')) ev('cta:hero');
     else if(t.closest('.svc-foot a')) ev('cta:svcfoot');
     else if(t.closest('.nav-links a[href="#contacto"],.nav-panel a[href="#contacto"]')) ev('cta:nav');
+    else if(t.closest('#herramientas .svc-card')) ev('tool:click');
     else if(t.closest('.svc-card')) ev('svc:click');
     else if(t.closest('.work-card')) ev('work:click');
   }, true);

@@ -630,7 +630,7 @@ async function botellaRoute(request, env, ctx) {
 // puede llenar desde afuera con nombres inventados.
 const EVENTS = new Set([
   "view",
-  "sec:servicios", "sec:trabajo", "sec:componentes", "sec:stack", "sec:faq", "sec:contacto",
+  "sec:servicios", "sec:trabajo", "sec:componentes", "sec:herramientas", "sec:stack", "sec:faq", "sec:contacto",
   "svc:click", "work:click", "pieza:click",
   "flor:jugar", "flor:final", "flor:share",
   "form:start", "form:ok",
@@ -638,7 +638,7 @@ const EVENTS = new Set([
   "out:whatsapp", "out:mail", "out:github",
   "tool:wa:link", "tool:wa:copy", "tool:wa:snippet", "tool:wa:cartel", "tool:wa:qr",
   "tool:mon:check", "tool:mon:sub", "tool:mon:confirm", "tool:mon:off",
-  "cta:tool",
+  "cta:tool", "tool:click",
 ]);
 
 // Del referrer se guarda solo el host: alcanza para saber de donde llega la
