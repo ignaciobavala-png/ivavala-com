@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset=utf-8>
+<meta content="width=device-width,initial-scale=1" name=viewport>
+<title>Link de WhatsApp con QR, gratis — Ignacio Vavala</title>
+<meta content="Armá el link de WhatsApp de tu negocio con mensaje incluido, descargá el QR y un cartel listo para imprimir. Gratis, sin registro y sin que tu número salga de tu navegador." name=description>
+<link rel="preload" href="/fonts/space-grotesk-300-700-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/geist-mono-100-900-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="canonical" href="https://ivavala.com/link-whatsapp/">
+<meta property="og:site_name" content="Ignacio Vavala">
+<meta property="og:title" content="Link de WhatsApp con QR, gratis">
+<meta property="og:description" content="Link con mensaje incluido, QR y cartel para imprimir. Sin registro.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ivavala.com/link-whatsapp/">
+<meta property="og:image" content="https://ivavala.com/og.png">
+<meta property="og:locale" content="es_AR">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Generador de link de WhatsApp con QR","url":"https://ivavala.com/link-whatsapp/","applicationCategory":"BusinessApplication","operatingSystem":"Any","inLanguage":"es","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"author":{"@type":"Person","name":"Ignacio Vavala","url":"https://ivavala.com/"}}</script>
+<link rel="icon" href="/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<script>document.documentElement.className+=' js';</script>
+<link rel="stylesheet" href="/herramientas.css?v=1">
+<style>
+/* chips de mensaje: atajos, no una lista cerrada */
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.55rem}
+.chip{font-family:var(--mono);font-size:.64rem;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);background:none;border:1px solid var(--border);border-radius:999px;padding:.4rem .75rem;cursor:pointer;transition:color .15s,border-color .15s}
+.chip:hover{color:var(--accent);border-color:var(--accent)}
+.result{margin-top:1.5rem;padding-top:1.3rem;border-top:1px dashed var(--border)}
+.result[hidden]{display:none}
+.snip{margin-top:1.3rem}
+.snip summary{cursor:pointer;list-style:none;font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.snip summary::-webkit-details-marker{display:none}
+.snip summary::before{content:"+ ";color:var(--accent)}
+.snip[open] summary::before{content:"\2013 "}
+.snip summary:hover{color:var(--text)}
+.snip textarea{margin-top:.7rem;min-height:130px;font-family:var(--mono);font-size:.74rem;color:var(--dim)}
+/* la vista previa es el mismo canvas que se descarga, en chico: lo que se ve
+   es exactamente lo que se imprime */
+.sheet{margin-top:1rem;border-radius:10px;overflow:hidden;background:#fff;box-shadow:0 30px 70px rgba(0,0,0,.35);transform:rotate(-1deg);transition:transform .6s cubic-bezier(.2,.7,.3,1)}
+.sheet:hover{transform:none}
+.sheet canvas{display:block;width:100%;height:auto;aspect-ratio:12/17}
+.swatches{display:flex;gap:.5rem;align-items:center}
+.sw{width:22px;height:22px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0;outline-offset:2px}
+.sw[aria-pressed="true"]{border-color:var(--text)}
+.dl{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-top:1.1rem}
+.dl .btn{padding:.6rem .5rem;font-size:.64rem}
+@media (max-width:420px){.dl{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="page">
+<nav class="nav">
+<div class="nav-inner">
+<a class="nav-brand" href="/" aria-label="Ignacio Vavala &#8212; inicio"><span class="mk" aria-hidden="true">IV</span><span class="nm">Ignacio Vavala</span></a>
+<div class="nav-links"><a class="opt" href="/proyectos/">proyectos</a><a href="/link-whatsapp/" aria-current="page">link whatsapp</a><a href="/monitor-web/">monitor</a><a href="/#contacto">contacto</a></div>
+</div>
+</nav>
+<main class="main">
+
+<header class="head">
+<p class="kicker rv"><span class="dot" aria-hidden="true"></span> Herramienta gratis</p>
+<h1 class="title rv">Que te escriban <em>en un toque</em>.</h1>
+<p class="sub rv">Armá el link de WhatsApp de tu negocio con el mensaje ya escrito, y llevate el QR y un cartel listo para imprimir.</p>
+<ul class="facts rv"><li>Sin registro</li><li>Tu número no sale de tu navegador</li><li>QR que no vence</li></ul>
+</header>
+
+<section class="tool" aria-label="Generador">
+<div class="panel rv">
+<p class="panel-h"><span>01 · Tus datos</span></p>
+<form id="wa-form" novalidate autocomplete="on">
+<div class="row">
+<div><label for="cc">País</label>
+<select id="cc">
+<option value="54" selected>Argentina +54</option>
+<option value="598">Uruguay +598</option>
+<option value="56">Chile +56</option>
+<option value="595">Paraguay +595</option>
+<option value="591">Bolivia +591</option>
+<option value="51">Perú +51</option>
+<option value="57">Colombia +57</option>
+<option value="593">Ecuador +593</option>
+<option value="58">Venezuela +58</option>
+<option value="52">México +52</option>
+<option value="55">Brasil +55</option>
+<option value="34">España +34</option>
+<option value="1">EE.UU. / Canadá +1</option>
+<option value="">Otro (con código)</option>
+</select></div>
+<div><label for="num">Número de WhatsApp</label><input id="num" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="11 15 2734-3775" maxlength="30"></div>
+</div>
+<p class="hint" id="num-hint" aria-live="polite">Escribilo como lo dictás: con 0, con 15, con guiones. Lo acomodo yo.</p>
+
+<label for="msg">Mensaje que ya aparece escrito <span class="opt">(opcional)</span></label>
+<textarea id="msg" maxlength="600" placeholder="Hola, vi su página y quería consultar por…"></textarea>
+<div class="chips" aria-label="Mensajes sugeridos">
+<button class="chip" type="button" data-msg="Hola, quería hacer una consulta.">Consulta</button>
+<button class="chip" type="button" data-msg="Hola, quería pedir un presupuesto para…">Presupuesto</button>
+<button class="chip" type="button" data-msg="Hola, quería sacar un turno.">Turno</button>
+<button class="chip" type="button" data-msg="Hola, quería hacer un pedido:">Pedido</button>
+</div>
+
+<label for="biz">Nombre del negocio <span class="opt">(para el cartel)</span></label>
+<input id="biz" type="text" maxlength="48" placeholder="Panadería La Espiga" autocomplete="organization">
+</form>
+
+<div class="result" id="result" hidden>
+<p class="panel-h"><span>02 · Tu link</span></p>
+<div class="field" style="margin-top:.8rem">
+<input id="link" type="text" readonly aria-label="Link generado">
+<button class="btn" type="button" id="copy">Copiar</button>
+</div>
+<div class="actions">
+<a class="btn ghost" id="try" href="#" target="_blank" rel="noopener">Probarlo &#8599;</a>
+</div>
+<p class="status" id="copy-status" role="status" aria-live="polite"></p>
+<details class="snip" id="snip">
+<summary>Botón flotante para tu web</summary>
+<p class="hint">Pegalo antes de <b>&lt;/body&gt;</b>. Aparece abajo a la derecha, en todas las páginas.</p>
+<textarea id="snippet" readonly aria-label="Código del botón"></textarea>
+<div class="actions"><button class="btn ghost" type="button" id="copy-snip">Copiar código</button></div>
+</details>
+</div>
+</div>
+
+<div class="panel sticky rv">
+<p class="panel-h"><span>03 · Cartel y QR</span>
+<span class="swatches" role="group" aria-label="Color del cartel">
+<button class="sw" type="button" data-c="#25d366" style="background:#25d366" aria-label="Verde" aria-pressed="true"></button>
+<button class="sw" type="button" data-c="#0a1622" style="background:#0a1622;box-shadow:inset 0 0 0 1px #2a4356" aria-label="Marino" aria-pressed="false"></button>
+<button class="sw" type="button" data-c="#e0533d" style="background:#e0533d" aria-label="Coral" aria-pressed="false"></button>
+</span></p>
+<div class="sheet"><canvas id="sheet" width="600" height="850" role="img" aria-label="Vista previa del cartel con el código QR"></canvas></div>
+<div class="dl">
+<button class="btn" type="button" id="dl-cartel" disabled>Cartel PNG</button>
+<button class="btn ghost" type="button" id="dl-png" disabled>QR PNG</button>
+<button class="btn ghost" type="button" id="dl-svg" disabled>QR SVG</button>
+</div>
+<p class="hint">El cartel sale en 1200 × 1700 px: entra justo en una hoja A5, o dos por A4.</p>
+</div>
+</section>
+
+<section class="sec" aria-labelledby="como">
+<div class="sec-head rv"><h2 id="como">Dónde usarlo</h2><p class="sec-meta">un link, muchos lugares</p></div>
+<ol class="steps">
+<li class="rv"><span class="n">01</span><h3>En la bio de Instagram</h3><p>El link abre el chat directo con tu mensaje escrito. La persona solo aprieta enviar.</p></li>
+<li class="rv"><span class="n">02</span><h3>En el mostrador y la vidriera</h3><p>Imprimí el cartel. Quien pasa y no quiere entrar te escribe desde la vereda.</p></li>
+<li class="rv"><span class="n">03</span><h3>En tu web, tarjetas y folletos</h3><p>El botón flotante para tu sitio, y el QR en SVG para que la imprenta lo imprima sin pixelar.</p></li>
+</ol>
+</section>
+
+<section class="sec" aria-labelledby="faq">
+<div class="sec-head rv"><h2 id="faq">Preguntas</h2><p class="sec-meta">lo que siempre se pregunta</p></div>
+<div class="faq">
+<details class="rv"><summary>¿Por qué mi número de Argentina queda con un 9?</summary><p class="a">WhatsApp necesita el número en formato internacional: 54, después un 9, el código de área sin el 0 y el número sin el 15. Casi todos los links que no andan fallan por eso. Escribilo como te salga: la herramienta lo acomoda y te muestra cómo quedó.</p></details>
+<details class="rv"><summary>¿El QR vence o deja de andar?</summary><p class="a">No. El QR tiene adentro el link completo y no pasa por ningún servidor mío, así que anda para siempre. Si cambiás de número, generás uno nuevo.</p></details>
+<details class="rv"><summary>¿Guardan mi número?</summary><p class="a">No. Todo se arma en tu navegador: el número y el mensaje nunca llegan a mi servidor. Solo cuento cuántas veces se usa la herramienta, sin ningún dato tuyo.</p></details>
+<details class="rv"><summary>¿Sirve para WhatsApp Business?</summary><p class="a">Sí, el link es el mismo para WhatsApp común y para Business.</p></details>
+</div>
+</section>
+
+<section class="bridge rv" aria-labelledby="puente">
+<div>
+<h2 id="puente">El link trae la consulta. Una web la convierte en venta.</h2>
+<p>Si ya te escriben por WhatsApp, el paso siguiente es una web con tus productos y precios que cierre la venta en ese mismo chat, como las que hice para Malasaña Boutique y Elementos de Seguridad.</p>
+</div>
+<a class="btn" id="bridge-cta" href="/#contacto">Contame tu proyecto &#8594;</a>
+</section>
+
+<p class="other rv">Otra herramienta gratis: <a href="/monitor-web/">Monitor de web, dominio y SSL &#8594;</a></p>
+
+</main>
+</div>
+
+<script src="/vendor/qrcode.min.js"></script>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id)};
+  var form=$('wa-form'),cc=$('cc'),num=$('num'),msg=$('msg'),biz=$('biz');
+  var hint=$('num-hint'),result=$('result'),link=$('link'),tryA=$('try');
+  var canvas=$('sheet'),snippet=$('snippet');
+  var dlC=$('dl-cartel'),dlP=$('dl-png'),dlS=$('dl-svg');
+  var color='#25d366',state=null;
+  var HINT0=hint.textContent;
+
+  /* ── número ─────────────────────────────────────────────────────────
+     WhatsApp quiere el número internacional sin signos. En Argentina eso es
+     54 + 9 + área sin 0 + número sin 15, y es donde casi todos los links
+     rotos fallan: se copia "011 15..." o se olvida el 9. Se acepta cualquier
+     forma de dictarlo y se muestra el resultado para que la persona lo vea. */
+  function normAR(d){
+    if(d.indexOf('54')===0&&d.length>=12)d=d.slice(2);
+    if(d.charAt(0)==='9'&&d.length===11)d=d.slice(1);
+    if(d.charAt(0)==='0')d=d.slice(1);
+    var area=0;
+    if(d.length===12){
+      // El 15 va despues del codigo de area. CABA/AMBA es el unico de 2
+      // digitos; el resto tiene 3 o 4.
+      if(d.indexOf('11')===0&&d.substr(2,2)==='15')area=2;
+      else if(d.substr(3,2)==='15')area=3;
+      else if(d.substr(4,2)==='15')area=4;
+      if(area)d=d.slice(0,area)+d.slice(area+2);
+    }
+    if(d.length===8||(d.length===10&&d.indexOf('15')===0))
+      return {err:'Falta el código de área (por ejemplo 11 para CABA y GBA, 351 para Córdoba).'};
+    if(d.length!==10)return {err:'Un número de Argentina tiene 10 dígitos contando el área, sin el 0 ni el 15.'};
+    // Para mostrarlo lindo hace falta saber donde termina el area, y eso solo
+    // es seguro con el 15 o con 11: hay codigos de 3 y de 4 digitos que
+    // empiezan igual (221 La Plata, 2221 Magdalena). Sin certeza no se corta.
+    if(!area&&d.indexOf('11')===0)area=2;
+    var pretty=area?d.slice(0,area)+' '+d.slice(area,-4)+'-'+d.slice(-4):d.slice(0,-4)+'-'+d.slice(-4);
+    return {full:'549'+d,pretty:'+54 9 '+pretty};
+  }
+  function norm(code,raw){
+    var d=String(raw||'').replace(/\D/g,'');
+    if(d.indexOf('00')===0)d=d.slice(2);
+    if(!d)return null;
+    if(code==='54')return normAR(d);
+    if(!code){
+      if(d.length<8||d.length>15)return {err:'Escribilo con el código de país adelante, por ejemplo 34 612 345 678.'};
+      return {full:d,pretty:'+'+d};
+    }
+    if(d.indexOf(code)===0&&d.length>code.length+7)d=d.slice(code.length);
+    if(d.charAt(0)==='0')d=d.slice(1);
+    if(d.length<6||d.length>13)return {err:'Revisá el número: parece corto o largo para ese país.'};
+    return {full:code+d,pretty:'+'+code+' '+d.replace(/(\d{3,4})(?=(\d{4})+$)/g,'$1 ')};
+  }
+
+  /* ── QR ──────────────────────────────────────────────────────────── */
+  function qrOf(text){var q=qrcode(0,'M');q.addData(text);q.make();return q}
+  function qrSvg(q){
+    var n=q.getModuleCount(),m=4,s=n+m*2,d='';
+    for(var r=0;r<n;r++)for(var c=0;c<n;c++)if(q.isDark(r,c))d+='M'+(c+m)+' '+(r+m)+'h1v1h-1z';
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+s+' '+s+'" shape-rendering="crispEdges"><rect width="'+s+'" height="'+s+'" fill="#fff"/><path fill="#0a1622" d="'+d+'"/></svg>';
+  }
+  function drawQr(ctx,q,x,y,size){
+    var n=q.getModuleCount(),cell=size/n;
+    ctx.fillStyle='#0a1622';
+    for(var r=0;r<n;r++)for(var c=0;c<n;c++)if(q.isDark(r,c))
+      ctx.fillRect(Math.floor(x+c*cell),Math.floor(y+r*cell),Math.ceil(cell),Math.ceil(cell));
+  }
+
+  /* ── cartel ──────────────────────────────────────────────────────────
+     Se dibuja siempre en 1200x1700 y se escala: la vista previa y el PNG
+     salen de la misma funcion, asi no hay dos versiones que se desfasen. */
+  var W=1200,H=1700,FD='"Space Grotesk",Arial,sans-serif',FM='"Geist Mono",monospace';
+  function wrap(ctx,text,max){
+    var words=text.split(/\s+/),lines=[],cur='';
+    words.forEach(function(w){
+      var t=cur?cur+' '+w:w;
+      if(ctx.measureText(t).width>max&&cur){lines.push(cur);cur=w}else cur=t;
+    });
+    if(cur)lines.push(cur);
+    return lines;
+  }
+  function drawSheet(ctx,scale){
+    ctx.save();ctx.scale(scale,scale);
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle=color;ctx.fillRect(0,0,W,22);ctx.fillRect(0,H-22,W,22);
+    ctx.textAlign='center';ctx.textBaseline='alphabetic';
+    var name=(biz.value||'').trim(),y=190;
+    ctx.fillStyle='#546a78';ctx.font='600 30px '+FM;
+    if('letterSpacing' in ctx)ctx.letterSpacing='6px';
+    ctx.fillText(name?'ESCRIBINOS POR WHATSAPP':'ESCANEÁ Y ESCRIBINOS',W/2,y);
+    if('letterSpacing' in ctx)ctx.letterSpacing='0px';
+    var title=name||'WhatsApp',fs=104,lines;
+    do{ctx.font='700 '+fs+'px '+FD;lines=wrap(ctx,title,W-200);fs-=6}while((lines.length>2||lines.some(function(l){return ctx.measureText(l).width>W-200}))&&fs>52);
+    lines=lines.slice(0,2);
+    ctx.fillStyle='#0a1622';y+=fs+40;
+    lines.forEach(function(l){ctx.fillText(l,W/2,y);y+=fs+14});
+    var qs=720,qx=(W-qs)/2,qy=y+34;
+    if(state&&state.q){drawQr(ctx,state.q,qx,qy,qs)}
+    else{
+      ctx.strokeStyle='#c9d4da';ctx.lineWidth=4;ctx.setLineDash([18,14]);
+      ctx.strokeRect(qx+6,qy+6,qs-12,qs-12);ctx.setLineDash([]);
+      ctx.fillStyle='#9aabb5';ctx.font='500 34px '+FM;ctx.fillText('tu QR aparece acá',W/2,qy+qs/2+12);
+    }
+    y=qy+qs+100;
+    ctx.fillStyle='#0a1622';ctx.font='600 50px '+FM;
+    ctx.fillText(state&&state.pretty?state.pretty:'+54 9 11 0000-0000',W/2,y);
+    ctx.fillStyle='#546a78';ctx.font='400 32px '+FD;
+    ctx.fillText('Abrí la cámara del celular y apuntá al código',W/2,y+66);
+    ctx.fillStyle='#a3b1b9';ctx.font='500 19px '+FM;
+    ctx.fillText('hecho con ivavala.com/link-whatsapp',W/2,H-52);
+    ctx.restore();
+  }
+  var raf=0;
+  function paint(){
+    if(raf)return;
+    raf=requestAnimationFrame(function(){
+      raf=0;
+      var ctx=canvas.getContext('2d');
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      drawSheet(ctx,canvas.width/W);
+    });
+  }
+
+  /* ── armado ─────────────────────────────────────────────────────── */
+  var told=false;
+  function update(){
+    var r=norm(cc.value,num.value);
+    hint.className='hint';
+    if(!r){hint.textContent=HINT0;state=null}
+    else if(r.err){hint.textContent=r.err;hint.className='hint warn';state=null}
+    else{
+      var text=msg.value.trim();
+      var url='https://wa.me/'+r.full+(text?'?text='+encodeURIComponent(text):'');
+      hint.innerHTML='';
+      hint.appendChild(document.createTextNode('Así queda: '));
+      var b=document.createElement('b');b.textContent=r.pretty;hint.appendChild(b);
+      state={url:url,pretty:r.pretty,q:qrOf(url)};
+      link.value=url;tryA.href=url;
+      snippet.value=snippetOf(url);
+      if(!told){told=true;ev('tool:wa:link')}
+    }
+    result.hidden=!state;
+    dlC.disabled=dlP.disabled=dlS.disabled=!state;
+    paint();
+    save();
+  }
+  function snippetOf(url){
+    return '<!-- Botón de WhatsApp — ivavala.com/link-whatsapp -->\n'+
+      '<a href="'+url.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'" target="_blank" rel="noopener" aria-label="Escribinos por WhatsApp"\n'+
+      '   style="position:fixed;right:20px;bottom:20px;z-index:9999;width:58px;height:58px;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,0,0,.25)">\n'+
+      '  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.3 7.4L3 21l2.1-5.6A8.4 8.4 0 1 1 21 11.5z"/></svg>\n'+
+      '</a>';
+  }
+
+  /* recordar los datos en este navegador: el que vuelve a bajar el cartel
+     no tiene que cargar todo de nuevo */
+  function save(){try{localStorage.setItem('wa-tool',JSON.stringify({cc:cc.value,num:num.value,msg:msg.value,biz:biz.value,color:color}))}catch(e){}}
+  try{
+    var s=JSON.parse(localStorage.getItem('wa-tool')||'null');
+    if(s){cc.value=s.cc==null?'54':s.cc;num.value=s.num||'';msg.value=s.msg||'';biz.value=s.biz||'';if(s.color)color=s.color}
+  }catch(e){}
+
+  [cc,num,msg,biz].forEach(function(el){el.addEventListener('input',update);el.addEventListener('change',update)});
+  form.addEventListener('submit',function(e){e.preventDefault()});
+  [].forEach.call(document.querySelectorAll('.chip'),function(b){
+    b.addEventListener('click',function(){msg.value=b.getAttribute('data-msg');msg.focus();update()});
+  });
+  var sws=document.querySelectorAll('.sw');
+  function syncSw(){[].forEach.call(sws,function(x){x.setAttribute('aria-pressed',x.getAttribute('data-c')===color?'true':'false')})}
+  [].forEach.call(sws,function(b){
+    b.addEventListener('click',function(){color=b.getAttribute('data-c');syncSw();paint();save()});
+  });
+  syncSw();
+
+  /* ── copiar y descargar ─────────────────────────────────────────── */
+  function copy(text,okMsg){
+    var st=$('copy-status');
+    function ok(){st.className='status ok';st.textContent=okMsg;setTimeout(function(){st.textContent=''},2600)}
+    if(navigator.clipboard&&window.isSecureContext){
+      navigator.clipboard.writeText(text).then(ok,function(){fallback()});
+    }else fallback();
+    function fallback(){
+      var t=document.createElement('textarea');t.value=text;t.style.position='fixed';t.style.opacity='0';
+      document.body.appendChild(t);t.select();
+      try{document.execCommand('copy');ok()}catch(e){st.className='status err';st.textContent='No pude copiar: seleccioná el texto a mano.'}
+      document.body.removeChild(t);
+    }
+  }
+  $('copy').addEventListener('click',function(){if(state){copy(state.url,'Copiado. Pegalo donde quieras.');ev('tool:wa:copy')}});
+  $('copy-snip').addEventListener('click',function(){copy(snippet.value,'Código copiado.');ev('tool:wa:snippet')});
+  $('snip').addEventListener('toggle',function(){if(this.open)ev('tool:wa:snippet')});
+
+  function slug(){return ((biz.value||'whatsapp').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'whatsapp')}
+  function download(href,name){var a=document.createElement('a');a.href=href;a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a)}
+  function blobDl(canvasEl,name){
+    if(canvasEl.toBlob)canvasEl.toBlob(function(b){var u=URL.createObjectURL(b);download(u,name);setTimeout(function(){URL.revokeObjectURL(u)},4000)},'image/png');
+    else download(canvasEl.toDataURL('image/png'),name);
+  }
+  dlC.addEventListener('click',function(){
+    if(!state)return;
+    var c=document.createElement('canvas');c.width=W;c.height=H;
+    drawSheet(c.getContext('2d'),1);
+    blobDl(c,'cartel-'+slug()+'.png');ev('tool:wa:cartel');
+  });
+  dlP.addEventListener('click',function(){
+    if(!state)return;
+    var n=state.q.getModuleCount(),m=4,cell=Math.ceil(1024/(n+m*2)),s=cell*(n+m*2);
+    var c=document.createElement('canvas');c.width=c.height=s;
+    var ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,s,s);
+    drawQr(ctx,state.q,m*cell,m*cell,n*cell);
+    blobDl(c,'qr-'+slug()+'.png');ev('tool:wa:qr');
+  });
+  dlS.addEventListener('click',function(){
+    if(!state)return;
+    var u=URL.createObjectURL(new Blob([qrSvg(state.q)],{type:'image/svg+xml'}));
+    download(u,'qr-'+slug()+'.svg');setTimeout(function(){URL.revokeObjectURL(u)},4000);ev('tool:wa:qr');
+  });
+
+  /* ── medicion (misma que el resto del sitio) ───────────────────── */
+  function ev(name){
+    var body=JSON.stringify({n:name,p:location.pathname,l:'es',r:document.referrer});
+    try{if(navigator.sendBeacon&&navigator.sendBeacon('/api/e',new Blob([body],{type:'application/json'})))return}catch(e){}
+    try{fetch('/api/e',{method:'POST',body:body,headers:{'content-type':'application/json'},keepalive:true})}catch(e){}
+  }
+  ev('view');
+  $('bridge-cta').addEventListener('click',function(){ev('cta:tool')});
+
+  // El canvas usa las fuentes del sitio: se espera a que carguen para que el
+  // cartel no salga dibujado con Arial y despues salte.
+  update();
+  if(document.fonts&&document.fonts.load){
+    Promise.all([document.fonts.load('700 40px "Space Grotesk"'),document.fonts.load('400 20px "Space Grotesk"'),document.fonts.load('600 20px "Geist Mono"')]).then(paint,paint);
+  }
+
+  /* entrada escalonada, igual que en /proyectos/ */
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{rootMargin:'0px 0px -8% 0px',threshold:.05});
+    [].forEach.call(document.querySelectorAll('.rv'),function(el){io.observe(el)});
+  }else [].forEach.call(document.querySelectorAll('.rv'),function(el){el.classList.add('in')});
+})();
+</script>
+</body>
+</html>

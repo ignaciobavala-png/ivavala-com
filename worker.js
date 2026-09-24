@@ -64,6 +64,10 @@ const LLMS = `# Ignacio Vavala
 - ${ORIGIN}/en/ — inicio (ingles)
 - ${ORIGIN}/piezas/botella — pieza interactiva
 - ${ORIGIN}/proyectos/ — proyectos en produccion, filtrables por tipo
+- ${ORIGIN}/link-whatsapp/ — herramienta gratis: link de WhatsApp con mensaje,
+  QR y cartel para imprimir (normaliza numeros argentinos: 54 9, sin 0 ni 15)
+- ${ORIGIN}/monitor-web/ — herramienta gratis: chequeo de web, SSL y dominio,
+  con avisos por mail si se cae o esta por vencer
 - ${ORIGIN}/en/proyectos/ — projects (english)
 `;
 
@@ -113,6 +117,16 @@ const SITEMAP = `<?xml version="1.0" encoding="UTF-8"?>
     <xhtml:link rel="alternate" hreflang="x-default" href="${ORIGIN}/proyectos/"/>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>${ORIGIN}/link-whatsapp/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>${ORIGIN}/monitor-web/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>${ORIGIN}/en/proyectos/</loc>
@@ -172,7 +186,13 @@ const json = (obj, status, extra) =>
 const ACUSE_FROM = "Ignacio Vavala <hola@ivavala.com>";
 const ACUSE_REPLY = DEST;
 
-async function enviarResend(env, { to, subject, text, replyTo }) {
+async function enviarResend(env, { to, subject, text, replyTo, headers }) {
+  // En local no hay key: el mail se imprime en la consola de wrangler dev y
+  // el flujo sigue, asi se puede probar el monitor de punta a punta.
+  if (!env.RESEND_API_KEY && env.ENV === "dev") {
+    console.log(`[mail dev] para ${to} — ${subject}\n${text}`);
+    return { id: "dev" };
+  }
   if (!env.RESEND_API_KEY) throw new Error("falta RESEND_API_KEY");
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -187,6 +207,7 @@ async function enviarResend(env, { to, subject, text, replyTo }) {
       subject,
       text,
       ...(replyTo ? { reply_to: replyTo } : {}),
+      ...(headers ? { headers } : {}),
     }),
     signal: AbortSignal.timeout(8000),
   });
@@ -334,7 +355,7 @@ async function handleContacto(request, env, ctx) {
 
 // ── la botella: mensajes a la deriva ─────────────────────────────────────
 const MSG_MAX = 500;
-const RATE = { throw: 5, fish: 8, admin: 5, ev: 80, contacto: 3 }; // por IP cada 5 minutos
+const RATE = { throw: 5, fish: 8, admin: 5, ev: 80, contacto: 3, mon: 6, monsub: 3, montok: 30 }; // por IP cada 5 minutos
 
 const safeEqual = (a, b) => {
   if (typeof a !== "string" || typeof b !== "string" || a.length !== b.length) return false;
@@ -615,6 +636,9 @@ const EVENTS = new Set([
   "form:start", "form:ok",
   "cta:hero", "cta:pill", "cta:nav", "cta:svcfoot", "cta:proyectos",
   "out:whatsapp", "out:mail", "out:github",
+  "tool:wa:link", "tool:wa:copy", "tool:wa:snippet", "tool:wa:cartel", "tool:wa:qr",
+  "tool:mon:check", "tool:mon:sub", "tool:mon:confirm", "tool:mon:off",
+  "cta:tool",
 ]);
 
 // Del referrer se guarda solo el host: alcanza para saber de donde llega la
@@ -709,7 +733,506 @@ async function handleStats(request, db, env) {
     countries: countries.results.map((r) => ({ ...r, name: countryName(r.country) || r.country })),
   });
 }
+
+// ── monitor de web, SSL y dominio (/monitor-web/) ────────────────────────
+// Herramienta gratis: cualquiera carga su web y se lleva un chequeo al
+// instante; si deja el mail y confirma, el cron la revisa cada 10 minutos y le
+// avisa si se cae, si el certificado no se renovo o si el dominio esta por
+// vencer. Los avisos salen por Resend (el binding solo me escribe a mi) con
+// reply-to a mi casilla: el aviso es justo el momento en que esa persona
+// necesita a alguien, y la respuesta me llega a mi.
+const MON_MAX_PER_EMAIL = 5;
+const MON_UA = "Mozilla/5.0 (compatible; ivavala-monitor/1.0; +https://ivavala.com/monitor-web/)";
+const TZ = "America/Argentina/Buenos_Aires";
+const SSL_LEVELS = [7, 3, 1];     // dias antes de vencer en que se avisa
+const DOMAIN_LEVELS = [30, 7, 1];
+
+const baseOf = (env) => (env.ENV === "dev" ? "http://localhost:8787" : ORIGIN);
+const newToken = () => crypto.randomUUID().replace(/-/g, "");
+// D1 guarda datetime('now') como "YYYY-MM-DD HH:MM:SS" en UTC.
+const sqlToIso = (s) => (s ? String(s).replace(" ", "T") + "Z" : null);
+const daysUntil = (iso) => Math.floor((Date.parse(iso) - Date.now()) / 86400000);
+const fmtDate = (iso) =>
+  new Date(iso).toLocaleDateString("es-AR", { timeZone: TZ, day: "numeric", month: "long", year: "numeric" });
+const fmtTime = (iso) =>
+  new Date(iso).toLocaleString("es-AR", { timeZone: TZ, day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit", hour12: false });
+
+// Solo webs publicas por nombre: nada de IPs, puertos ni nombres internos.
+// Un Worker no llega a redes privadas igual, pero no hay por que intentarlo.
+function normUrl(raw) {
+  let v = String(raw || "").trim().slice(0, 300);
+  if (!v) return null;
+  if (!/^https?:\/\//i.test(v)) v = "https://" + v;
+  let u;
+  try { u = new URL(v); } catch { return null; }
+  if (u.protocol !== "https:" && u.protocol !== "http:") return null;
+  if (u.username || u.password || u.port) return null;
+  const host = u.hostname.toLowerCase().replace(/\.$/, "");
+  if (!host.includes(".") || host.length > 253 || !/^[a-z0-9.-]+$/.test(host)) return null;
+  if (/^[\d.]+$/.test(host)) return null;
+  if (/(^|\.)(localhost|local|internal|lan|home|test|invalid|example)$/.test(host)) return null;
+  return { url: u.protocol + "//" + host + (u.pathname || "/"), host };
+}
+
+// El dominio que se renueva, no el host: "www.estudio.com.ar" -> "estudio.com.ar".
+// Sin lista de sufijos publicos completa; alcanza para los ccTLD con segundo
+// nivel (com.ar, gob.ar, co.uk...) que son los que aparecen aca.
+const SLD = new Set(["com", "net", "org", "gob", "gov", "edu", "co", "ac", "mil", "int", "nom", "tur", "info", "coop", "or", "ne", "go"]);
+function registrable(host) {
+  const p = host.split(".");
+  if (p.length >= 3 && p[p.length - 1].length === 2 && SLD.has(p[p.length - 2])) return p.slice(-3).join(".");
+  return p.slice(-2).join(".");
+}
+
+// GET y no HEAD: hay servidores que contestan mal a HEAD y darian una caida
+// falsa. El cuerpo se descarta sin leerlo.
+async function probe(url) {
+  const t0 = Date.now();
+  try {
+    const res = await fetch(url, {
+      method: "GET",
+      redirect: "follow",
+      headers: { "user-agent": MON_UA, accept: "text/html,*/*" },
+      signal: AbortSignal.timeout(10000),
+    });
+    const ms = Date.now() - t0;
+    try { if (res.body) await res.body.cancel(); } catch {}
+    const code = res.status;
+    // 401/403/429: el servidor esta vivo y filtra bots. No es una caida, y
+    // avisar "tu web se cayo" por un firewall seria mentirle a la persona.
+    const blocked = code === 401 || code === 403 || code === 429;
+    return { up: code < 400 || blocked, code, ms, blocked, error: null };
+  } catch (err) {
+    const timeout = err && (err.name === "TimeoutError" || err.name === "AbortError");
+    return {
+      up: false, code: null, ms: Date.now() - t0, blocked: false,
+      error: timeout ? "no respondió en 10 segundos" : "no se pudo conectar (DNS, certificado o servidor apagado)",
+    };
+  }
+}
+
+// El Worker no puede leer el certificado de una conexion, asi que el
+// vencimiento sale de Certificate Transparency: todo certificado publico queda
+// registrado ahi. Se toma el mas lejano de los vigentes. Limite conocido: si
+// se emitio uno nuevo pero no se instalo, esto lo da por renovado; el caso
+// comun (la renovacion automatica dejo de andar) si lo detecta.
+async function sslExpiry(host, env) {
+  const headers = { "user-agent": MON_UA };
+  if (env.CERTSPOTTER_KEY) headers.authorization = `Bearer ${env.CERTSPOTTER_KEY}`;
+  const res = await fetch(
+    `https://api.certspotter.com/v1/issuances?domain=${encodeURIComponent(host)}&match_wildcards=true`,
+    { headers, signal: AbortSignal.timeout(8000) }
+  );
+  if (!res.ok) throw new Error("certspotter " + res.status);
+  const list = await res.json();
+  const now = Date.now();
+  let best = null;
+  for (const c of Array.isArray(list) ? list : []) {
+    if (c.revoked || Date.parse(c.not_before) > now) continue;
+    if (!best || Date.parse(c.not_after) > Date.parse(best)) best = c.not_after;
+  }
+  return best;
+}
+
+// RDAP es el reemplazo estructurado de whois; rdap.org redirige al registro de
+// cada TLD. Algunos registros (NIC Argentina, a veces) no contestan: se tira
+// error y la ficha dice "no disponible" en vez de inventar una fecha.
+async function domainExpiry(domain) {
+  const res = await fetch(`https://rdap.org/domain/${encodeURIComponent(domain)}`, {
+    headers: { accept: "application/rdap+json, application/json", "user-agent": MON_UA },
+    redirect: "follow",
+    signal: AbortSignal.timeout(8000),
+  });
+  if (!res.ok) throw new Error("rdap " + res.status);
+  const data = await res.json();
+  const ev = (data.events || []).find((e) => e.eventAction === "expiration");
+  let registrar = null;
+  for (const e of data.entities || []) {
+    if (!(e.roles || []).includes("registrar")) continue;
+    const fn = (((e.vcardArray || [])[1]) || []).find((x) => x[0] === "fn");
+    if (fn) registrar = oneLine(fn[3], 80);
+  }
+  return { expires: ev && ev.eventDate ? ev.eventDate : null, registrar };
+}
+
+async function fullCheck(u, env) {
+  const domain = registrable(u.host);
+  const https = u.url.startsWith("https:");
+  const [web, ssl, dom] = await Promise.allSettled([
+    probe(u.url),
+    https ? sslExpiry(u.host, env) : Promise.resolve(null),
+    domainExpiry(domain),
+  ]);
+  return {
+    url: u.url,
+    host: u.host,
+    domain,
+    web: web.value,
+    ssl: ssl.status === "fulfilled"
+      ? { https, expires: ssl.value, days: ssl.value ? daysUntil(ssl.value) : null }
+      : { https, error: true },
+    dominio: dom.status === "fulfilled"
+      ? { expires: dom.value.expires, days: dom.value.expires ? daysUntil(dom.value.expires) : null, registrar: dom.value.registrar }
+      : { error: true },
+  };
+}
+
+// Umbral alcanzado: 10 dias con [30,7,1] -> 30; 5 -> 7; vencido -> 0.
+// null = todavia lejos, y ahi se resetea lo avisado (hubo renovacion).
+function levelOf(days, levels) {
+  if (days > levels[0]) return null;
+  if (days <= 0) return 0;
+  let l = levels[0];
+  for (const t of levels) if (days <= t) l = t;
+  return l;
+}
+
+// ── mails del monitor ──
+function monFooter(m, base) {
+  return [
+    "",
+    "—",
+    "Ignacio Vavala · desarrollo web · https://ivavala.com",
+    `Estado de tu monitor: ${base}/monitor-web/?t=${m.token}`,
+    `Dejar de recibir avisos: ${base}/monitor-web/?t=${m.token}&baja=1`,
+  ];
+}
+
+async function monMail(env, m, subject, lines) {
+  const base = baseOf(env);
+  return enviarResend(env, {
+    to: m.email,
+    subject,
+    text: [...lines, ...monFooter(m, base)].join("\n"),
+    replyTo: DEST,
+    headers: {
+      "List-Unsubscribe": `<${base}/api/monitor/off?t=${m.token}>`,
+      "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+    },
+  });
+}
+
+// Aviso interno por el binding: el que no se puede perder y no depende de Resend.
+async function notifyMe(env, subject, body) {
+  if (!env.SEND_EMAIL) return;
+  try {
+    const { EmailMessage } = await import("cloudflare:email");
+    const raw = [
+      `From: ${header("Monitor ivavala.com")} <${FROM}>`,
+      `To: <${DEST}>`,
+      `Subject: ${header(subject)}`,
+      `Message-ID: <${crypto.randomUUID()}@ivavala.com>`,
+      `Date: ${new Date().toUTCString()}`,
+      "MIME-Version: 1.0",
+      "Content-Type: text/plain; charset=utf-8",
+      "Content-Transfer-Encoding: base64",
+      "",
+      b64(body).replace(/(.{76})/g, "$1\r\n"),
+    ].join("\r\n");
+    await env.SEND_EMAIL.send(new EmailMessage(FROM, DEST, raw));
+  } catch (err) {
+    console.error("aviso interno fallo:", err && err.message);
+  }
+}
+
+// Una revision de la web aplicada a la fila, con la logica de avisos: se
+// avisa a la segunda falla seguida (una sola puede ser un corte de red en el
+// medio) y una sola vez por caida; cuando vuelve, se avisa que volvio.
+async function applyProbe(env, m, r) {
+  const db = env.portafolio_db;
+  if (r.up) {
+    await db
+      .prepare(
+        `UPDATE monitors SET up = 1, last_code = ?, last_ms = ?, last_error = NULL, last_check = datetime('now'),
+           fails = 0, down_since = NULL, alerted_down = 0 WHERE id = ?`
+      )
+      .bind(r.code, r.ms, m.id)
+      .run();
+    if (m.alerted_down) {
+      const since = Date.parse(sqlToIso(m.down_since));
+      const mins = since ? Math.max(1, Math.round((Date.now() - since) / 60000)) : null;
+      const dur = mins === null ? "" : mins < 2 ? " Estuvo caída cerca de un minuto." : mins < 90 ? ` Estuvo caída unos ${mins} minutos.` : ` Estuvo caída unas ${Math.round(mins / 60)} horas.`;
+      await monMail(env, m, `${m.host} volvió a funcionar`, [
+        "Hola,",
+        "",
+        `${m.url} volvió a responder.${dur}`,
+        "",
+        "Si se cae seguido, vale la pena mirar el hosting: respondé este mail y lo revisamos juntos.",
+      ]).catch((err) => console.error("mail volvio fallo:", err && err.message));
+    }
+    return;
+  }
+
+  const fails = (m.fails || 0) + 1;
+  let alerted = m.alerted_down ? 1 : 0;
+  if (fails >= 2 && !alerted) {
+    const since = sqlToIso(m.down_since) || new Date().toISOString();
+    const why = r.error || `respondió con error ${r.code}`;
+    try {
+      await monMail(env, m, `${m.host} no está respondiendo`, [
+        "Hola,",
+        "",
+        `${m.url} no responde desde las ${fmtTime(since)} (hora de Argentina).`,
+        `La revisé dos veces seguidas y las dos falló: ${why}.`,
+        "",
+        "Lo más común:",
+        "- El hosting venció o quedó impago.",
+        "- El dominio venció o alguien tocó el DNS.",
+        "- El servidor se cayó (a veces vuelve solo en unos minutos).",
+        "",
+        "Te aviso apenas vuelva.",
+        "",
+        "Si necesitás una mano para resolverlo, respondé este mail y lo vemos.",
+      ]);
+      alerted = 1;
+      notifyMe(env, `Monitor: se cayó ${m.host}`, `${m.url}\n${why}\nDueño: ${m.email}\nDesde: ${fmtTime(since)}`);
+    } catch (err) {
+      // Sin marcar como avisada: el proximo cron lo vuelve a intentar.
+      console.error("mail caida fallo:", err && err.message);
+    }
+  }
+  await db
+    .prepare(
+      `UPDATE monitors SET up = 0, last_code = ?, last_ms = ?, last_error = ?, last_check = datetime('now'),
+         fails = ?, down_since = COALESCE(down_since, datetime('now')), alerted_down = ? WHERE id = ?`
+    )
+    .bind(r.code, r.ms, r.error, fails, alerted, m.id)
+    .run();
+}
+
+async function checkExpiries(env, m) {
+  const https = m.url.startsWith("https:");
+  const [ssl, dom] = await Promise.allSettled([
+    https ? sslExpiry(m.host, env) : Promise.resolve(null),
+    domainExpiry(registrable(m.host)),
+  ]);
+  // Si la consulta fallo se conserva el dato anterior y se reintenta en una
+  // hora, en vez de esperar al dia siguiente.
+  const failed = ssl.status === "rejected" || dom.status === "rejected";
+  const sslExp = ssl.status === "fulfilled" ? ssl.value : m.ssl_expires;
+  const domExp = dom.status === "fulfilled" ? dom.value.expires : m.domain_expires;
+  const registrar = dom.status === "fulfilled" ? dom.value.registrar : null;
+  let sslWarned = m.ssl_warned, domWarned = m.domain_warned;
+
+  if (sslExp) {
+    const d = daysUntil(sslExp);
+    const lvl = levelOf(d, SSL_LEVELS);
+    if (lvl === null) sslWarned = null;
+    else if (sslWarned === null || lvl < sslWarned) {
+      const ok = await monMail(env, m, d <= 0 ? `El certificado SSL de ${m.host} venció` : `El certificado SSL de ${m.host} vence en ${d} ${d === 1 ? "día" : "días"}`, [
+        "Hola,",
+        "",
+        d <= 0
+          ? `El certificado de seguridad (el candado) de ${m.host} venció el ${fmtDate(sslExp)}.`
+          : `El certificado de seguridad (el candado) de ${m.host} vence el ${fmtDate(sslExp)}.`,
+        "",
+        "Cuando vence, el navegador muestra \"la conexión no es segura\" y casi todos se van sin entrar.",
+        "Los certificados gratuitos se renuevan solos varias semanas antes de vencer: si a esta altura no se renovó, lo más probable es que la renovación automática esté fallando.",
+        "",
+        "Si no sabés quién lo maneja, respondé este mail y te digo por dónde empezar.",
+      ]).then(() => true, (err) => { console.error("mail ssl fallo:", err && err.message); return false; });
+      if (ok) sslWarned = lvl;
+    }
+  }
+
+  if (domExp) {
+    const d = daysUntil(domExp);
+    const lvl = levelOf(d, DOMAIN_LEVELS);
+    const dom2 = registrable(m.host);
+    if (lvl === null) domWarned = null;
+    else if (domWarned === null || lvl < domWarned) {
+      const ok = await monMail(env, m, d <= 0 ? `El dominio ${dom2} venció` : `El dominio ${dom2} vence en ${d} ${d === 1 ? "día" : "días"}`, [
+        "Hola,",
+        "",
+        d <= 0
+          ? `El dominio ${dom2} venció el ${fmtDate(domExp)}.`
+          : `El dominio ${dom2} vence el ${fmtDate(domExp)}.`,
+        registrar ? `Se renueva en ${registrar}, con la cuenta con la que se registró.` : "Se renueva donde se registró, con esa misma cuenta.",
+        "",
+        "Si vence, dejan de andar la web y también los mails con ese dominio. Y pasado un tiempo, cualquiera lo puede registrar.",
+        "",
+        "¿No sabés con qué cuenta se registró? Respondé este mail y lo averiguamos.",
+      ]).then(() => true, (err) => { console.error("mail dominio fallo:", err && err.message); return false; });
+      if (ok) domWarned = lvl;
+    }
+  }
+
+  await env.portafolio_db
+    .prepare(
+      `UPDATE monitors SET ssl_expires = ?, domain_expires = ?, ssl_warned = ?, domain_warned = ?,
+         exp_checked = datetime('now', ?) WHERE id = ?`
+    )
+    .bind(sslExp, domExp, sslWarned, domWarned, failed ? "-23 hours" : "+0 seconds", m.id)
+    .run();
+}
+
+// Cada 5 minutos. Topes por corrida para no pasar los subrequests del plan:
+// 20 webs + 4 chequeos de vencimiento (2-3 pedidos cada uno) + los mails.
+async function monitorCron(env) {
+  const db = env.portafolio_db;
+  if (!db) return;
+  const due = await db
+    .prepare(
+      `SELECT * FROM monitors WHERE status = 'active' AND (
+         last_check IS NULL OR last_check <= datetime('now', '-10 minutes')
+         OR (fails > 0 AND last_check <= datetime('now', '-4 minutes'))
+       ) ORDER BY last_check ASC LIMIT 20`
+    )
+    .all();
+  await Promise.allSettled(due.results.map(async (m) => applyProbe(env, m, await probe(m.url))));
+
+  const exp = await db
+    .prepare(
+      `SELECT * FROM monitors WHERE status = 'active' AND (exp_checked IS NULL OR exp_checked <= datetime('now', '-1 day'))
+       ORDER BY exp_checked ASC LIMIT 4`
+    )
+    .all();
+  await Promise.allSettled(exp.results.map((m) => checkExpiries(env, m)));
+
+  // Altas que nunca se confirmaron: a la semana se borran.
+  await db.prepare("DELETE FROM monitors WHERE status = 'pending' AND created_at <= datetime('now', '-7 days')").run();
+}
+
+// ── endpoints ──
+const maskEmail = (e) => {
+  const [u, d] = String(e).split("@");
+  return (u.length <= 2 ? u[0] : u.slice(0, 2)) + "•••@" + d;
+};
+
+function monPublic(m) {
+  return {
+    url: m.url,
+    host: m.host,
+    domain: registrable(m.host),
+    email: maskEmail(m.email),
+    status: m.status,
+    since: sqlToIso(m.confirmed_at),
+    web: m.last_check
+      ? { up: !!m.up, code: m.last_code, ms: m.last_ms, error: m.last_error, checked: sqlToIso(m.last_check), down_since: sqlToIso(m.down_since) }
+      : null,
+    ssl: m.ssl_expires ? { expires: m.ssl_expires, days: daysUntil(m.ssl_expires) } : null,
+    dominio: m.domain_expires ? { expires: m.domain_expires, days: daysUntil(m.domain_expires) } : null,
+    exp_checked: sqlToIso(m.exp_checked),
+  };
+}
+
+async function readJson(request) {
+  try { return await request.json(); } catch { return null; }
+}
+
+async function monitorRoute(request, env, ctx) {
+  const url = new URL(request.url);
+  const db = env.portafolio_db;
+  if (!db) return json({ error: "db_unavailable" }, 503);
+  sweepRates(db, ctx);
+  const ip = ipOf(request);
+  const path = url.pathname.replace(/\/$/, "");
+
+  // Chequeo al instante, sin mail. Turnstile porque cada uno dispara tres
+  // pedidos afuera, y Cert Spotter tiene cupo por hora.
+  if (path === "/api/monitor/check") {
+    if (request.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+    const data = await readJson(request);
+    if (!data) return json({ error: "bad_request" }, 400);
+    const u = normUrl(data.url);
+    if (!u) return json({ error: "url" }, 422);
+    const rate = await allowRate(db, ip, "mon");
+    if (!rate.ok) return rateLimited(rate);
+    if (!(await turnstileOk(data.turnstile, ip, env))) return json({ error: "captcha" }, 403);
+    return json(await fullCheck(u, env));
+  }
+
+  // Alta: queda pendiente hasta que confirme desde el mail. La respuesta es
+  // la misma exista o no el monitor, para no contar que mails estan cargados.
+  if (path === "/api/monitor" && request.method === "POST") {
+    const data = await readJson(request);
+    if (!data) return json({ error: "bad_request" }, 400);
+    if (oneLine(data.empresa, 200)) return json({ ok: true });
+    const u = normUrl(data.url);
+    const email = oneLine(data.email, 150).toLowerCase();
+    if (!u) return json({ error: "url" }, 422);
+    if (!isEmail(email)) return json({ error: "email" }, 422);
+    const rate = await allowRate(db, ip, "monsub");
+    if (!rate.ok) return rateLimited(rate);
+    if (!(await turnstileOk(data.turnstile, ip, env))) return json({ error: "captcha" }, 403);
+
+    const row = await db.prepare("SELECT id, token, status FROM monitors WHERE email = ? AND url = ?").bind(email, u.url).first();
+    if (!row || row.status === "off") {
+      const n = await db.prepare("SELECT COUNT(*) AS n FROM monitors WHERE email = ? AND status != 'off'").bind(email).first();
+      if (n && n.n >= MON_MAX_PER_EMAIL) return json({ error: "limit" }, 422);
+    }
+    let token = row ? row.token : newToken();
+    if (!row) {
+      await db.prepare("INSERT INTO monitors (url, host, email, token) VALUES (?, ?, ?, ?)").bind(u.url, u.host, email, token).run();
+    } else if (row.status === "off") {
+      // Token nuevo: los links de baja viejos no tienen que servir para la alta nueva.
+      token = newToken();
+      await db.prepare("UPDATE monitors SET status = 'pending', token = ?, confirmed_at = NULL, created_at = datetime('now') WHERE id = ?").bind(token, row.id).run();
+    }
+    const m = { email, token, url: u.url, host: u.host };
+    const base = baseOf(env);
+    const lines = row && row.status === "active"
+      ? ["Hola,", "", `${u.url} ya está en el monitor y la sigo revisando.`, "", `Mirá cómo está acá: ${base}/monitor-web/?t=${token}`]
+      : [
+          "Hola,",
+          "",
+          `Pediste que vigile ${u.url}.`,
+          "Para activarlo, entrá a este link y apretá \"Confirmar\":",
+          "",
+          `${base}/monitor-web/?t=${token}&confirmar=1`,
+          "",
+          "Desde ahí la reviso cada 10 minutos y te escribo solo si algo falla: si se cae, si el certificado SSL no se renovó o si el dominio está por vencer.",
+          "",
+          "Si no fuiste vos, ignorá este mail: sin confirmar no te llega nada más.",
+        ];
+    try {
+      await monMail(env, m, row && row.status === "active" ? `${u.host} ya está en el monitor` : `Confirmá el monitor de ${u.host}`, lines);
+    } catch (err) {
+      console.error("mail confirmacion fallo:", err && err.message);
+      return json({ error: "send_failed" }, 502);
+    }
+    return json({ ok: true });
+  }
+
+  // Lo que sigue se abre con el token del mail, que viaja siempre en la URL.
+  const t = oneLine(url.searchParams.get("t"), 64);
+  if (!/^[a-f0-9]{32}$/.test(t)) return json({ error: "not_found" }, 404);
+  const rate = await allowRate(db, ip, "montok");
+  if (!rate.ok) return rateLimited(rate);
+  const m = await db.prepare("SELECT * FROM monitors WHERE token = ?").bind(t).first();
+  if (!m) return json({ error: "not_found" }, 404);
+
+  if (path === "/api/monitor" && request.method === "GET") return json(monPublic(m));
+
+  if (path === "/api/monitor/confirm" && request.method === "POST") {
+    if (m.status === "off") return json({ error: "off" }, 409);
+    if (m.status === "pending") {
+      await db.prepare("UPDATE monitors SET status = 'active', confirmed_at = datetime('now') WHERE id = ?").bind(m.id).run();
+      // Primera revision ya, asi la ficha no arranca vacia. Los vencimientos
+      // van en segundo plano: son dos consultas lentas.
+      await applyProbe(env, { ...m, status: "active" }, await probe(m.url));
+      ctx.waitUntil(checkExpiries(env, m).catch((err) => console.error("vencimientos fallo:", err && err.message)));
+      ctx.waitUntil(notifyMe(env, `Monitor nuevo: ${m.host}`, `${m.url}\n${m.email}\n\nAlguien confirmó el monitor gratis de /monitor-web/.`));
+    }
+    const fresh = await db.prepare("SELECT * FROM monitors WHERE id = ?").bind(m.id).first();
+    return json(monPublic(fresh));
+  }
+
+  // Baja: desde la ficha o desde el boton "desuscribirse" del cliente de mail
+  // (List-Unsubscribe-Post manda un POST con el token en la URL).
+  if (path === "/api/monitor/off" && request.method === "POST") {
+    await db.prepare("UPDATE monitors SET status = 'off' WHERE id = ?").bind(m.id).run();
+    return json({ ok: true });
+  }
+
+  return json({ error: "method_not_allowed" }, 405);
+}
+
 export default {
+  async scheduled(controller, env, ctx) {
+    ctx.waitUntil(monitorCron(env));
+  },
+
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const proto = request.headers.get("x-forwarded-proto") || url.protocol.replace(":", "");
@@ -752,6 +1275,10 @@ export default {
     if (url.pathname === "/api/contacto") {
       if (request.method !== "POST") return json({ error: "method_not_allowed" }, 405);
       return handleContacto(request, env, ctx);
+    }
+
+    if (url.pathname === "/api/monitor" || url.pathname.startsWith("/api/monitor/")) {
+      return monitorRoute(request, env, ctx);
     }
 
     const botella = await botellaRoute(request, env, ctx);

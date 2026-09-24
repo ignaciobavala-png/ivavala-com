@@ -19,6 +19,8 @@
       "database_id": "1cc790cb-70d3-4d56-9a67-a5035e8914a1"
     }
   ],
+  // Monitor gratis de /monitor-web/: revisa webs y vencimientos.
+  "triggers": { "crons": ["*/5 * * * *"] },
   "routes": [
     { "pattern": "ivavala.com", "custom_domain": true },
     { "pattern": "www.ivavala.com", "custom_domain": true }
