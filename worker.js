@@ -1,3 +1,7 @@
+import { SOLOCONTIGO_EMAIL } from "./private/solocontigo-email.mjs";
+import { POECILE_EMAIL } from "./private/poecile-email.mjs";
+import { WPS_EMAIL } from "./private/wps-email.mjs";
+import { PATAGONIA7_EMAIL } from "./private/patagonia7-email.mjs";
 // Redirige HTTP -> HTTPS y www -> apex, sirve robots.txt / sitemap.xml,
 // y mantiene fuera del indice cualquier hostname que no sea el canonico.
 const CANONICAL = "ivavala.com";
@@ -186,7 +190,7 @@ const json = (obj, status, extra) =>
 const ACUSE_FROM = "Ignacio Vavala <hola@ivavala.com>";
 const ACUSE_REPLY = DEST;
 
-async function enviarResend(env, { to, subject, text, replyTo, headers }) {
+async function enviarResend(env, { to, bcc, subject, text, html, replyTo, headers }) {
   // En local no hay key: el mail se imprime en la consola de wrangler dev y
   // el flujo sigue, asi se puede probar el monitor de punta a punta.
   if (!env.RESEND_API_KEY && env.ENV === "dev") {
@@ -204,8 +208,10 @@ async function enviarResend(env, { to, subject, text, replyTo, headers }) {
     body: JSON.stringify({
       from: ACUSE_FROM,
       to: [to],
+      ...(bcc ? { bcc: [bcc] } : {}),
       subject,
       text,
+      ...(html ? { html } : {}),
       ...(replyTo ? { reply_to: replyTo } : {}),
       ...(headers ? { headers } : {}),
     }),
@@ -639,6 +645,10 @@ const EVENTS = new Set([
   "tool:wa:link", "tool:wa:copy", "tool:wa:snippet", "tool:wa:cartel", "tool:wa:qr",
   "tool:mon:check", "tool:mon:sub", "tool:mon:confirm", "tool:mon:off",
   "cta:tool", "tool:click",
+  "experience:solocontigo:view", "experience:solocontigo:cta",
+  "experience:poecile:view", "experience:poecile:cta",
+  "concept:wps:view", "concept:wps:cta",
+  "concept:patagonia7:view", "concept:patagonia7:cta",
 ]);
 
 // Del referrer se guarda solo el host: alcanza para saber de donde llega la
@@ -1276,6 +1286,75 @@ export default {
       return handleStats(request, db, env);
     }
 
+    // Proposal remains read-only in production until the owner enables sending.
+    if (url.pathname === "/api/proposals/solocontigo/preview" || url.pathname === "/api/proposals/solocontigo/send") {
+      const db = env.portafolio_db;
+      if (!db) return json({ error: "db_unavailable" }, 503);
+      const rate = await allowRate(db, ipOf(request), "admin");
+      if (!rate.ok) return rateLimited(rate);
+      const pin = request.headers.get("x-panel-pin") || "";
+      if (!env.BOTTLE_PIN || !safeEqual(pin, env.BOTTLE_PIN)) return json({ error: "forbidden" }, 403);
+      if (url.pathname.endsWith("/preview")) {
+        if (request.method !== "GET") return json({ error: "method_not_allowed" }, 405);
+        const type = url.searchParams.get("format") === "text" ? "text" : "html";
+        return new Response(SOLOCONTIGO_EMAIL[type], {
+          headers: { "content-type": type === "html" ? "text/html; charset=utf-8" : "text/plain; charset=utf-8", "cache-control": "no-store", "x-robots-tag": "noindex, nofollow" }
+        });
+      }
+      if (request.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+      if (env.SOLOCONTIGO_SEND_ENABLED !== "true") return json({ error: "send_not_enabled" }, 409);
+      const result = await enviarResend(env, SOLOCONTIGO_EMAIL);
+      return json({ id: result.id });
+    }
+
+    if (url.pathname === "/api/proposals/poecile/preview" || url.pathname === "/api/proposals/poecile/send") {
+      const token = request.headers.get("x-send-token") || "";
+      if (!env.POECILE_SEND_TOKEN || !safeEqual(token, env.POECILE_SEND_TOKEN)) return json({ error: "forbidden" }, 403);
+      if (url.pathname.endsWith("/preview")) {
+        if (request.method !== "GET") return json({ error: "method_not_allowed" }, 405);
+        const type = url.searchParams.get("format") === "text" ? "text" : "html";
+        return new Response(POECILE_EMAIL[type], {
+          headers: { "content-type": type === "html" ? "text/html; charset=utf-8" : "text/plain; charset=utf-8", "cache-control": "no-store", "x-robots-tag": "noindex, nofollow" }
+        });
+      }
+      if (request.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+      if (env.POECILE_SEND_ENABLED !== "true") return json({ error: "send_not_enabled" }, 409);
+      const result = await enviarResend(env, POECILE_EMAIL);
+      return json({ id: result.id });
+    }
+
+    if (url.pathname === "/api/proposals/wps/preview" || url.pathname === "/api/proposals/wps/send") {
+      const token = request.headers.get("x-send-token") || "";
+      if (!env.WPS_SEND_TOKEN || !safeEqual(token, env.WPS_SEND_TOKEN)) return json({ error: "forbidden" }, 403);
+      if (url.pathname.endsWith("/preview")) {
+        if (request.method !== "GET") return json({ error: "method_not_allowed" }, 405);
+        const type = url.searchParams.get("format") === "text" ? "text" : "html";
+        return new Response(WPS_EMAIL[type], {
+          headers: { "content-type": type === "html" ? "text/html; charset=utf-8" : "text/plain; charset=utf-8", "cache-control": "no-store", "x-robots-tag": "noindex, nofollow" }
+        });
+      }
+      if (request.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+      if (env.WPS_SEND_ENABLED !== "true") return json({ error: "send_not_enabled" }, 409);
+      const result = await enviarResend(env, WPS_EMAIL);
+      return json({ id: result.id });
+    }
+
+    if (url.pathname === "/api/proposals/patagonia7/preview" || url.pathname === "/api/proposals/patagonia7/send") {
+      const token = request.headers.get("x-send-token") || "";
+      if (!env.PATAGONIA7_SEND_TOKEN || !safeEqual(token, env.PATAGONIA7_SEND_TOKEN)) return json({ error: "forbidden" }, 403);
+      if (url.pathname.endsWith("/preview")) {
+        if (request.method !== "GET") return json({ error: "method_not_allowed" }, 405);
+        const type = url.searchParams.get("format") === "text" ? "text" : "html";
+        return new Response(PATAGONIA7_EMAIL[type], {
+          headers: { "content-type": type === "html" ? "text/html; charset=utf-8" : "text/plain; charset=utf-8", "cache-control": "no-store", "x-robots-tag": "noindex, nofollow" }
+        });
+      }
+      if (request.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+      if (env.PATAGONIA7_SEND_ENABLED !== "true") return json({ error: "send_not_enabled" }, 409);
+      const result = await enviarResend(env, PATAGONIA7_EMAIL);
+      return json({ id: result.id });
+    }
+
     if (url.pathname === "/api/contacto") {
       if (request.method !== "POST") return json({ error: "method_not_allowed" }, 405);
       return handleContacto(request, env, ctx);
@@ -1287,6 +1366,43 @@ export default {
 
     const botella = await botellaRoute(request, env, ctx);
     if (botella) return botella;
+
+    // A private proposal: exact URL, local assets, never indexed or listed.
+    if (url.pathname === "/experiences/solocontigo" || url.pathname === "/experiences/solocontigo/") {
+      if (request.method !== "GET" && request.method !== "HEAD") return new Response(null, { status: 405 });
+      const assetUrl = new URL("/experiences/solocontigo/", request.url);
+      const asset = await env.ASSETS.fetch(new Request(assetUrl, request));
+      const out = new Response(request.method === "HEAD" ? null : asset.body, asset);
+      out.headers.set("x-robots-tag", "noindex, nofollow");
+      return out;
+    }
+
+    if (url.pathname === "/experiences/poecile" || url.pathname === "/experiences/poecile/") {
+      if (request.method !== "GET" && request.method !== "HEAD") return new Response(null, { status: 405 });
+      const assetUrl = new URL("/experiences/poecile/", request.url);
+      const asset = await env.ASSETS.fetch(new Request(assetUrl, request));
+      const out = new Response(request.method === "HEAD" ? null : asset.body, asset);
+      out.headers.set("x-robots-tag", "noindex, nofollow");
+      return out;
+    }
+
+    if (url.pathname === "/concepts/wps" || url.pathname === "/concepts/wps/") {
+      if (request.method !== "GET" && request.method !== "HEAD") return new Response(null, { status: 405 });
+      const assetUrl = new URL("/concepts/wps/", request.url);
+      const asset = await env.ASSETS.fetch(new Request(assetUrl, request));
+      const out = new Response(request.method === "HEAD" ? null : asset.body, asset);
+      out.headers.set("x-robots-tag", "noindex, nofollow");
+      return out;
+    }
+
+    if (url.pathname === "/concepts/patagonia7" || url.pathname === "/concepts/patagonia7/") {
+      if (request.method !== "GET" && request.method !== "HEAD") return new Response(null, { status: 405 });
+      const assetUrl = new URL("/concepts/patagonia7/", request.url);
+      const asset = await env.ASSETS.fetch(new Request(assetUrl, request));
+      const out = new Response(request.method === "HEAD" ? null : asset.body, asset);
+      out.headers.set("x-robots-tag", "noindex, nofollow");
+      return out;
+    }
 
     if (url.pathname === "/robots.txt") return text(ROBOTS_OK, "text/plain");
     if (url.pathname === "/llms.txt") return text(LLMS, "text/plain");
