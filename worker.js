@@ -2,6 +2,7 @@ import { SOLOCONTIGO_EMAIL } from "./private/solocontigo-email.mjs";
 import { POECILE_EMAIL } from "./private/poecile-email.mjs";
 import { WPS_EMAIL } from "./private/wps-email.mjs";
 import { PATAGONIA7_EMAIL } from "./private/patagonia7-email.mjs";
+import { CAMPANA_OCTUBRE } from "./private/campana-octubre-email.mjs";
 // Redirige HTTP -> HTTPS y www -> apex, sirve robots.txt / sitemap.xml,
 // y mantiene fuera del indice cualquier hostname que no sea el canonico.
 const CANONICAL = "ivavala.com";
@@ -215,7 +216,7 @@ const json = (obj, status, extra) =>
 const ACUSE_FROM = "Ignacio Vavala <hola@ivavala.com>";
 const ACUSE_REPLY = DEST;
 
-async function enviarResend(env, { to, bcc, subject, text, html, replyTo, headers }) {
+async function enviarResend(env, { to, bcc, subject, text, html, replyTo, headers, tags }) {
   // En local no hay key: el mail se imprime en la consola de wrangler dev y
   // el flujo sigue, asi se puede probar el monitor de punta a punta.
   if (!env.RESEND_API_KEY && env.ENV === "dev") {
@@ -239,6 +240,7 @@ async function enviarResend(env, { to, bcc, subject, text, html, replyTo, header
       ...(html ? { html } : {}),
       ...(replyTo ? { reply_to: replyTo } : {}),
       ...(headers ? { headers } : {}),
+      ...(tags ? { tags } : {}),
     }),
     signal: AbortSignal.timeout(8000),
   });
@@ -1276,6 +1278,163 @@ async function monitorRoute(request, env, ctx) {
   return json({ error: "method_not_allowed" }, 405);
 }
 
+// ── campanas de mail y bajas ────────────────────────────────────────────
+// El link de baja lleva el mail y una firma HMAC: sin la firma cualquiera
+// podria dar de baja a otro armando la URL a mano. La firma no vence, porque
+// un link de baja tiene que seguir andando aunque el mail se abra meses despues.
+const CAMPAIGNS = { [CAMPANA_OCTUBRE.id]: CAMPANA_OCTUBRE };
+const CAMPAIGN_PACE_MS = 600; // Resend acepta 2 pedidos por segundo por defecto.
+
+async function unsubSig(env, email) {
+  const key = await crypto.subtle.importKey(
+    "raw", new TextEncoder().encode(env.UNSUBSCRIBE_SECRET),
+    { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
+  );
+  const mac = new Uint8Array(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(email)));
+  let bin = "";
+  for (const b of mac.subarray(0, 16)) bin += String.fromCharCode(b);
+  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+async function unsubUrl(env, email, campaign) {
+  const e = email.toLowerCase();
+  const q = new URLSearchParams({ e, t: await unsubSig(env, e), c: campaign });
+  return `${baseOf(env)}/baja?${q}`;
+}
+
+const isUnsubscribed = (db, email) =>
+  db.prepare("SELECT 1 FROM email_unsubscribes WHERE email = ?").bind(email.toLowerCase()).first();
+
+const escHtml = (v) => String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+function bajaPage(title, body, form) {
+  return new Response(
+    `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${title} · IVAVALA</title>
+<style>body{margin:0;min-height:100svh;display:grid;place-items:center;background:#020912;color:#d8eced;font-family:Arial,Helvetica,sans-serif;padding:24px;box-sizing:border-box}main{max-width:30rem}h1{font-weight:400;font-size:1.9rem;letter-spacing:-.03em;margin:0 0 .8rem;color:#e2f5f5}p{color:#8ca4ad;line-height:1.6;margin:0 0 1.2rem}button{background:#57d7d5;color:#020912;border:0;padding:.9rem 1.4rem;font-weight:700;letter-spacing:.12em;font-size:.75rem;cursor:pointer}a{color:#57d7d5}</style></head>
+<body><main><h1>${title}</h1><p>${body}</p>${form || ""}<p><a href="/">ivavala.com</a></p></main></body></html>`,
+    { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-robots-tag": "noindex, nofollow" } }
+  );
+}
+
+// GET muestra un boton y no da de baja: los antivirus y previsualizadores de
+// links abren las URLs de los mails solos, y darian de baja a gente que no lo
+// pidio. El POST es la baja real: lo usa el boton de esta pagina y el
+// "Cancelar suscripcion" de Gmail/Yahoo (RFC 8058), que no admite pantallas
+// intermedias y espera un 2xx.
+async function bajaRoute(request, env) {
+  const url = new URL(request.url);
+  const email = (url.searchParams.get("e") || "").trim().toLowerCase();
+  const sig = url.searchParams.get("t") || "";
+  const campaign = oneLine(url.searchParams.get("c"), 60) || null;
+  const db = env.portafolio_db;
+  if (!db || !env.UNSUBSCRIBE_SECRET) return bajaPage("No se pudo procesar", "Respondé el mail que te llegó con la palabra BAJA y te saco a mano.");
+  if (!isEmail(email) || !safeEqual(sig, await unsubSig(env, email))) {
+    return bajaPage("Link inválido", "Este link de baja no es válido. Respondé el mail que te llegó con la palabra BAJA y te saco a mano.");
+  }
+  if (request.method === "POST") {
+    const body = await request.text().catch(() => "");
+    const reason = /List-Unsubscribe=One-Click/i.test(body) ? "one_click" : "link";
+    await db
+      .prepare("INSERT INTO email_unsubscribes (email, reason, campaign) VALUES (?, ?, ?) ON CONFLICT(email) DO NOTHING")
+      .bind(email, reason, campaign)
+      .run();
+    if (reason === "one_click") return new Response("OK", { status: 200 });
+    return bajaPage("Listo, te di de baja", `No vas a recibir más mails míos en <strong>${escHtml(email)}</strong>.`);
+  }
+  if (request.method !== "GET") return json({ error: "method_not_allowed" }, 405);
+  if (await isUnsubscribed(db, email)) {
+    return bajaPage("Ya estás dado de baja", `No vas a recibir más mails míos en <strong>${escHtml(email)}</strong>.`);
+  }
+  return bajaPage(
+    "Darte de baja",
+    `Vas a dejar de recibir mails de IVAVALA en <strong>${escHtml(email)}</strong>.`,
+    `<form method="post"><p><button type="submit">CONFIRMAR BAJA</button></p></form>`
+  );
+}
+
+async function campaignMail(env, campaign, email) {
+  const u = await unsubUrl(env, email, campaign.id);
+  const { html, text } = campaign.build({ unsubUrl: u });
+  return {
+    to: email,
+    subject: campaign.subject,
+    html,
+    text,
+    replyTo: DEST,
+    tags: [{ name: "campaign", value: campaign.id.replace(/[^A-Za-z0-9_-]/g, "_") }],
+    headers: {
+      "List-Unsubscribe": `<${u}>`,
+      "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+    },
+  };
+}
+
+// /api/campaigns/<id>/preview  GET  ?format=text&to=<mail>  -> el mail tal cual
+// /api/campaigns/<id>/send     POST {"test":true}            -> solo a mi casilla
+//                              POST {"to":["a@b.com", ...]}  -> envio real
+// Todo con x-send-token = CAMPAIGN_SEND_TOKEN. El envio real ademas exige
+// CAMPAIGN_SEND_ENABLED=<id>, para que no salga por un curl de prueba.
+async function campaignRoute(request, env) {
+  const url = new URL(request.url);
+  const [, , , id, action] = url.pathname.split("/");
+  const campaign = CAMPAIGNS[id];
+  if (!campaign || !["preview", "send"].includes(action)) return json({ error: "not_found" }, 404);
+  const token = request.headers.get("x-send-token") || "";
+  if (!env.CAMPAIGN_SEND_TOKEN || !safeEqual(token, env.CAMPAIGN_SEND_TOKEN)) return json({ error: "forbidden" }, 403);
+  if (!env.UNSUBSCRIBE_SECRET) return json({ error: "missing_unsubscribe_secret" }, 503);
+  const db = env.portafolio_db;
+  if (!db) return json({ error: "db_unavailable" }, 503);
+
+  if (action === "preview") {
+    if (request.method !== "GET") return json({ error: "method_not_allowed" }, 405);
+    const mail = await campaignMail(env, campaign, url.searchParams.get("to") || DEST);
+    const type = url.searchParams.get("format") === "text" ? "text" : "html";
+    return new Response(mail[type], {
+      headers: { "content-type": `text/${type === "html" ? "html" : "plain"}; charset=utf-8`, "cache-control": "no-store", "x-robots-tag": "noindex, nofollow" },
+    });
+  }
+
+  if (request.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+  const body = await readJson(request);
+  if (body && body.test === true) {
+    // La prueba no se registra en campaign_sends: no tiene que impedir que
+    // despues le llegue el envio real a la misma casilla.
+    const r = await enviarResend(env, { ...(await campaignMail(env, campaign, DEST)), subject: `[PRUEBA] ${campaign.subject}` });
+    return json({ test: true, id: r.id });
+  }
+  if (env.CAMPAIGN_SEND_ENABLED !== campaign.id) return json({ error: "send_not_enabled" }, 409);
+  const list = Array.isArray(body && body.to) ? body.to : null;
+  if (!list || !list.length) return json({ error: "missing_to" }, 400);
+
+  const seen = new Set();
+  const out = { sent: [], skipped: [], failed: [] };
+  for (const raw of list) {
+    const email = String(raw || "").trim().toLowerCase();
+    if (!isEmail(email)) { out.skipped.push({ email: raw, why: "invalid" }); continue; }
+    if (seen.has(email)) { out.skipped.push({ email, why: "duplicate" }); continue; }
+    seen.add(email);
+    if (await isUnsubscribed(db, email)) { out.skipped.push({ email, why: "unsubscribed" }); continue; }
+    // Reservar antes de mandar: si el envio se corta y se reintenta con la
+    // misma lista, los que ya tienen fila no reciben un segundo mail.
+    const claim = await db
+      .prepare("INSERT INTO campaign_sends (campaign, email) VALUES (?, ?) ON CONFLICT DO NOTHING RETURNING email")
+      .bind(campaign.id, email)
+      .first();
+    if (!claim) { out.skipped.push({ email, why: "already_sent" }); continue; }
+    try {
+      const r = await enviarResend(env, await campaignMail(env, campaign, email));
+      await db.prepare("UPDATE campaign_sends SET resend_id = ? WHERE campaign = ? AND email = ?").bind(r.id, campaign.id, email).run();
+      out.sent.push({ email, id: r.id });
+    } catch (err) {
+      // Fallo: se libera la reserva para que el reintento lo vuelva a probar.
+      await db.prepare("DELETE FROM campaign_sends WHERE campaign = ? AND email = ?").bind(campaign.id, email).run();
+      out.failed.push({ email, error: String(err && err.message).slice(0, 200) });
+    }
+    await new Promise((r) => setTimeout(r, CAMPAIGN_PACE_MS));
+  }
+  return json({ campaign: campaign.id, ...out, counts: { sent: out.sent.length, skipped: out.skipped.length, failed: out.failed.length } });
+}
+
 export default {
   async scheduled(controller, env, ctx) {
     ctx.waitUntil(monitorCron(env));
@@ -1388,6 +1547,9 @@ export default {
       const result = await enviarResend(env, PATAGONIA7_EMAIL);
       return json({ id: result.id });
     }
+
+    if (url.pathname === "/baja") return bajaRoute(request, env);
+    if (url.pathname.startsWith("/api/campaigns/")) return campaignRoute(request, env);
 
     if (url.pathname === "/api/contacto") {
       if (request.method !== "POST") return json({ error: "method_not_allowed" }, 405);
