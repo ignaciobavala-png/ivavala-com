@@ -1355,8 +1355,11 @@ async function bajaRoute(request, env) {
 async function campaignMail(env, campaign, email) {
   const u = await unsubUrl(env, email, campaign.id);
   const { html, text } = campaign.build({ unsubUrl: u });
+  // BCC a mi casilla en cada envio: regla de los correos comerciales, para
+  // ver como le llego a cada uno.
   return {
     to: email,
+    bcc: DEST,
     subject: campaign.subject,
     html,
     text,
