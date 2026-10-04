@@ -249,6 +249,22 @@ html{scroll-padding-top:92px}
   gtag('js', new Date());
   gtag('config', 'AW-18493149456');
 </script>
+<script>
+// Atribucion del anuncio (gclid/gbraid/wbraid + utm_*): se guarda al llegar y
+// viaja con el formulario aunque la persona navegue antes de escribir. Gana el
+// ultimo clic con parametros; 90 dias es la ventana de clic de Google Ads.
+(function(){
+  try{
+    var K='ivv_attr',q=new URLSearchParams(location.search),o={},hit=0;
+    ['gclid','gbraid','wbraid','utm_source','utm_medium','utm_campaign','utm_term','utm_content'].forEach(function(k){
+      var v=q.get(k);if(v){o[k]=v.slice(0,256);hit=1}
+    });
+    if(hit){o.ts=Date.now();localStorage.setItem(K,JSON.stringify(o));return}
+    var s=JSON.parse(localStorage.getItem(K)||'null');
+    if(s&&!(Date.now()-s.ts<7776e6))localStorage.removeItem(K);
+  }catch(e){}
+})();
+</script>
 </head>
 <body>
 <div class="page">

@@ -169,6 +169,31 @@ const oneLine = (v, max) => String(v || "").replace(/[\r\n]+/g, " ").trim().slic
 
 const isEmail = (v) => /^[^@\s]+@[^@\s.]+\.[^@\s]+$/.test(v);
 
+// Atribucion del anuncio: la manda el navegador y la controla el visitante,
+// asi que solo pasan claves conocidas. Los ids de clic de Google son tokens
+// base64url: cualquier otro caracter descarta el valor entero en vez de
+// recortarlo, porque un gclid mutilado no matchea nada en Ads.
+const ATTR_IDS = ["gclid", "gbraid", "wbraid"];
+const ATTR_UTM = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"];
+
+function cleanAttribution(raw) {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const out = {};
+  for (const k of ATTR_IDS) {
+    const v = String(raw[k] || "").trim();
+    if (v && v.length <= 256 && /^[A-Za-z0-9_-]+$/.test(v)) out[k] = v;
+  }
+  for (const k of ATTR_UTM) {
+    const v = oneLine(raw[k], 150).replace(/[\x00-\x1F\x7F]/g, "");
+    if (v) out[k] = v;
+  }
+  const ts = Number(raw.ts);
+  if (Object.keys(out).length && Number.isFinite(ts) && ts > 0) {
+    out.primera_visita = new Date(ts).toISOString();
+  }
+  return Object.keys(out).length ? out : null;
+}
+
 const json = (obj, status, extra) =>
   new Response(JSON.stringify(obj), {
     status: status || 200,
@@ -243,8 +268,12 @@ function buildAcuse({ nombre, tipo, mensaje }) {
   ].join("\n");
 }
 
-function buildMime({ nombre, email, whatsapp, tipo, mensaje }) {
-  const subject = `Consulta de ${nombre} — ${tipo}`;
+function buildMime({ nombre, email, whatsapp, tipo, mensaje, attribution }) {
+  const pago = attribution && ATTR_IDS.some((k) => attribution[k]);
+  const subject = `${pago ? "[Ads] " : ""}Consulta de ${nombre} — ${tipo}`;
+  const attrLines = attribution
+    ? ["", "Origen:", ...Object.entries(attribution).map(([k, v]) => `  ${k}: ${v}`)]
+    : ["", "Origen: directo u organico (sin parametros de campaña)"];
   const body = [
     `Nombre:   ${nombre}`,
     `Email:    ${email}`,
@@ -252,6 +281,7 @@ function buildMime({ nombre, email, whatsapp, tipo, mensaje }) {
     `Necesita: ${tipo}`,
     "",
     mensaje || "(sin mensaje)",
+    ...attrLines,
     "",
     "—",
     "Enviado desde el formulario de ivavala.com",
@@ -310,14 +340,18 @@ async function handleContacto(request, env, ctx) {
   }
 
   // Trampa para bots: el campo esta oculto, una persona nunca lo completa.
-  // Se responde ok para no darle informacion al que lo llena.
-  if (oneLine(data.empresa, 200)) return json({ ok: true });
+  // Se responde ok para no darle informacion al que lo llena, pero sin
+  // `accepted`: el navegador solo cuenta la conversion de Ads con accepted.
+  // `empresa` es el nombre viejo del campo; se sigue mirando por las paginas
+  // que haya en cache, pero el autocompletado de Chrome lo llenaba solo.
+  if (oneLine(data.hp_c7, 200) || oneLine(data.empresa, 200)) return json({ ok: true });
 
   const nombre = oneLine(data.nombre, 100);
   const email = oneLine(data.email, 150);
   const whatsapp = oneLine(data.whatsapp, 50);
   const tipo = oneLine(data.tipo, 80);
   const mensaje = String(data.mensaje || "").trim().slice(0, 4000);
+  const attribution = cleanAttribution(data.attribution);
 
   if (!nombre || !isEmail(email)) return json({ error: "invalid" }, 422);
 
@@ -336,7 +370,7 @@ async function handleContacto(request, env, ctx) {
   const { EmailMessage } = await import("cloudflare:email");
   try {
     await env.SEND_EMAIL.send(
-      new EmailMessage(FROM, DEST, buildMime({ nombre, email, whatsapp, tipo, mensaje }))
+      new EmailMessage(FROM, DEST, buildMime({ nombre, email, whatsapp, tipo, mensaje, attribution }))
     );
   } catch (err) {
     console.error("send_email fallo:", err && err.message);
@@ -356,7 +390,7 @@ async function handleContacto(request, env, ctx) {
     if (ctx && ctx.waitUntil) ctx.waitUntil(acuse);
   }
 
-  return json({ ok: true });
+  return json({ ok: true, accepted: true });
 }
 
 // ── la botella: mensajes a la deriva ─────────────────────────────────────
