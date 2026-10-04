@@ -111,11 +111,12 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
 .hero-name{font-family:var(--display);font-weight:700;letter-spacing:-.04em;line-height:.86;font-size:clamp(3rem,10vw,8rem);color:var(--text)}
 .hero-name .w{display:block;overflow:hidden}
 .hero-name .wi{display:inline-block}
-/* La marca entra con una animacion CSS que arranca en el primer paint: antes
+/* El nombre entra con una animacion CSS que arranca en el primer paint: antes
    esperaba a que JS le pusiera .in y el texto mas grande del hero (el LCP)
    quedaba atado a que se liberara el hilo principal. */
 .hero-name .wi{animation:hero-in .95s cubic-bezier(.2,.7,.3,1) both}
 @keyframes hero-in{from{transform:translateY(120%)}}
+.hero-name .w:nth-child(2) .wi{animation-delay:.14s}
 @keyframes blink{50%{opacity:0}}
 .hero-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:2.5rem 3.5rem;align-items:start;margin-top:2.4rem}
 .hero-main{max-width:34rem}
@@ -279,18 +280,6 @@ html{scroll-padding-top:92px}
 .svc-card .svc-desc{font-size:.92rem;color:var(--dim);line-height:1.55;text-wrap:pretty}
 .svc-foot{margin-top:1.2rem;font-size:.88rem;color:var(--dim)}
 .work-foot{margin-top:2rem;font-family:var(--mono);font-size:.72rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase}
-/* Marca + persona: IVAVALA es el nombre grande; quien esta detras va arriba,
-   chico, en el kicker. La frase del H1 reusa el estilo de .hero-statement. */
-.header .hero-kicker{justify-content:center;margin-bottom:.4rem}
-.header .hero-name .w:only-child{margin:0;padding:0;text-align:center}
-/* -.075em esta pensado para "Ignacio Vavala" en minuscula; en mayuscula las AVA se pisan. */
-.header .hero-name{letter-spacing:-.03em}
-.hero-lede{margin:.9rem auto 0;max-width:46ch;font-size:clamp(.95rem,1.4vw,1.05rem);color:var(--dim);line-height:1.55;text-wrap:pretty}
-.hero-trust{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem 1.6rem;list-style:none;font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}
-.hero-trust li{display:flex;align-items:center;gap:.5rem}
-.hero-trust li::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent);flex-shrink:0}
-@media (max-width:640px){.hero-trust{gap:.45rem 1rem;font-size:.6rem}.hero-lede{font-size:.92rem}}
-@media (max-height:520px){.hero-trust,.hero-lede{display:none}}
 
 /* stack: seis celdas en tres columnas */
 .stack-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:1.1rem}
@@ -457,22 +446,13 @@ html{scroll-padding-top:92px}
 <div class="hero-id">
 <img class="avatar" src="yo.jpg" alt="Ignacio Vavala" width="168" height="168">
 <div class="hero-id-text">
-<p class="hero-kicker">Dise&#241;o y desarrollo web &#183; Ignacio Vavala</p>
-<p class="hero-name"><span class="w"><span class="wi">IVAVALA</span></span></p>
+<h1 class="hero-name"><span class="w"><span class="wi">Ignacio</span></span><span class="w"><span class="wi">Vavala</span></span></h1>
 </div>
 </div>
 <div class="hero-grid">
 <div class="hero-main">
-<h1 class="sub hero-statement">P&#225;ginas web y sistemas <span>a medida</span> para empresas y negocios</h1>
-<p class="hero-lede">Dise&#241;o y desarrollo sitios web, tiendas online y sistemas para empresas y profesionales. Habl&#225;s directo con quien hace el trabajo.</p>
-<div class="hero-cta"><a class="p" href="#contacto" data-svc="Todavía no sé, arrancá vos">Pedir una propuesta &#8594;</a><a class="s" href="#proyectos">Ver proyectos &#8594;</a></div>
-</div>
-<ul class="hero-trust" aria-label="Por qu&#233; trabajar conmigo">
-<li>Precio y plazo cerrados</li>
-<li>3 meses de mantenimiento incluido</li>
-<li>El c&#243;digo y el dominio son tuyos</li>
-<li>Trato directo, sin intermediarios</li>
-</ul>
+<p class="sub hero-statement">Landings, Apps y plataformas <span>a medida</span></p>
+<div class="hero-cta rv"><a class="p" href="#contacto" data-svc="Todavía no sé, arrancá vos">Contame tu proyecto &#8594;</a><a class="s" href="#proyectos">Ver proyectos &#8594;</a></div>
 
 </div>
 </div>
