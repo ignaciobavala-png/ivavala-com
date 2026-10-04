@@ -3,21 +3,21 @@
 <head>
 <meta charset=utf-8>
 <meta content="width=device-width,initial-scale=1" name=viewport>
-<title>Ignacio Vavala — Full-stack web developer</title>
-<meta content="I build websites, online stores and custom systems with Next.js, Supabase and Cloudflare. Remote work for clients worldwide, maintenance included." name=description>
+<title>Custom web design and development for businesses | IVAVALA</title>
+<meta content="IVAVALA designs and builds websites, online stores and custom web systems for companies and professionals. Fixed price and deadline, maintenance included." name=description>
 <link rel="preload" href="/fonts/space-grotesk-300-700-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/geist-mono-100-900-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="canonical" href="https://ivavala.com/en/">
 <link rel="alternate" hreflang="es" href="https://ivavala.com/">
 <link rel="alternate" hreflang="en" href="https://ivavala.com/en/">
 <link rel="alternate" hreflang="x-default" href="https://ivavala.com/">
-<meta property="og:site_name" content="Ignacio Vavala">
-<meta property="og:title" content="Ignacio Vavala — Full-stack web developer">
-<meta property="og:description" content="I build websites, online stores and custom systems with Next.js, Supabase and Cloudflare. Remote work for clients worldwide, maintenance included.">
+<meta property="og:site_name" content="IVAVALA">
+<meta property="og:title" content="Custom web design and development for businesses | IVAVALA">
+<meta property="og:description" content="IVAVALA designs and builds websites, online stores and custom web systems for companies and professionals. Fixed price and deadline, maintenance included.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://ivavala.com/en/">
 <meta property="og:image" content="https://ivavala.com/og.png">
-<meta property="og:image:alt" content="Ignacio Vavala — full-stack web development">
+<meta property="og:image:alt" content="IVAVALA — web design and development by Ignacio Vavala">
 <meta property="og:locale" content="en_US">
 <meta property="og:locale:alternate" content="es_AR">
 <meta name="twitter:card" content="summary_large_image">
@@ -111,9 +111,11 @@ hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0}
 .hero-name{font-family:var(--display);font-weight:700;letter-spacing:-.04em;line-height:.86;font-size:clamp(3rem,10vw,8rem);color:var(--text)}
 .hero-name .w{display:block;overflow:hidden}
 .hero-name .wi{display:inline-block}
-.js .hero-name .wi{transform:translateY(120%)}
-.js .hero-name.in .wi{transform:none;transition:transform .95s cubic-bezier(.2,.7,.3,1)}
-.js .hero-name.in .w:nth-child(2) .wi{transition-delay:.14s}
+/* La marca entra con una animacion CSS que arranca en el primer paint: antes
+   esperaba a que JS le pusiera .in y el texto mas grande del hero (el LCP)
+   quedaba atado a que se liberara el hilo principal. */
+.hero-name .wi{animation:hero-in .95s cubic-bezier(.2,.7,.3,1) both}
+@keyframes hero-in{from{transform:translateY(120%)}}
 @keyframes blink{50%{opacity:0}}
 .hero-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:2.5rem 3.5rem;align-items:start;margin-top:2.4rem}
 .hero-main{max-width:34rem}
@@ -272,10 +274,23 @@ html{scroll-padding-top:92px}
 .svc-top .idx{font-family:var(--mono);font-size:.66rem;font-weight:700;letter-spacing:.1em;color:var(--dim)}
 .svc-top .arr{font-family:var(--mono);font-size:1.1rem;line-height:1;color:var(--dim);transition:color .2s,transform .25s cubic-bezier(.2,.7,.3,1)}
 .svc-card:hover .arr{color:var(--accent);transform:translateX(4px)}
-.svc-card .svc-title{font-family:var(--display);font-size:clamp(1.3rem,2.3vw,1.75rem);font-weight:700;letter-spacing:-.02em;line-height:1.1;color:var(--text);transition:color .2s}
+.svc-card .svc-title{margin:0;font-family:var(--display);font-size:clamp(1.3rem,2.3vw,1.75rem);font-weight:700;letter-spacing:-.02em;line-height:1.1;color:var(--text);transition:color .2s}
 .svc-card:hover .svc-title{color:var(--accent)}
 .svc-card .svc-desc{font-size:.92rem;color:var(--dim);line-height:1.55;text-wrap:pretty}
 .svc-foot{margin-top:1.2rem;font-size:.88rem;color:var(--dim)}
+.work-foot{margin-top:2rem;font-family:var(--mono);font-size:.72rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase}
+/* Marca + persona: IVAVALA es el nombre grande; quien esta detras va arriba,
+   chico, en el kicker. La frase del H1 reusa el estilo de .hero-statement. */
+.header .hero-kicker{justify-content:center;margin-bottom:.4rem}
+.header .hero-name .w:only-child{margin:0;padding:0;text-align:center}
+/* -.075em esta pensado para "Ignacio Vavala" en minuscula; en mayuscula las AVA se pisan. */
+.header .hero-name{letter-spacing:-.03em}
+.hero-lede{margin:.9rem auto 0;max-width:46ch;font-size:clamp(.95rem,1.4vw,1.05rem);color:var(--dim);line-height:1.55;text-wrap:pretty}
+.hero-trust{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem 1.6rem;list-style:none;font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}
+.hero-trust li{display:flex;align-items:center;gap:.5rem}
+.hero-trust li::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--accent);flex-shrink:0}
+@media (max-width:640px){.hero-trust{gap:.45rem 1rem;font-size:.6rem}.hero-lede{font-size:.92rem}}
+@media (max-height:520px){.hero-trust,.hero-lede{display:none}}
 
 /* stack: seis celdas en tres columnas */
 .stack-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:1.1rem}
@@ -360,7 +375,7 @@ html{scroll-padding-top:92px}
   .js .rv{opacity:1;transform:none}
   .now::before{animation:none}
   .hero-kicker .dot{animation:none}
-  .js .hero-name .wi{transform:none}
+  .hero-name .wi{animation:none;transform:none}
 }
 
 
@@ -428,7 +443,7 @@ html{scroll-padding-top:92px}
 <div class="aurora" id="aurora" aria-hidden="true"></div>
 <nav class="nav" id="nav">
 <div class="nav-inner">
-<a class="nav-brand" href="#top" aria-label="Back to top"><span class="mk" aria-hidden="true">IV</span><span class="nm">Ignacio Vavala</span></a>
+<a class="nav-brand" href="#top" aria-label="Back to top"><span class="mk" aria-hidden="true">IV</span><span class="nm">IVAVALA</span></a>
 <div class="nav-links" id="nav-links"><span class="nav-ind" id="nav-ind" aria-hidden="true"></span><a href="#proyectos">projects</a><a href="#servicios">services</a><a href="#stack">stack</a><a href="#faq">faq</a><a href="#contacto">contact</a></div>
 <div class="nav-tools"><a href="/">ES</a></div>
 <button class="nav-burger" id="nav-burger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-panel"><span></span><span></span></button>
@@ -442,14 +457,22 @@ html{scroll-padding-top:92px}
 <div class="hero-id">
 <img class="avatar" src="../yo.jpg" alt="Ignacio Vavala" width="168" height="168">
 <div class="hero-id-text">
-<h1 class="hero-name"><span class="w"><span class="wi">Ignacio</span></span><span class="w"><span class="wi">Vavala</span></span></h1>
+<p class="hero-kicker">Web design &amp; development &#183; Ignacio Vavala</p>
+<p class="hero-name"><span class="w"><span class="wi">IVAVALA</span></span></p>
 </div>
 </div>
 <div class="hero-grid">
 <div class="hero-main">
-<p class="sub hero-statement">Custom landing pages, apps <span>and platforms</span></p>
-<div class="hero-cta rv"><a class="p" href="#contacto" data-svc="Not sure yet, you decide">Tell me about your project &#8594;</a><a class="s" href="#proyectos">See the projects &#8594;</a></div>
+<h1 class="sub hero-statement">Websites and <span>custom</span> web systems for businesses</h1>
+<p class="hero-lede">I design and build websites, online stores and web systems for companies and professionals. You talk directly to the person doing the work.</p>
+<div class="hero-cta"><a class="p" href="#contacto" data-svc="Not sure yet, you decide">Request a proposal &#8594;</a><a class="s" href="#proyectos">See the projects &#8594;</a></div>
 </div>
+<ul class="hero-trust" aria-label="Why work with me">
+<li>Fixed price and deadline</li>
+<li>3 months of maintenance included</li>
+<li>The code and domain are yours</li>
+<li>Direct contact, no middlemen</li>
+</ul>
 
 </div>
 </div>
@@ -484,26 +507,31 @@ html{scroll-padding-top:92px}
 <span class="wc-body"><span class="wc-top"><span class="idx">06</span><span class="wc-arr" aria-hidden="true">&#8599;</span></span><span class="wc-title">Torres del Paine Summit</span><span class="wc-meta">Expedition registration and onboarding with invite codes and payments.</span><span class="wc-tags"><span class="tag">Landing</span><span class="tag">Next.js</span></span></span>
 </a>
 </div>
+<p class="work-foot rv"><a href="/en/proyectos/">See all projects &#8594;</a></p>
 
 </section>
 <section class="sec" id="servicios">
-<div class="sec-head rv"><h2>Services</h2><p class="sec-meta">4 ways to work together</p></div>
+<div class="sec-head rv"><h2>Services</h2><p class="sec-meta">web design and development for businesses</p></div>
 <div class="svc-grid">
 <a class="svc-card rv" href="#contacto" data-svc="Website for my business">
 <span class="svc-top"><span class="idx">01</span><span class="arr" aria-hidden="true">&#8594;</span></span>
-<span class="svc-title">Your site, and you update it</span><span class="svc-desc">Publish prices, photos and news from an admin panel, without calling anyone or waiting for someone to have time.</span>
+<h3 class="svc-title">Websites and landing pages</h3><span class="svc-desc">Your site, and you update it: publish prices, photos and news from an admin panel, without calling anyone or waiting for someone to have time.</span>
 </a>
 <a class="svc-card rv" href="#contacto" data-svc="Online store with payments">
 <span class="svc-top"><span class="idx">02</span><span class="arr" aria-hidden="true">&#8594;</span></span>
-<span class="svc-title">A store that takes payment on its own</span><span class="svc-desc">MercadoPago or WhatsApp checkout, whichever converts better for your business. Stock and prices under your control.</span>
+<h3 class="svc-title">Online stores</h3><span class="svc-desc">A store that takes payment on its own: MercadoPago or WhatsApp checkout, whichever converts better for your business. Stock and prices under your control.</span>
 </a>
 <a class="svc-card rv" href="#contacto" data-svc="App or internal system">
 <span class="svc-top"><span class="idx">03</span><span class="arr" aria-hidden="true">&#8594;</span></span>
-<span class="svc-title">The system that today is a spreadsheet</span><span class="svc-desc">Bar, tickets and live finances, with the whole team looking at the same number at the same time.</span>
+<h3 class="svc-title">Custom systems</h3><span class="svc-desc">The system that today is a spreadsheet: bookings, bar, tickets and live finances, with the whole team looking at the same number at the same time.</span>
 </a>
 <a class="svc-card rv" href="#contacto" data-svc="Event: registration, bar, tickets">
 <span class="svc-top"><span class="idx">04</span><span class="arr" aria-hidden="true">&#8594;</span></span>
-<span class="svc-title">Your event, from signup to the door</span><span class="svc-desc">Invite-code registration, payment and access control. No queues, no lists on paper.</span>
+<h3 class="svc-title">Event systems</h3><span class="svc-desc">From signup to the door: invite-code registration, payment and access control. No queues, no lists on paper.</span>
+</a>
+<a class="svc-card rv" href="#contacto">
+<span class="svc-top"><span class="idx">05</span><span class="arr" aria-hidden="true">&#8594;</span></span>
+<h3 class="svc-title">Maintenance and support</h3><span class="svc-desc">I do not disappear after delivery: the first 3 months cover keeping the site online, security updates and fixing anything that breaks because of something I did.</span>
 </a>
 </div>
 <p class="svc-foot rv">None of these quite fit? <a href="#contacto" data-svc="Not sure yet, you decide">Tell me what you need</a> and we work it out.</p>
@@ -587,7 +615,7 @@ html{scroll-padding-top:92px}
 </div>
 </div>
 </div>
-<a class="cta-pill" id="cta-pill" href="#contacto" data-svc="Not sure yet, you decide">Start a project &#8594;</a>
+<a class="cta-pill" id="cta-pill" href="#contacto" data-svc="Not sure yet, you decide">Request a proposal &#8594;</a>
 <div class="rail l">
 <svg class="b" viewBox="0 0 60 1200" preserveAspectRatio="none"><path d="M30 0 Q6 150 30 300 Q54 450 30 600 Q6 750 30 900 Q54 1050 30 1200"/></svg>
 <svg class="e" viewBox="0 0 60 1200" preserveAspectRatio="none"><path d="M30 0 Q6 150 30 300 Q54 450 30 600 Q6 750 30 900 Q54 1050 30 1200"/></svg>
@@ -833,15 +861,6 @@ watch(hero,'hero');watch(form,'form');
   }
 })();
 
-/* ── reveal del nombre en el hero ───────────────────────────────────── */
-// El nombre entra por palabra: una sola pasada, al cargar. Con motion
-// reducido no se mueve y se ve entero igual (el CSS ya lo deja visible).
-(function(){
-  var h=document.querySelector('.hero-name');
-  if(!h)return;
-  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-  requestAnimationFrame(function(){requestAnimationFrame(function(){h.classList.add('in')})});
-})();
 
 
 
