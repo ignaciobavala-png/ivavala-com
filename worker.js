@@ -169,6 +169,8 @@ const header = (v) => (/^[\x20-\x7E]*$/.test(v) ? v : "=?UTF-8?B?" + b64(v) + "?
 const oneLine = (v, max) => String(v || "").replace(/[\r\n]+/g, " ").trim().slice(0, max);
 
 const isEmail = (v) => /^[^@\s]+@[^@\s.]+\.[^@\s]+$/.test(v);
+// Telefono: lo que sea con al menos 8 digitos y solo signos de telefono.
+const isPhone = (v) => /^[+\d\s().-]+$/.test(v) && v.replace(/\D/g, "").length >= 8;
 
 // Atribucion del anuncio: la manda el navegador y la controla el visitante,
 // asi que solo pasan claves conocidas. Los ids de clic de Google son tokens
@@ -254,7 +256,7 @@ async function enviarResend(env, { to, bcc, subject, text, html, replyTo, header
 // habiles y despues no le llega nada a la persona hasta que contesto a mano.
 function buildAcuse({ nombre, tipo, mensaje }) {
   return [
-    `Hola ${nombre},`,
+    nombre ? `Hola ${nombre},` : "Hola,",
     "",
     "Recibí tu mensaje. Te respondo dentro de las 24 horas hábiles.",
     "",
@@ -272,13 +274,14 @@ function buildAcuse({ nombre, tipo, mensaje }) {
 
 function buildMime({ nombre, email, whatsapp, tipo, mensaje, attribution }) {
   const pago = attribution && ATTR_IDS.some((k) => attribution[k]);
-  const subject = `${pago ? "[Ads] " : ""}Consulta de ${nombre} — ${tipo}`;
+  const quien = nombre !== "Sin nombre" ? nombre : email || whatsapp;
+  const subject = `${pago ? "[Ads] " : ""}Consulta de ${quien}${tipo ? ` — ${tipo}` : ""}`;
   const attrLines = attribution
     ? ["", "Origen:", ...Object.entries(attribution).map(([k, v]) => `  ${k}: ${v}`)]
     : ["", "Origen: directo u organico (sin parametros de campaña)"];
   const body = [
     `Nombre:   ${nombre}`,
-    `Email:    ${email}`,
+    `Email:    ${email || "(no dejo)"}`,
     `WhatsApp: ${whatsapp || "(no dejo)"}`,
     `Necesita: ${tipo}`,
     "",
@@ -292,7 +295,7 @@ function buildMime({ nombre, email, whatsapp, tipo, mensaje, attribution }) {
   return [
     `From: ${header("Formulario ivavala.com")} <${FROM}>`,
     `To: <${DEST}>`,
-    `Reply-To: ${header(nombre)} <${email}>`,
+    ...(email ? [`Reply-To: ${header(nombre)} <${email}>`] : []),
     `Subject: ${header(subject)}`,
     `Message-ID: <${crypto.randomUUID()}@ivavala.com>`,
     `Date: ${new Date().toUTCString()}`,
@@ -348,14 +351,19 @@ async function handleContacto(request, env, ctx) {
   // que haya en cache, pero el autocompletado de Chrome lo llenaba solo.
   if (oneLine(data.hp_c7, 200) || oneLine(data.empresa, 200)) return json({ ok: true });
 
-  const nombre = oneLine(data.nombre, 100);
-  const email = oneLine(data.email, 150);
-  const whatsapp = oneLine(data.whatsapp, 50);
+  // El formulario pide un solo dato de contacto, mail o WhatsApp, y el nombre
+  // es opcional: cada campo obligatorio era una razon mas para no escribir.
+  // `email` y `whatsapp` sueltos se siguen leyendo por las paginas en cache.
+  const contacto = oneLine(data.contacto, 150);
+  const email = isEmail(contacto) ? contacto : oneLine(data.email, 150);
+  const whatsapp = oneLine(data.whatsapp, 50) || (isPhone(contacto) ? contacto : "");
+  const nombreDado = oneLine(data.nombre, 100);
+  const nombre = nombreDado || "Sin nombre";
   const tipo = oneLine(data.tipo, 80);
   const mensaje = String(data.mensaje || "").trim().slice(0, 4000);
   const attribution = cleanAttribution(data.attribution);
 
-  if (!nombre || !isEmail(email)) return json({ error: "invalid" }, 422);
+  if (!isEmail(email) && !whatsapp) return json({ error: "invalid" }, 422);
 
   // Techo por IP antes de gastar un envio: tres consultas cada cinco minutos.
   const db = env.portafolio_db;
@@ -382,11 +390,12 @@ async function handleContacto(request, env, ctx) {
   // El acuse al visitante va despues y aparte: si Resend falla, esta caido o
   // todavia no verifico el dominio, la consulta ya esta a salvo en mi casilla
   // y la persona ve el "listo" igual. Nunca puede tumbar el formulario.
-  if (env.RESEND_API_KEY) {
+  // Sin mail no hay a quien mandarle el acuse: le escribo yo por WhatsApp.
+  if (env.RESEND_API_KEY && isEmail(email)) {
     const acuse = enviarResend(env, {
       to: email,
       subject: "Recibí tu mensaje — Ignacio Vavala",
-      text: buildAcuse({ nombre, tipo, mensaje }),
+      text: buildAcuse({ nombre: nombreDado, tipo, mensaje }),
       replyTo: ACUSE_REPLY,
     }).catch((err) => console.error("acuse resend fallo:", err && err.message));
     if (ctx && ctx.waitUntil) ctx.waitUntil(acuse);
