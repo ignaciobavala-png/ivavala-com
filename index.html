@@ -461,7 +461,7 @@ html{scroll-padding-top:92px}
 <div class="hero-grid">
 <div class="hero-main">
 <p class="sub hero-statement">Landings, Apps y plataformas <span>a medida</span></p>
-<div class="hero-cta rv"><a class="p" href="#contacto" data-svc="Todavía no sé, arrancá vos">Contame tu proyecto &#8594;</a><a class="s" href="#proyectos">Ver proyectos &#8594;</a></div>
+<div class="hero-cta rv"><a class="p" href="https://wa.me/5491127343775?text=Hola%20Ignacio%2C%20llegu%C3%A9%20a%20IVAVALA%20y%20quer%C3%ADa%20consultarte%20por%20un%20proyecto%20web." target="_blank" rel="noopener noreferrer">Hablar por WhatsApp &#8594;</a><a class="s" href="#proyectos">Ver proyectos &#8594;</a></div>
 </div>
 
 </div>
@@ -630,7 +630,7 @@ html{scroll-padding-top:92px}
 </div>
 </div>
 </div>
-<a class="cta-pill" id="cta-pill" href="#contacto" data-svc="Todavía no sé, arrancá vos">Pedir una propuesta &#8594;</a>
+<a class="cta-pill" id="cta-pill" href="https://wa.me/5491127343775?text=Hola%20Ignacio%2C%20llegu%C3%A9%20a%20IVAVALA%20y%20quer%C3%ADa%20consultarte%20por%20un%20proyecto%20web." target="_blank" rel="noopener noreferrer">Pedir una propuesta &#8594;</a>
 <div class="rail l">
 <svg class="b" viewBox="0 0 60 1200" preserveAspectRatio="none"><path d="M30 0 Q6 150 30 300 Q54 450 30 600 Q6 750 30 900 Q54 1050 30 1200"/></svg>
 <svg class="e" viewBox="0 0 60 1200" preserveAspectRatio="none"><path d="M30 0 Q6 150 30 300 Q54 450 30 600 Q6 750 30 900 Q54 1050 30 1200"/></svg>
@@ -856,7 +856,12 @@ watch(hero,'hero');watch(form,'form');
   document.addEventListener('click', function(e){
     var t = e.target && e.target.closest ? e.target : null;
     if(!t) return;
-    if(t.closest('a[href*="wa.me"]')) ev('out:whatsapp');
+    var wa = t.closest('a[href*="wa.me"]');
+    if(wa){
+      ev('out:whatsapp');
+      // De que puerta salio: el total de out:whatsapp queda igual que antes.
+      ev(wa.closest('.hero-cta') ? 'whatsapp_click:hero' : wa.closest('#cta-pill') ? 'whatsapp_click:floating' : wa.closest('#contacto') ? 'whatsapp_click:contact' : 'whatsapp_click:other');
+    }
     else if(t.closest('a[href^="mailto:"]')) ev('out:mail');
     else if(t.closest('a[href*="github.com"]')) ev('out:github');
     // Las puertas al contacto se separan: antes las cuatro dejaban el mismo

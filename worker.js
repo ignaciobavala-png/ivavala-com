@@ -67,7 +67,6 @@ const LLMS = `# Ignacio Vavala
 
 - ${ORIGIN}/ — inicio (espanol)
 - ${ORIGIN}/en/ — inicio (ingles)
-- ${ORIGIN}/piezas/botella — pieza interactiva
 - ${ORIGIN}/proyectos/ — proyectos en produccion, filtrables por tipo
 - ${ORIGIN}/link-whatsapp/ — generador de link de WhatsApp con mensaje,
   QR y cartel para imprimir (normaliza numeros argentinos: 54 9, sin 0 ni 15)
@@ -98,22 +97,6 @@ const SITEMAP = `<?xml version="1.0" encoding="UTF-8"?>
     <xhtml:link rel="alternate" hreflang="x-default" href="${ORIGIN}/"/>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>${ORIGIN}/piezas/botella</loc>
-    <xhtml:link rel="alternate" hreflang="es" href="${ORIGIN}/piezas/botella"/>
-    <xhtml:link rel="alternate" hreflang="en" href="${ORIGIN}/en/piezas/botella"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="${ORIGIN}/piezas/botella"/>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>${ORIGIN}/en/piezas/botella</loc>
-    <xhtml:link rel="alternate" hreflang="es" href="${ORIGIN}/piezas/botella"/>
-    <xhtml:link rel="alternate" hreflang="en" href="${ORIGIN}/en/piezas/botella"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="${ORIGIN}/piezas/botella"/>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
   </url>
   <url>
     <loc>${ORIGIN}/proyectos/</loc>
@@ -404,8 +387,7 @@ async function handleContacto(request, env, ctx) {
   return json({ ok: true, accepted: true });
 }
 
-// ── la botella: mensajes a la deriva ─────────────────────────────────────
-const MSG_MAX = 500;
+// ── rate limit y utilidades compartidas ───────────────────────────────
 const RATE = { throw: 5, fish: 8, admin: 5, ev: 80, contacto: 3, mon: 6, monsub: 3, montok: 30 }; // por IP cada 5 minutos
 
 const safeEqual = (a, b) => {
@@ -464,15 +446,6 @@ function sweepRates(db, ctx) {
   );
 }
 
-// Una botella pescada ya no se hunde: sigue flotando marcada como leida, asi
-// el mar no se vacia y el que la tiro puede ver que alguien la abrio.
-const bottleCounts = (db) =>
-  Promise.all([
-    db.prepare("SELECT COUNT(*) AS n FROM bottles WHERE status = 'adrift' AND origin = 'human'").first(),
-    db.prepare("SELECT COUNT(*) AS n FROM bottles WHERE status = 'fished' AND origin = 'human'").first(),
-    db.prepare("SELECT COUNT(*) AS n FROM bottles WHERE status = 'adrift' AND origin = 'house'").first(),
-  ]).then(([a, f, c]) => ({ adrift: a.n || 0, fished: f.n || 0, house: c.n || 0 }));
-
 // Códigos ISO 3166-1 alfa-2 con nombre; el que no está sale como null y el
 // mar lo describe como "algún lugar del mundo".
 const COUNTRIES = {
@@ -494,184 +467,6 @@ const countryName = (code) => {
   return c && COUNTRIES[c] ? COUNTRIES[c] : null;
 };
 
-// Contenido publico: no se filtran URLs ni texto delicado, pero el spam
-// con links se rechaza y la basura se limpia desde el panel con el PIN.
-const cleanMsg = (raw) => {
-  const msg = String(raw || "").replace(/\r\n/g, "\n").replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "").trim();
-  if (!msg || msg.length > MSG_MAX) return null;
-  if (/https?:\/\/|www\./i.test(msg)) return null;
-  if (msg.split("\n").length > 8) return null;
-  return msg;
-};
-
-async function botellaThrow(request, db) {
-  let data;
-  try { data = await request.json(); } catch { return json({ error: "invalid" }, 400); }
-  // Honeypot igual que el formulario: se responde ok para no avisarle al bot.
-  if (oneLine(data.bot, 200)) return json({ ok: true });
-
-  const ip = ipOf(request);
-  const rate = await allowRate(db, ip, "throw");
-  if (!rate.ok) return rateLimited(rate);
-
-  const msg = cleanMsg(data.msg);
-  if (!msg) return json({ error: "invalid" }, 422);
-
-  const country = (request.headers.get("cf-ipcountry") || "").slice(0, 2).toUpperCase() || null;
-  const res = await db.prepare("INSERT INTO bottles (msg, ip, country) VALUES (?, ?, ?)").bind(msg, ip, country).run();
-  return json({ ok: true, id: res.meta.last_row_id, ...(await bottleCounts(db)) });
-}
-
-// Pesca al azar: primero botellas de visitantes, y si el mar está vacío de
-// personas cae una de la casa (que no se gasta: se lee y sigue flotando).
-async function botellaFish(request, db, lang) {
-  const ip = ipOf(request);
-  const rate = await allowRate(db, ip, "fish");
-  if (!rate.ok) return rateLimited(rate);
-
-  // Prioridad: primero una cerrada de visitante (esa es la entrega de verdad),
-  // despues una de la casa, y recien al final una ya leida para que la caña
-  // nunca vuelva vacia si el mar tiene algo.
-  const pick =
-    (await db
-      .prepare("SELECT id, origin FROM bottles WHERE status = 'adrift' AND origin = 'human' ORDER BY RANDOM() LIMIT 1")
-      .first()) ||
-    (await db
-      .prepare("SELECT id, origin FROM bottles WHERE status = 'adrift' AND origin = 'house' AND lang = ? ORDER BY RANDOM() LIMIT 1")
-      .bind(lang)
-      .first()) ||
-    (await db
-      .prepare("SELECT id, origin FROM bottles WHERE status = 'fished' AND origin = 'human' ORDER BY RANDOM() LIMIT 1")
-      .first());
-  if (!pick) return json({ bottle: null, already: false, ...(await bottleCounts(db)) });
-
-  let already = false;
-  if (pick.origin === "human") {
-    const upd = await db
-      .prepare("UPDATE bottles SET status = 'fished' WHERE id = ? AND status = 'adrift'")
-      .bind(pick.id)
-      .run();
-    // changes === 0: ya estaba leida, o alguien la abrio primero por milesimas.
-    already = upd.meta.changes === 0;
-  }
-  const row = await db.prepare("SELECT id, msg, origin, country FROM bottles WHERE id = ?").bind(pick.id).first();
-  const bottle = row ? { id: row.id, msg: row.msg, origin: row.origin, country: countryName(row.country) } : null;
-  return json({ bottle, already, ...(await bottleCounts(db)) });
-}
-
-// Panel: con el PIN se ven todos los mensajes y se borran los que no corresponden.
-async function botellaAdmin(request, db, env) {
-  const url = new URL(request.url);
-  // El PIN viaja en un header y no en la query: asi no queda en el historial
-  // del navegador ni en los logs de acceso.
-  const pin = request.headers.get("x-bottle-pin") || "";
-  const ip = ipOf(request);
-  const rate = await allowRate(db, ip, "admin");
-  if (!rate.ok) return rateLimited(rate);
-  if (!env.BOTTLE_PIN || !safeEqual(pin, env.BOTTLE_PIN))
-    return json({ error: "forbidden" }, 403);
-
-  if (request.method === "GET") {
-    const [rows, adrift, house, total] = await Promise.all([
-      db.prepare("SELECT id, msg, status, origin, country, created_at FROM bottles ORDER BY created_at DESC LIMIT 300").all(),
-      db.prepare("SELECT COUNT(*) AS n FROM bottles WHERE status = 'adrift' AND origin = 'human'").first(),
-      db.prepare("SELECT COUNT(*) AS n FROM bottles WHERE origin = 'house'").first(),
-      db.prepare("SELECT COUNT(*) AS n FROM bottles").first(),
-    ]);
-    const bottles = rows.results.map((b) => ({ ...b, country: b.origin === "house" ? null : countryName(b.country) }));
-    return json({ bottles, counts: { adrift: adrift.n, house: house.n, total: total.n } });
-  }
-
-  if (request.method === "DELETE") {
-    const id = parseInt(url.searchParams.get("id") || "", 10);
-    if (!id) return json({ error: "invalid" }, 422);
-    const res = await db.prepare("DELETE FROM bottles WHERE id = ?").bind(id).run();
-    if (res.meta.changes === 0) return json({ error: "not_found" }, 404);
-    return json({ ok: true });
-  }
-
-  return json({ error: "method_not_allowed" }, 405);
-}
-
-// Las botellas que flotan en el mar: visitantes (single-delivery) y de la casa
-// (piso). Solo ids y origin, el mensaje viaja al abrir.
-async function botellaList(db, lang) {
-  const [human, house, counts] = await Promise.all([
-    // Sin abrir es algo de cada visitante, no del mar: el servidor manda las
-    // mas nuevas y el navegador marca cuales ya abrio esta persona.
-    db
-      .prepare(
-        `SELECT id, origin, status FROM bottles
-         WHERE origin = 'human' AND status IN ('adrift', 'fished')
-         ORDER BY created_at DESC LIMIT 8`
-      )
-      .all(),
-    db
-      .prepare("SELECT id, origin, 'adrift' AS status FROM bottles WHERE status = 'adrift' AND origin = 'house' AND lang = ? ORDER BY created_at DESC LIMIT 4")
-      .bind(lang)
-      .all(),
-    bottleCounts(db),
-  ]);
-  // Los contadores viajan aca mismo: la pieza pinta el mar con un solo pedido.
-  return json({ bottles: [...human.results, ...house.results], ...counts });
-}
-
-// Pesca la botella puntual que se aprieta en el mar. Las de visitante se
-// entregan una sola vez; las de la casa se leen y siguen flotando.
-async function botellaGrab(request, db, id) {
-  const ip = ipOf(request);
-  const rate = await allowRate(db, ip, "fish");
-  if (!rate.ok) return rateLimited(rate);
-
-  const row = await db.prepare("SELECT id, msg, origin, country, status FROM bottles WHERE id = ?").bind(id).first();
-  if (!row) return json({ bottle: null, ...(await bottleCounts(db)) });
-
-  if (row.origin === "house") {
-    const bottle = { id: row.id, msg: row.msg, origin: "house", country: null };
-    return json({ bottle, already: false, ...(await bottleCounts(db)) });
-  }
-  const base = { id: row.id, msg: row.msg, origin: "human", country: countryName(row.country) };
-  if (row.status !== "adrift")
-    return json({ bottle: base, already: true, ...(await bottleCounts(db)) });
-  const upd = await db
-    .prepare("UPDATE bottles SET status = 'fished' WHERE id = ? AND status = 'adrift'")
-    .bind(id)
-    .run();
-  // changes === 0 significa que otro la abrio primero por milesimas: se lee
-  // igual, pero como una botella que ya encontro a alguien.
-  return json({ bottle: base, already: upd.meta.changes === 0, ...(await bottleCounts(db)) });
-}
-
-async function botellaRoute(request, env, ctx) {
-  const url = new URL(request.url);
-  const db = env.portafolio_db;
-  if (!db) return json({ error: "db_unavailable" }, 503);
-  sweepRates(db, ctx);
-  // Solo cambia de que idioma salen las botellas de la casa; las de
-  // visitantes se entregan tal cual se escribieron.
-  const lang = url.searchParams.get("lang") === "en" ? "en" : "es";
-
-  if (url.pathname === "/api/juegos/botella") {
-    if (request.method === "POST") return botellaThrow(request, db);
-    if (request.method === "GET") {
-      if (url.searchParams.get("list") === "1") return botellaList(db, lang);
-      const id = parseInt(url.searchParams.get("id") || "", 10);
-      if (id) return botellaGrab(request, db, id);
-      return botellaFish(request, db, lang);
-    }
-    return json({ error: "method_not_allowed" }, 405);
-  }
-  if (url.pathname === "/api/juegos/botella/count") {
-    if (request.method !== "GET") return json({ error: "method_not_allowed" }, 405);
-    return json(await bottleCounts(db));
-  }
-  if (url.pathname === "/api/juegos/botella/admin") {
-    if (request.method === "GET" || request.method === "DELETE") return botellaAdmin(request, db, env);
-    return json({ error: "method_not_allowed" }, 405);
-  }
-  return null;
-}
-
 // ── medicion del embudo ───────────────────────────────────────────────────
 // Analitica propia: sin cookies, sin scripts de terceros y sin guardar IP.
 // Solo interesa el embudo — cuantos ven la home, cuantos despliegan el
@@ -687,6 +482,7 @@ const EVENTS = new Set([
   "form:start", "form:ok",
   "cta:hero", "cta:pill", "cta:nav", "cta:svcfoot", "cta:proyectos",
   "out:whatsapp", "out:mail", "out:github",
+  "whatsapp_click:hero", "whatsapp_click:floating", "whatsapp_click:contact", "whatsapp_click:other",
   "tool:wa:link", "tool:wa:copy", "tool:wa:snippet", "tool:wa:cartel", "tool:wa:qr",
   "tool:mon:check", "tool:mon:sub", "tool:mon:confirm", "tool:mon:off",
   "cta:tool", "tool:click",
@@ -1572,8 +1368,11 @@ export default {
       return monitorRoute(request, env, ctx);
     }
 
-    const botella = await botellaRoute(request, env, ctx);
-    if (botella) return botella;
+    // La botella se dio de baja: 410 para que los buscadores la saquen del
+    // indice en vez de seguir reintentando como con un 404.
+    if (/^\/(en\/)?piezas\/botella(\.html)?\/?$/.test(url.pathname) || url.pathname.startsWith("/api/juegos/botella")) {
+      return new Response("Gone", { status: 410, headers: { "content-type": "text/plain; charset=utf-8", "x-robots-tag": "noindex" } });
+    }
 
     // A private proposal: exact URL, local assets, never indexed or listed.
     if (url.pathname === "/experiences/solocontigo" || url.pathname === "/experiences/solocontigo/") {
