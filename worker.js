@@ -69,9 +69,9 @@ const LLMS = `# Ignacio Vavala
 - ${ORIGIN}/en/ — inicio (ingles)
 - ${ORIGIN}/piezas/botella — pieza interactiva
 - ${ORIGIN}/proyectos/ — proyectos en produccion, filtrables por tipo
-- ${ORIGIN}/link-whatsapp/ — herramienta gratis: link de WhatsApp con mensaje,
+- ${ORIGIN}/link-whatsapp/ — generador de link de WhatsApp con mensaje,
   QR y cartel para imprimir (normaliza numeros argentinos: 54 9, sin 0 ni 15)
-- ${ORIGIN}/monitor-web/ — herramienta gratis: chequeo de web, SSL y dominio,
+- ${ORIGIN}/monitor-web/ — check web de disponibilidad, SSL y dominio,
   con avisos por mail si se cae o esta por vencer
 - ${ORIGIN}/en/proyectos/ — projects (english)
 `;
@@ -946,13 +946,13 @@ function levelOf(days, levels) {
   return l;
 }
 
-// ── mails del monitor ──
+// ── mails de check web ──
 function monFooter(m, base) {
   return [
     "",
     "—",
     "Ignacio Vavala · desarrollo web · https://ivavala.com",
-    `Estado de tu monitor: ${base}/monitor-web/?t=${m.token}`,
+    `Estado de tu web: ${base}/monitor-web/?t=${m.token}`,
     `Dejar de recibir avisos: ${base}/monitor-web/?t=${m.token}&baja=1`,
   ];
 }
@@ -977,7 +977,7 @@ async function notifyMe(env, subject, body) {
   try {
     const { EmailMessage } = await import("cloudflare:email");
     const raw = [
-      `From: ${header("Monitor ivavala.com")} <${FROM}>`,
+      `From: ${header("Check web ivavala.com")} <${FROM}>`,
       `To: <${DEST}>`,
       `Subject: ${header(subject)}`,
       `Message-ID: <${crypto.randomUUID()}@ivavala.com>`,
@@ -1231,7 +1231,7 @@ async function monitorRoute(request, env, ctx) {
     const m = { email, token, url: u.url, host: u.host };
     const base = baseOf(env);
     const lines = row && row.status === "active"
-      ? ["Hola,", "", `${u.url} ya está en el monitor y la sigo revisando.`, "", `Mirá cómo está acá: ${base}/monitor-web/?t=${token}`]
+      ? ["Hola,", "", `${u.url} ya está recibiendo avisos.`, "", `Mirá cómo está acá: ${base}/monitor-web/?t=${token}`]
       : [
           "Hola,",
           "",
@@ -1245,7 +1245,7 @@ async function monitorRoute(request, env, ctx) {
           "Si no fuiste vos, ignorá este mail: sin confirmar no te llega nada más.",
         ];
     try {
-      await monMail(env, m, row && row.status === "active" ? `${u.host} ya está en el monitor` : `Confirmá el monitor de ${u.host}`, lines);
+      await monMail(env, m, row && row.status === "active" ? `Avisos activos para ${u.host}` : `Confirmá los avisos para ${u.host}`, lines);
     } catch (err) {
       console.error("mail confirmacion fallo:", err && err.message);
       return json({ error: "send_failed" }, 502);

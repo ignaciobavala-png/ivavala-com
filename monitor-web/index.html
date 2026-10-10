@@ -3,20 +3,20 @@
 <head>
 <meta charset=utf-8>
 <meta content="width=device-width,initial-scale=1" name=viewport>
-<title>Monitor de web, SSL y dominio, gratis — Ignacio Vavala</title>
-<meta content="Revisá si tu web responde, cuándo vence el certificado SSL y cuándo vence el dominio. Dejá tu mail y te aviso gratis si algo falla, antes de que lo note un cliente." name=description>
+<title>Check web: disponibilidad, SSL y dominio — Ignacio Vavala</title>
+<meta content="Revisá si tu web responde, si el certificado SSL está vigente y cuándo vence el dominio. Activá avisos por mail ante problemas." name=description>
 <link rel="preload" href="/fonts/space-grotesk-300-700-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/geist-mono-100-900-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="canonical" href="https://ivavala.com/monitor-web/">
 <meta property="og:site_name" content="Ignacio Vavala">
-<meta property="og:title" content="Monitor de web, SSL y dominio, gratis">
-<meta property="og:description" content="Te aviso si tu web se cae, si el SSL no se renovó o si el dominio está por vencer.">
+<meta property="og:title" content="Check web: disponibilidad, SSL y dominio">
+<meta property="og:description" content="Revisá si tu web responde y activá avisos por mail ante problemas de disponibilidad, SSL o dominio.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://ivavala.com/monitor-web/">
 <meta property="og:image" content="https://ivavala.com/og.png">
 <meta property="og:locale" content="es_AR">
 <meta name="twitter:card" content="summary_large_image">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Monitor de web, SSL y dominio","url":"https://ivavala.com/monitor-web/","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","inLanguage":"es","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"author":{"@type":"Person","name":"Ignacio Vavala","url":"https://ivavala.com/"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Check web","url":"https://ivavala.com/monitor-web/","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","inLanguage":"es","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"author":{"@type":"Person","name":"Ignacio Vavala","url":"https://ivavala.com/"}}</script>
 <link rel="icon" href="/favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <script>
@@ -103,19 +103,19 @@ if(/[?&]t=/.test(location.search)){var m=document.createElement('meta');m.name='
 <nav class="nav">
 <div class="nav-inner">
 <a class="nav-brand" href="/" aria-label="Ignacio Vavala &#8212; inicio"><span class="mk" aria-hidden="true">IV</span><span class="nm">Ignacio Vavala</span></a>
-<div class="nav-links"><a class="opt" href="/proyectos/">proyectos</a><a href="/link-whatsapp/">link whatsapp</a><a href="/monitor-web/" aria-current="page">monitor</a><a href="/#contacto">contacto</a></div>
+<div class="nav-links"><a class="opt" href="/proyectos/">proyectos</a><a href="/link-whatsapp/">link whatsapp</a><a href="/monitor-web/" aria-current="page">check web</a><a href="/#contacto">contacto</a></div>
 </div>
 </nav>
 <main class="main">
 
 <header class="head">
-<p class="kicker rv"><span class="dot" aria-hidden="true"></span> Herramienta gratis</p>
+<p class="kicker rv"><span class="dot" aria-hidden="true"></span> Check web</p>
 <h1 class="title rv">Enterate antes <em>que tus clientes</em>.</h1>
 <p class="sub rv">Revisá si tu web responde, cuándo vence el certificado SSL y cuándo vence el dominio. Si dejás tu mail, la sigo mirando y te aviso apenas algo falle.</p>
-<ul class="facts rv"><li>Chequeo al instante</li><li>Avisos por mail, gratis</li><li>Baja con un click</li></ul>
+<ul class="facts rv"><li>Chequeo al instante</li><li>Avisos por mail</li><li>Baja con un click</li></ul>
 </header>
 
-<section class="tool" aria-label="Monitor">
+<section class="tool" aria-label="Check web">
 <div class="panel rv">
 
 <div id="check-view">
@@ -130,7 +130,7 @@ if(/[?&]t=/.test(location.search)){var m=document.createElement('meta');m.name='
 </form>
 
 <div class="sub-box" id="sub-box" hidden>
-<p class="panel-h"><span>02 · Que la vigile</span></p>
+<p class="panel-h"><span>02 · Avisos</span></p>
 <h2 style="margin-top:.8rem">Te aviso por mail si:</h2>
 <ul>
 <li>la web deja de responder, y otra vez cuando vuelve;</li>
@@ -151,7 +151,7 @@ if(/[?&]t=/.test(location.search)){var m=document.createElement('meta');m.name='
 </div>
 
 <div id="mon-view" hidden>
-<p class="panel-h"><span>Tu monitor</span><span class="pill" id="mon-pill">…</span></p>
+<p class="panel-h"><span>Estado de tu web</span><span class="pill" id="mon-pill">…</span></p>
 <p class="mon-host" id="mon-host">…</p>
 <p class="mon-meta" id="mon-meta"></p>
 <div class="actions" id="mon-actions"></div>
@@ -182,7 +182,7 @@ if(/[?&]t=/.test(location.search)){var m=document.createElement('meta');m.name='
 <section class="sec" aria-labelledby="faq">
 <div class="sec-head rv"><h2 id="faq">Preguntas</h2><p class="sec-meta">sin letra chica</p></div>
 <div class="faq">
-<details class="rv"><summary>¿Cuánto cuesta?</summary><p class="a">Nada. Es una herramienta que dejo abierta para negocios que no tienen a nadie mirando su web. Si algún día necesitás que alguien lo resuelva, ahí estoy, pero el monitor no depende de eso.</p></details>
+<details class="rv"><summary>¿Cuánto cuesta?</summary><p class="a">El chequeo y los avisos por mail no tienen costo. Si aparece un problema que requiere trabajo, puedo ayudarte por separado.</p></details>
 <details class="rv"><summary>¿Qué hacen con mi mail?</summary><p class="a">Lo uso solo para los avisos de las webs que cargaste. No lo comparto ni lo sumo a ningún newsletter. Cada mail trae el link para darte de baja, y la baja es inmediata.</p></details>
 <details class="rv"><summary>¿Tocan algo de mi web?</summary><p class="a">No. La visito como cualquier visitante, sin usuario ni contraseña. Los vencimientos salen de registros públicos: los de certificados (Certificate Transparency) y los de dominios (RDAP).</p></details>
 <details class="rv"><summary>¿Por qué a veces dice "no disponible" en el dominio?</summary><p class="a">Algunos registros no publican la fecha de vencimiento o no responden la consulta. Pasa bastante con los .com.ar. La web y el SSL se revisan igual.</p></details>
@@ -198,7 +198,7 @@ if(/[?&]t=/.test(location.search)){var m=document.createElement('meta');m.name='
 <a class="btn" id="bridge-cta" href="/#contacto">Contame tu proyecto &#8594;</a>
 </section>
 
-<p class="other rv">Otra herramienta gratis: <a href="/link-whatsapp/">Link de WhatsApp con QR &#8594;</a></p>
+<p class="other rv">También podés crear un <a href="/link-whatsapp/">link de WhatsApp con QR &#8594;</a></p>
 
 </main>
 </div>
@@ -362,13 +362,13 @@ if(/[?&]t=/.test(location.search)){var m=document.createElement('meta');m.name='
   if(TOKEN){
     $('check-view').hidden=true;$('mon-view').hidden=false;
     $('res-h').textContent='Último estado';
-    idle('Cargando tu monitor…',true);
+    idle('Cargando el estado de tu web…',true);
     load();
   }
   function load(){
     api('/api/monitor?t='+encodeURIComponent(TOKEN)).then(showMon).catch(function(err){
       $('mon-pill').textContent='No encontrado';
-      $('mon-host').textContent='Este link no corresponde a ningún monitor.';
+      $('mon-host').textContent='No encontramos una web asociada a este link.';
       $('mon-meta').textContent=err&&err.status===404?'Puede que la alta haya vencido sin confirmar: pasa a los 7 días. Cargá la web de nuevo.':errText(err);
       var a=el('a','btn','Cargar una web');a.href='/monitor-web/';$('mon-actions').innerHTML='';$('mon-actions').appendChild(a);
       idle('Sin datos');
@@ -384,14 +384,14 @@ if(/[?&]t=/.test(location.search)){var m=document.createElement('meta');m.name='
       meta.appendChild(document.createTextNode('Los avisos van a llegar a '));
       meta.appendChild(el('b',null,m.email));
       meta.appendChild(document.createTextNode('. Confirmá para que empiece a revisarla.'));
-      var c=el('button','btn','Confirmar monitor');c.type='button';
+      var c=el('button','btn','Activar avisos');c.type='button';
       c.addEventListener('click',function(){
         c.disabled=true;c.textContent='Activando…';
         api('/api/monitor/confirm?t='+encodeURIComponent(TOKEN),{method:'POST'}).then(function(d){
           ev('tool:mon:confirm');showMon(d);
           $('mon-status').className='status ok';$('mon-status').textContent='Listo, activado. Ya la revisé una vez; los vencimientos aparecen en un minuto.';
           setTimeout(load,60000);
-        }).catch(function(err){c.disabled=false;c.textContent='Confirmar monitor';$('mon-status').className='status err';$('mon-status').textContent=errText(err)});
+        }).catch(function(err){c.disabled=false;c.textContent='Activar avisos';$('mon-status').className='status err';$('mon-status').textContent=errText(err)});
       });
       acts.appendChild(c);
       idle('Se activa cuando confirmes');
@@ -402,7 +402,7 @@ if(/[?&]t=/.test(location.search)){var m=document.createElement('meta');m.name='
       pill.className='pill';pill.textContent='De baja';
       meta.textContent='No te llegan más avisos de esta web.';
       var r=el('a','btn ghost','Volver a activarlo');r.href='/monitor-web/?url='+encodeURIComponent(m.url);acts.appendChild(r);
-      idle('Monitor dado de baja');
+      idle('Avisos desactivados');
       return;
     }
     pill.className='pill on';pill.textContent='Activo';
