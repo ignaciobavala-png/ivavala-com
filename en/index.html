@@ -401,7 +401,7 @@ html{scroll-padding-top:92px}
 @keyframes aurora-slide{from{transform:translateX(25vw)}to{transform:translateX(-125vw)}}
 @media (prefers-reduced-motion:reduce){.aurora{display:none}}
 </style>
-<link rel="stylesheet" href="/motion.css?v=19">
+<link rel="stylesheet" href="/motion.css?v=20">
 
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18493149456"></script>
@@ -494,28 +494,28 @@ html{scroll-padding-top:92px}
 </section>
 <section class="sec" id="servicios">
 <div class="sec-head rv"><h2>Services</h2><p class="sec-meta">web design and development for businesses</p></div>
-<div class="svc-grid">
-<a class="svc-card rv" href="#contacto" data-svc="Website for my business">
-<span class="svc-top"><span class="idx">01</span><span class="arr" aria-hidden="true">&#8594;</span></span>
-<h3 class="svc-title">Websites and landing pages</h3><span class="svc-desc">Your site, and you update it: publish prices, photos and news from an admin panel, without calling anyone or waiting for someone to have time.</span>
-</a>
-<a class="svc-card rv" href="#contacto" data-svc="Online store with payments">
-<span class="svc-top"><span class="idx">02</span><span class="arr" aria-hidden="true">&#8594;</span></span>
-<h3 class="svc-title">Online stores</h3><span class="svc-desc">A store that takes payment on its own: MercadoPago or WhatsApp checkout, whichever converts better for your business. Stock and prices under your control.</span>
-</a>
-<a class="svc-card rv" href="#contacto" data-svc="App or internal system">
-<span class="svc-top"><span class="idx">03</span><span class="arr" aria-hidden="true">&#8594;</span></span>
-<h3 class="svc-title">Custom systems</h3><span class="svc-desc">The system that today is a spreadsheet: bookings, bar, tickets and live finances, with the whole team looking at the same number at the same time.</span>
-</a>
-<a class="svc-card rv" href="#contacto" data-svc="Event: registration, bar, tickets">
-<span class="svc-top"><span class="idx">04</span><span class="arr" aria-hidden="true">&#8594;</span></span>
-<h3 class="svc-title">Event systems</h3><span class="svc-desc">From signup to the door: invite-code registration, payment and access control. No queues, no lists on paper.</span>
-</a>
-<a class="svc-card rv" href="#contacto">
-<span class="svc-top"><span class="idx">05</span><span class="arr" aria-hidden="true">&#8594;</span></span>
-<h3 class="svc-title">Maintenance and support</h3><span class="svc-desc">I do not disappear after delivery: the first 3 months cover keeping the site online, security updates and fixing anything that breaks because of something I did.</span>
-</a>
+<div class="sx rv" id="sx">
+<ol class="sx-list">
+<li class="sx-item is-on" data-sx="web">
+<h3 class="sx-title"><button type="button" class="sx-btn" id="sx-b-web" aria-expanded="true" aria-controls="sx-p-web"><span class="sx-idx">01</span><span class="sx-name">Websites and landing pages</span></button></h3>
+<div class="sx-panel" id="sx-p-web" role="region" aria-labelledby="sx-b-web"><div class="sx-panel-in"><p class="sx-desc">Your site, and you update it: publish prices, photos and news from an admin panel, without calling anyone or waiting for someone to have time.</p><a class="sx-cta" href="#contacto" data-svc="Website for my business">Let&#8217;s talk about this &#8594;</a></div></div>
+</li>
+<li class="sx-item" data-sx="ecommerce">
+<h3 class="sx-title"><button type="button" class="sx-btn" id="sx-b-ecommerce" aria-expanded="false" aria-controls="sx-p-ecommerce"><span class="sx-idx">02</span><span class="sx-name">Online stores</span></button></h3>
+<div class="sx-panel" id="sx-p-ecommerce" role="region" aria-labelledby="sx-b-ecommerce"><div class="sx-panel-in"><p class="sx-desc">A store that takes payment on its own: MercadoPago or WhatsApp checkout, whichever converts better for your business. Stock and prices under your control.</p><a class="sx-cta" href="#contacto" data-svc="Online store with payments">Let&#8217;s talk about this &#8594;</a></div></div>
+</li>
+<li class="sx-item" data-sx="custom">
+<h3 class="sx-title"><button type="button" class="sx-btn" id="sx-b-custom" aria-expanded="false" aria-controls="sx-p-custom"><span class="sx-idx">03</span><span class="sx-name">Custom systems</span></button></h3>
+<div class="sx-panel" id="sx-p-custom" role="region" aria-labelledby="sx-b-custom"><div class="sx-panel-in"><p class="sx-desc">The system that today is a spreadsheet: bookings, bar, tickets and live finances, with the whole team looking at the same number at the same time.</p><a class="sx-cta" href="#contacto" data-svc="App or internal system">Let&#8217;s talk about this &#8594;</a></div></div>
+</li>
+<li class="sx-item" data-sx="events">
+<h3 class="sx-title"><button type="button" class="sx-btn" id="sx-b-events" aria-expanded="false" aria-controls="sx-p-events"><span class="sx-idx">04</span><span class="sx-name">Event systems</span></button></h3>
+<div class="sx-panel" id="sx-p-events" role="region" aria-labelledby="sx-b-events"><div class="sx-panel-in"><p class="sx-desc">From signup to the door: invite-code registration, payment and access control. No queues, no lists on paper.</p><a class="sx-cta" href="#contacto" data-svc="Event: registration, bar, tickets">Let&#8217;s talk about this &#8594;</a></div></div>
+</li>
+</ol>
+<div class="sx-stage" id="sx-stage" aria-hidden="true"></div>
 </div>
+<p class="sx-maint rv"><span class="sx-maint-k">Maintenance and support</span> I do not disappear after delivery: the first 3 months cover keeping the site online, security updates and fixing anything that breaks because of something I did.</p>
 <p class="svc-foot rv">None of these quite fit? <a href="#contacto" data-svc="Not sure yet, you decide">Tell me what you need</a> and we work it out.</p>
 </section>
 <section class="sec" id="stack">
@@ -829,7 +829,7 @@ watch(hero,'hero');watch(form,'form');
     }
     else if(t.closest('a[href^="mailto:"]')) ev('out:mail');
     else if(t.closest('a[href*="github.com"]')) ev('out:github');
-    else if(t.closest('.svc-card')) ev('svc:click');
+    else if(t.closest('.sx-item')) ev('service_view:' + t.closest('.sx-item').getAttribute('data-sx'), true);
     else if(t.closest('.work-card')) ev('work:click');
   }, true);
 
@@ -880,7 +880,7 @@ watch(hero,'hero');watch(form,'form');
 
 </script>
 
-<script src="/motion.js?v=19"></script>
+<script src="/motion.js?v=20"></script>
 <script src="/carousel.js?v=6"></script>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=tsInit&amp;render=explicit" async defer></script>
 </body>

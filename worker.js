@@ -474,6 +474,7 @@ const EVENTS = new Set([
   "view",
   "sec:servicios", "sec:trabajo", "sec:componentes", "sec:herramientas", "sec:stack", "sec:faq", "sec:contacto",
   "svc:click", "work:click", "pieza:click",
+  "service_view:web", "service_view:ecommerce", "service_view:custom", "service_view:events",
   "flor:jugar", "flor:final", "flor:share",
   "form:start", "form:ok",
   "cta:hero", "cta:pill", "cta:nav", "cta:svcfoot", "cta:proyectos",

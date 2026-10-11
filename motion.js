@@ -177,3 +177,80 @@
  addEventListener('pointerdown',()=>ring.classList.add('down'),{passive:true});
  addEventListener('pointerup',()=>ring.classList.remove('down'),{passive:true});
 })();
+
+/* Servicios: un solo escenario que se reacomoda segun el servicio. Los nombres y
+   descripciones viven en el HTML (indexables); esto dibuja y cambia el estado.
+   Desktop: hover previsualiza, clic selecciona. Mobile: el que cruza el medio de
+   la pantalla al scrollear queda activo. */
+(()=>{
+ const sx=document.getElementById('sx'),stage=document.getElementById('sx-stage');
+ if(!sx||!stage)return;
+ const en=document.documentElement.lang==='en';
+ const items=[...sx.querySelectorAll('.sx-item')],keys=items.map(i=>i.dataset.sx);
+ const reduce=matchMedia('(prefers-reduced-motion: reduce)'),narrow=matchMedia('(max-width: 899px)');
+ const host=en?'yourbusiness.com':'tunegocio.com';
+ const URLS={web:host,ecommerce:host+(en?'/shop':'/tienda'),custom:host+'/panel',events:host+(en?'/door':'/puerta')};
+ const live='<i class="sx-live"></i>';
+ const T=en?{start:'Get started',cart:'Cart · 2',price:'$ 48,900',add:'Add to cart',pay:'Payment<b>Approved ✓</b>',live:live+'Live',sales:'Sales<b>$ 1.2M</b>',res:'Bookings<b>84</b>',bar:'Bar<b>+12%</b>',door:'Door 1',ticket:'Invite · VIP',ok:'Access OK ✓',inside:'Checked in<b>312 / 400</b>'}
+  :{start:'Empezar',cart:'Carrito · 2',price:'$ 48.900',add:'Agregar al carrito',pay:'Pago<b>Aprobado ✓</b>',live:live+'En vivo',sales:'Ventas<b>$ 1,2M</b>',res:'Reservas<b>84</b>',bar:'Barra<b>+12%</b>',door:'Puerta 1',ticket:'Invitación · VIP',ok:'Acceso OK ✓',inside:'Ingresaron<b>312 / 400</b>'};
+ const H=(x,y)=>[x,y,0,0,'0'];
+ // [x, y, ancho, alto, estilo, etiqueta] en % del cuerpo de la ventana. El mismo
+ // indice es el mismo bloque en los cuatro estados: por eso se transforma.
+ const L={
+  web:[[4,6,10,5,'a'],[58,8,9,2.4,'l'],[70,8,9,2.4,'l'],[83,5,13,8,'b'],[4,22,58,8,'h'],[4,33,40,8,'h'],[4,47,50,2.6,'l'],[4,53,38,2.6,'l'],[4,62,20,9,'a',T.start],[68,22,28,49,'f'],[4,78,29,17,'b'],[35.5,78,29,17,'b'],[67,78,29,17,'b'],[7,85,16,2.4,'l'],[38.5,85,16,2.4,'l'],[70,85,16,2.4,'l'],H(82,46),H(82,60)],
+  ecommerce:[[4,6,10,5,'a'],[52,8,9,2.4,'l'],[64,8,9,2.4,'l'],[78,4.5,18,9,'b',T.cart],[54,19,36,6,'h'],[54,29,30,8,'T',T.price],[54,42,40,2.6,'l'],[54,48,30,2.6,'l'],[54,57,42,10,'a',T.add],[4,18,44,60,'f'],[4,82,13,13,'b'],[19,82,13,13,'b'],[54,73,42,22,'b',T.pay],[34,82,14,13,'b'],[57,88,18,2.4,'l'],H(80,88),H(26,48),H(82,60)],
+  custom:[[4,6,10,5,'a'],[52,8,9,2.4,'l'],[64,8,9,2.4,'l'],[78,4.5,18,9,'b',T.live],[4,17,17,78,'b'],[6.5,23,12,5,'f'],[6.5,32,10,2.4,'l'],[6.5,38,12,2.4,'l'],[24,17,23,22,'b',T.sales],[49,17,23,22,'b',T.res],[74,17,22,22,'f',T.bar],[24,43,48,52,'b chart'],[74,43,22,52,'b'],[76.5,50,17,2.4,'l'],[76.5,57,12,2.4,'l'],[76.5,64,15,2.4,'l'],[6.5,44,9,2.4,'l'],[76.5,71,10,2.4,'l']],
+  events:[[4,6,10,5,'a'],[52,8,9,2.4,'l'],[64,8,9,2.4,'l'],[78,4.5,18,9,'b',T.door],[6,17,50,78,'b'],[6,17,50,15,'f',T.ticket],[10,38,30,4,'h'],[10,46,20,2.4,'l'],[10,55,24,35,'b qr'],[62,17,34,24,'a',T.ok],[62,45,34,22,'b',T.inside],[62,71,34,24,'b'],[38,58,14,2.4,'l'],[65,78,22,2.4,'l'],[65,84,16,2.4,'l'],[65,90,20,2.4,'l'],[38,64,10,2.4,'l'],H(80,60)]
+ };
+
+ // QR de mentira, determinista: tres marcas de esquina y el resto pseudoaleatorio.
+ const qr=(()=>{let s=7,r='';const N=21,fin=(x,y)=>[[0,0],[14,0],[0,14]].some(([a,b])=>x>=a&&x<a+7&&y>=b&&y<b+7);
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++){let on;
+   if(fin(x,y)){const a=x<7?x:x-14,b=y<7?y:y-14;on=a===0||a===6||b===0||b===6||(a>1&&a<5&&b>1&&b<5)}
+   else{s=(s*9301+49297)%233280;on=s/233280>.52}
+   if(on)r+=`<rect x="${x}" y="${y}" width="1" height="1"/>`}
+  return `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${N} ${N}">${r}</svg>`)}")`})();
+
+ stage.innerHTML='<div class="sx-win sx-init"><div class="sx-bar"><i></i><i></i><i></i><span class="sx-url"></span><span class="sx-cap"></span></div><div class="sx-body"></div></div>';
+ const win=stage.firstChild,url=win.querySelector('.sx-url'),cap=win.querySelector('.sx-cap'),body=win.querySelector('.sx-body');
+ const atoms=Array.from({length:18},(_,i)=>{const a=document.createElement('div');a.className='sx-a';a.style.setProperty('--d',i*22+'ms');a.append(document.createElement('span'));body.append(a);return a});
+ atoms[11].insertAdjacentHTML('beforeend','<div class="sx-chart">'+[38,55,44,68,52,76,61,90].map((v,n)=>`<i style="--v:${v}%;--n:${n}"></i>`).join('')+'</div>');
+ const q=document.createElement('div');q.className='sx-qr';q.style.setProperty('--qr',qr);atoms[8].append(q);
+
+ let shown=-1,selected=0,tick=0;
+ const show=i=>{
+  if(i===shown)return;shown=i;const k=keys[i],t=++tick;
+  L[k].forEach(([x,y,w,h,st,lab],n)=>{const a=atoms[n],sp=a.firstChild;
+   a.style.setProperty('--x',x+'%');a.style.setProperty('--y',y+'%');a.style.setProperty('--w',w+'%');a.style.setProperty('--h',h+'%');
+   const [kind,...extra]=st.split(' ');a.className='sx-a k-'+kind+(extra.length?' '+extra.join(' '):'');
+   lab=lab||'';if(sp.dataset.l===lab)return;sp.dataset.l=lab;sp.style.opacity=0;
+   setTimeout(()=>{if(t!==tick)return;sp.innerHTML=lab;sp.style.opacity=1},reduce.matches||win.classList.contains('sx-init')?0:280)});
+  url.style.opacity=0;setTimeout(()=>{if(t!==tick)return;url.textContent=URLS[k];url.style.opacity=1},reduce.matches?0:200);
+  // En mobile el escenario fijo tapa el titulo que pasa por debajo: lo repite.
+  cap.textContent=items[i].querySelector('.sx-idx').textContent+' · '+items[i].querySelector('.sx-name').textContent;
+ };
+ const select=i=>{selected=i;items.forEach((it,n)=>{it.classList.toggle('is-on',n===i);if(!narrow.matches)it.querySelector('.sx-btn').setAttribute('aria-expanded',n===i)});show(i)};
+ const syncAria=()=>items.forEach((it,n)=>it.querySelector('.sx-btn').setAttribute('aria-expanded',narrow.matches||n===selected));
+ show(0);requestAnimationFrame(()=>requestAnimationFrame(()=>win.classList.remove('sx-init')));
+ syncAria();narrow.addEventListener?.('change',syncAria);
+
+ items.forEach((it,i)=>{const b=it.querySelector('.sx-btn');
+  b.addEventListener('click',()=>select(i));
+  b.addEventListener('pointerenter',e=>{if(e.pointerType!=='mouse'||narrow.matches)return;items.forEach(o=>o.classList.toggle('is-prev',o===it));show(i)});
+ });
+ sx.querySelector('.sx-list').addEventListener('pointerleave',()=>{items.forEach(o=>o.classList.remove('is-prev'));if(!narrow.matches)show(selected)});
+
+ // Mobile: activa el servicio que cruza la franja de abajo del escenario fijo.
+ if('IntersectionObserver' in window){
+  const io=new IntersectionObserver(es=>{if(!narrow.matches)return;es.forEach(e=>{if(e.isIntersecting)select(items.indexOf(e.target))})},{rootMargin:'-55% 0px -40% 0px'});
+  items.forEach(it=>io.observe(it));
+ }
+
+ // Profundidad: la ventana se inclina apenas hacia el mouse. Solo mouse fino.
+ if(matchMedia('(hover: hover) and (pointer: fine)').matches&&!reduce.matches){
+  let tx=0,ty=0,x=0,y=0,raf=0;
+  const loop=()=>{x+=(tx-x)*.08;y+=(ty-y)*.08;win.style.setProperty('--ry',(x*5).toFixed(2)+'deg');win.style.setProperty('--rx',(-y*4).toFixed(2)+'deg');raf=Math.abs(tx-x)+Math.abs(ty-y)>.002?requestAnimationFrame(loop):0};
+  sx.addEventListener('pointermove',e=>{if(narrow.matches)return;const r=stage.getBoundingClientRect();tx=Math.max(-1,Math.min(1,(e.clientX-r.left-r.width/2)/r.width*2));ty=Math.max(-1,Math.min(1,(e.clientY-r.top-r.height/2)/r.height*2));if(!raf)raf=requestAnimationFrame(loop)});
+  sx.addEventListener('pointerleave',()=>{tx=ty=0;if(!raf)raf=requestAnimationFrame(loop)});
+ }
+})();
