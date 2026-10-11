@@ -821,7 +821,11 @@ watch(hero,'hero');watch(form,'form');
   document.addEventListener('click', function(e){
     var t = e.target && e.target.closest ? e.target : null;
     if(!t) return;
-    if(t.closest('a[href*="wa.me"]')) ev('out:whatsapp');
+    if(t.closest('a[href*="wa.me"]')){
+      ev('out:whatsapp');
+      // Conversion de Ads por clic en WhatsApp: unico listener que la manda.
+      if(!e.__waConv){ e.__waConv = 1; try{ gtag('event','conversion',{send_to:'AW-18493149456/27xPCOGooJkdEJCinPJE'}); }catch(err){} }
+    }
     else if(t.closest('a[href^="mailto:"]')) ev('out:mail');
     else if(t.closest('a[href*="github.com"]')) ev('out:github');
     else if(t.closest('.svc-card')) ev('svc:click');

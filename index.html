@@ -645,12 +645,6 @@ var status=document.getElementById('form-status');
 var T={sending:'Enviando...',ok:'Listo, me llegó. Te respondo dentro de las 24 horas hábiles.',err:'No se pudo enviar. Escribime por WhatsApp o a ignacio@ivavala.com y lo resolvemos.',inval:'Dejame un mail o un WhatsApp para poder responderte.',btn:'Enviar mensaje →'};
 var v=function(n){return form.elements[n].value.trim()};
 var btn=form.querySelector('.btn');
-// Conversion de Ads por clic en WhatsApp: es otra accion de conversion, no la
-// del formulario, porque un clic no es un mensaje enviado. Vacia no dispara.
-var WA_CONV='';
-[].forEach.call(document.querySelectorAll('.form-card a[href*="wa.me"]'),function(a){
-  a.addEventListener('click',function(){if(WA_CONV)try{gtag('event','conversion',{send_to:WA_CONV})}catch(e){}});
-});
 var TS_KEY='0x4AAAAAAEd2UwMVyDyHqSFZ',tsId=null;
 var fail=function(){status.className='form-status err';status.textContent=T.err;btn.disabled=false;btn.textContent=T.btn};
 // Atribucion guardada en el <head>; sin anuncio de por medio va null y el
@@ -861,6 +855,10 @@ watch(hero,'hero');watch(form,'form');
       ev('out:whatsapp');
       // De que puerta salio: el total de out:whatsapp queda igual que antes.
       ev(wa.closest('.hero-cta') ? 'whatsapp_click:hero' : wa.closest('#cta-pill') ? 'whatsapp_click:floating' : wa.closest('#contacto') ? 'whatsapp_click:contact' : 'whatsapp_click:other');
+      // Conversion de Ads por clic en WhatsApp (otra accion que la del
+      // formulario). Este es el unico listener que la manda; la marca en el
+      // evento corta cualquier segundo paso del mismo clic.
+      if(!e.__waConv){ e.__waConv = 1; try{ gtag('event','conversion',{send_to:'AW-18493149456/27xPCOGooJkdEJCinPJE'}); }catch(err){} }
     }
     else if(t.closest('a[href^="mailto:"]')) ev('out:mail');
     else if(t.closest('a[href*="github.com"]')) ev('out:github');
