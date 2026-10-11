@@ -151,3 +151,29 @@
 
  initialize();
 })();
+
+/* Anillo que acompaña al cursor. Solo con mouse; la flecha nativa queda. Repite
+   la forma del aro del hero. pointer-events:none: nunca se come un clic. */
+(()=>{
+ if(!matchMedia('(hover: hover) and (pointer: fine)').matches||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ const ring=document.createElement('div');ring.id='cursor-ring';ring.setAttribute('aria-hidden','true');
+ const label=document.createElement('span');label.textContent=document.documentElement.lang==='en'?'drag':'arrastrar';ring.append(label);
+ document.body.append(ring);
+ let tx=0,ty=0,x=0,y=0,raf=0,lastHot=null;
+ const loop=()=>{x+=(tx-x)*.2;y+=(ty-y)*.2;ring.style.transform=`translate3d(${x}px,${y}px,0)`;raf=Math.abs(tx-x)+Math.abs(ty-y)>.1?requestAnimationFrame(loop):0};
+ addEventListener('pointermove',e=>{
+  if(e.pointerType!=='mouse')return;
+  tx=e.clientX;ty=e.clientY;
+  if(!ring.classList.contains('on')){x=tx;y=ty;ring.classList.add('on')}
+  const t=e.target.closest?e.target:null;
+  ring.classList.toggle('drag',!!(t&&t.closest('.work-grid'))&&!(t&&t.closest('a,button')));
+  const hot=t&&t.closest('a,button,summary,label,[role="button"]');
+  ring.classList.toggle('hot',!!hot);
+  // Sobre un boton relleno del mismo turquesa el anillo desaparece: ahi se invierte.
+  if(hot!==lastHot){lastHot=hot;ring.classList.toggle('inv',!!hot&&getComputedStyle(hot).backgroundColor===getComputedStyle(ring,'::before').borderTopColor)}
+  if(!raf)raf=requestAnimationFrame(loop);
+ },{passive:true});
+ document.documentElement.addEventListener('mouseleave',()=>ring.classList.remove('on'));
+ addEventListener('pointerdown',()=>ring.classList.add('down'),{passive:true});
+ addEventListener('pointerup',()=>ring.classList.remove('down'),{passive:true});
+})();
