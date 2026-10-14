@@ -266,6 +266,13 @@ body.webgl-active .header::before{display:none}
 .sx-a.qr::after{content:"";position:absolute;left:9%;right:9%;top:12%;height:1px;background:var(--accent);box-shadow:0 0 10px var(--accent);animation:sxscan 2.6s ease-in-out infinite alternate}
 @keyframes sxscan{to{top:87%}}
 
+/* Desktop: la seccion es una pista alta y lista + escenario quedan fijos; el scroll
+   recorre los servicios de a uno. */
+@media (min-width:900px){
+ .js .sx{align-items:start;min-height:0;height:calc(100svh*.7*var(--sx-n,4) + 30svh)}
+ .js .sx-list,.js .sx-stage{position:sticky;top:max(84px,calc(50svh - 250px))}
+ .js .sx-btn{cursor:default}
+}
 @media (max-width:899px){
  .sx{grid-template-columns:1fr;gap:0;min-height:0;align-items:start}
  .js .sx-stage{order:-1;position:sticky;top:74px;z-index:3;aspect-ratio:auto;height:min(36svh,300px);max-height:none;margin-bottom:10px}

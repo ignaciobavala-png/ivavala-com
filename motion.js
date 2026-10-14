@@ -180,8 +180,8 @@
 
 /* Servicios: un solo escenario que se reacomoda segun el servicio. Los nombres y
    descripciones viven en el HTML (indexables); esto dibuja y cambia el estado.
-   Desktop: hover previsualiza, clic selecciona. Mobile: el que cruza el medio de
-   la pantalla al scrollear queda activo. */
+   Desktop: la seccion queda fija y el scroll recorre los servicios (el clic lleva
+   al servicio). Mobile: el que cruza el medio de la pantalla al scrollear queda activo. */
 (()=>{
  const sx=document.getElementById('sx'),stage=document.getElementById('sx-stage');
  if(!sx||!stage)return;
@@ -235,10 +235,23 @@
  syncAria();narrow.addEventListener?.('change',syncAria);
 
  items.forEach((it,i)=>{const b=it.querySelector('.sx-btn');
-  b.addEventListener('click',()=>select(i));
-  b.addEventListener('pointerenter',e=>{if(e.pointerType!=='mouse'||narrow.matches)return;items.forEach(o=>o.classList.toggle('is-prev',o===it));show(i)});
+  b.addEventListener('click',()=>{
+   if(narrow.matches)return select(i);
+   const range=scrollRange();window.scrollTo({top:scrollY+sx.getBoundingClientRect().top-stickyTop()+range*(i+.5)/items.length,behavior:reduce.matches?'auto':'smooth'});
+  });
  });
- sx.querySelector('.sx-list').addEventListener('pointerleave',()=>{items.forEach(o=>o.classList.remove('is-prev'));if(!narrow.matches)show(selected)});
+
+ // Desktop: el indice sale del progreso de scroll dentro de la pista alta.
+ sx.style.setProperty('--sx-n',items.length);
+ const list=sx.querySelector('.sx-list');
+ const stickyTop=()=>parseFloat(getComputedStyle(list).top)||0;
+ const scrollRange=()=>sx.offsetHeight-Math.max(list.offsetHeight,stage.offsetHeight);
+ let ticking=false;
+ const onScroll=()=>{ticking=false;if(narrow.matches)return;
+  const p=(stickyTop()-sx.getBoundingClientRect().top)/Math.max(1,scrollRange());
+  select(Math.max(0,Math.min(items.length-1,Math.floor(p*items.length))))};
+ addEventListener('scroll',()=>{if(!ticking){ticking=true;requestAnimationFrame(onScroll)}},{passive:true});
+ addEventListener('resize',onScroll);narrow.addEventListener?.('change',onScroll);onScroll();
 
  // Mobile: activa el servicio que cruza la franja de abajo del escenario fijo.
  if('IntersectionObserver' in window){
