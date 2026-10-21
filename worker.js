@@ -1,5 +1,5 @@
 import { CAMPANA_OCTUBRE } from "./private/campana-octubre-email.mjs";
-import { handleChat, handleChatLead } from "./chatbot.mjs";
+import { handleChat, handleChatLead, handleChatBrief } from "./chatbot.mjs";
 // Redirige HTTP -> HTTPS y www -> apex, sirve robots.txt / sitemap.xml,
 // y mantiene fuera del indice cualquier hostname que no sea el canonico.
 const CANONICAL = "ivavala.com";
@@ -414,7 +414,7 @@ const chatDeps = (env, ctx) => ({
 });
 
 // ── rate limit y utilidades compartidas ───────────────────────────────
-const RATE = { throw: 5, fish: 8, admin: 5, ev: 80, contacto: 3, mon: 6, monsub: 3, montok: 30, chat: 20, chatg: 250, chatlead: 2, chatmail: 1 }; // por IP cada 5 minutos
+const RATE = { throw: 5, fish: 8, admin: 5, ev: 80, contacto: 3, mon: 6, monsub: 3, montok: 30, chat: 20, chatg: 250, chatlead: 2, chatmail: 1, chatbrief: 4 }; // por IP cada 5 minutos
 
 const safeEqual = (a, b) => {
   if (typeof a !== "string" || typeof b !== "string" || a.length !== b.length) return false;
@@ -1314,6 +1314,7 @@ export default {
     if (url.pathname.startsWith("/api/campaigns/")) return campaignRoute(request, env);
 
     if (url.pathname === "/api/chat") return handleChat(request, env, chatDeps(env, ctx));
+    if (url.pathname === "/api/chat/brief") return handleChatBrief(request, env, chatDeps(env, ctx));
     if (url.pathname === "/api/chat/lead") return handleChatLead(request, env, chatDeps(env, ctx));
 
     if (url.pathname === "/api/contacto") {

@@ -22,11 +22,11 @@
   send:'Ask',note:'AI assistant: it can make mistakes. Ignacio confirms the final proposal.',
   err:'Something failed. Message Ignacio on WhatsApp and he’ll reply today.',
   you:'You asked',wa:'Chat on WhatsApp →',mail:'Have him write to me',
-  contact:'Your email or WhatsApp',name:'Name (optional)',go:'Send me the summary',
+  contact:'Your email or WhatsApp',name:'Name (optional)',go:'Send me the brief',
   bad:'Enter a valid email or WhatsApp number.',sending:'Sending…',
-  done:'Done. Ignacio got the conversation and will write to you. If you left an email, the summary is on its way.',
+  done:'Done. Ignacio got the conversation and will write to you. If you left an email, the brief is on its way.',
   waText:'Hi Ignacio, I come from the assistant on ivavala.com. I need: ',
-  reset:'New question'
+  reset:'New question',brief:'Build my project brief',briefing:'Building your brief…',briefTitle:'Your project brief',copy:'Copy',copied:'Copied',dl:'Download',briefErr:'Could not build it now. Try again or write to Ignacio.',go2:'Send me the brief',done2:'Done. Ignacio got your brief and will write to you.'
  }:{
   tag:'IVAVALA · asistente',
   st:{idle:'listo',listen:'escuchando',think:'pensando',speak:'respondiendo'},
@@ -37,11 +37,11 @@
   send:'Preguntar',note:'Asistente con IA: puede equivocarse. La propuesta final la confirma Ignacio.',
   err:'Algo falló. Escribile a Ignacio por WhatsApp y te responde hoy.',
   you:'Preguntaste',wa:'Hablar por WhatsApp →',mail:'Que me escriba',
-  contact:'Tu mail o WhatsApp',name:'Nombre (opcional)',go:'Enviarme el resumen',
+  contact:'Tu mail o WhatsApp',name:'Nombre (opcional)',go:'Enviarme el brief',
   bad:'Ingresá un mail o un WhatsApp válido.',sending:'Enviando…',
-  done:'Listo. Ignacio recibió la conversación y te escribe. Si dejaste un mail, el resumen va en camino.',
+  done:'Listo. Ignacio recibió la conversación y te escribe. Si dejaste un mail, el brief va en camino.',
   waText:'Hola Ignacio, vengo del asistente de ivavala.com. Necesito: ',
-  reset:'Nueva pregunta'
+  reset:'Nueva pregunta',brief:'Armar el brief de mi proyecto',briefing:'Armando tu brief…',briefTitle:'El brief de tu proyecto',copy:'Copiar',copied:'Copiado',dl:'Descargar',briefErr:'No pude armarlo ahora. Probá de nuevo o escribile a Ignacio.',go2:'Enviarme el brief',done2:'Listo. Ignacio recibió tu brief y te escribe.'
  };
  var MAX=12,history=[],busy=false,tsId=null,state='idle',phI=0;
 
@@ -99,6 +99,37 @@
  inp.addEventListener('focus',function(){if(!busy&&inp.value)setState('listen')});
  inp.addEventListener('blur',function(){if(!busy)setState('idle')});
 
+ /* ── brief del proyecto ─────────────────────────────────────── */
+ function buildBrief(btn,card){
+  btn.disabled=true;btn.textContent=T.briefing;
+  fetch('/api/chat/brief',{method:'POST',headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({messages:history.slice(-12),lang:EN?'en':'es',hp:''})})
+  .then(function(r){return r.ok?r.json():Promise.reject(r.status)})
+  .then(function(j){
+   if(!j||!j.brief)throw 0;
+   var txt=String(j.brief);
+   card.textContent='';
+   var h=el('p','mind-brief-t',T.briefTitle);
+   var pre=el('pre','mind-brief-b',txt);
+   var row=el('div','mind-brief-r');
+   var cp=el('button','mind-btn',T.copy);cp.type='button';
+   cp.addEventListener('click',function(){
+    var ok=function(){cp.textContent=T.copied;setTimeout(function(){cp.textContent=T.copy},1800)};
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(ok,function(){});
+   });
+   var dl=el('button','mind-btn',T.dl);dl.type='button';
+   dl.addEventListener('click',function(){
+    var u=URL.createObjectURL(new Blob([T.briefTitle+'\n\n'+txt+'\n\nivavala.com'],{type:'text/plain;charset=utf-8'}));
+    var l=document.createElement('a');l.href=u;l.download='brief-ivavala.txt';document.body.append(l);l.click();l.remove();
+    setTimeout(function(){URL.revokeObjectURL(u)},4000);
+   });
+   row.append(cp,dl);card.append(h,pre,row);card.hidden=false;
+   btn.hidden=true;
+   card.scrollIntoView({block:'nearest',behavior:reduce?'auto':'smooth'});
+  })
+  .catch(function(){btn.disabled=false;btn.textContent=T.brief;qEl.textContent=T.briefErr});
+ }
+
  /* ── derivacion ─────────────────────────────────────────────── */
  function waLink(){
   var first='';
@@ -115,7 +146,10 @@
   var b=el('button',null,T.go);b.type='submit';
   var st=el('p','mind-st');
   f.append(c,n,b,st);
-  act.append(a,m,f);
+  var br=el('button','mind-btn',T.brief);br.type='button';
+  var card=el('div','mind-brief');card.hidden=true;
+  act.append(br,a,m,f,card);
+  br.addEventListener('click',function(){buildBrief(br,card)});
   m.addEventListener('click',function(){f.hidden=false;m.hidden=true;c.focus()});
   f.addEventListener('submit',function(e){
    e.preventDefault();
