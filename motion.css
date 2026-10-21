@@ -635,3 +635,26 @@ html::after{content:"";position:fixed;inset:0;z-index:70;pointer-events:none;opa
 @media(max-width:900px){.cap-l{grid-template-columns:1fr 1fr}.cap-l li{min-height:230px}}
 @media(max-width:560px){.cap-l{grid-template-columns:1fr}.cap-l li{min-height:0;padding:22px 20px;flex-direction:column}.cap-l li b{margin-top:26px}.cap-n{font-size:3.4rem}}
 @media(prefers-reduced-motion:reduce){.cap-l li,.cap-l li:hover{transform:none}.cap-l li:hover .cap-ic svg{animation:none}}
+
+/* ── Móvil: menos aire muerto, barra opaca y botón flotante compacto ─────── */
+@media(max-width:700px){
+ .nav-inner{background:rgba(255,255,255,.95);-webkit-backdrop-filter:none;backdrop-filter:none}
+ .sec{padding-top:56px}
+ .sec-head{margin-bottom:20px;padding-bottom:14px}
+ hr{margin:.25rem 0}
+ .trust{padding-top:28px}
+ .tr-belt{padding:2px 0}
+ .header.hero2{padding-bottom:24px;gap:32px}
+ #faq{padding-top:36px}
+ .mind{min-height:600px}
+ .pr-stage{padding-top:36px;padding-bottom:36px}
+ .cap{margin-top:36px}
+ .cap-k{margin-bottom:16px}
+ .sx-maint{margin-top:14px}
+ .svc-foot{margin-top:28px}
+ .cta-pill{left:auto;right:12px;bottom:12px;padding:.7rem 1.05rem;border-radius:999px;font-size:.66rem;justify-content:center}
+}
+
+/* En el celular la barra del navegador se esconde y el viewport crece: las capas
+   fijas de fondo usan la altura grande (lvh) para no dejar una franja lisa abajo. */
+#flow-bg,html::after{top:0;bottom:auto;height:100vh;height:100lvh}
