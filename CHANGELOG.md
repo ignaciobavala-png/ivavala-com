@@ -1,5 +1,18 @@
 # Cambios del portafolio
 
+## 2026-10-21 — Reenfoque a estudio B2B, paleta clara y respaldo visible
+
+- Hero de oferta ("Desarrollo web a medida para empresas y profesionales") en dos columnas: texto y capturas de sitios reales que rotan de lugar. Un solo botón, "Ver tecnología".
+- Paleta clara con acento cobalto (`#2547f5`) como override al final de `motion.css`; el `<head>` no se toca. Favicon y apple-touch-icon con monograma "IV".
+- Fondo vivo en WebGL (gradiente de seda con ruido deformado, reacciona al mouse y al scroll; media resolución, ~30 fps). Sin WebGL queda el fondo CSS. El anillo anterior queda desactivado en `motion.js`.
+- Sección "Confían en nosotros" con los sitios reales en producción (solo nombres y links, sin cifras ni testimonios). Escuela Sónica se suma como caso.
+- Servicios con pregunta-problema, casos Necesidad/Construimos/Hoy, proceso en cuatro tarjetas con mini-escenas, tecnología en lenguaje de beneficio y FAQ con "¿Cuánto cuesta?". Herramientas oculta.
+- Sin cambios en Google Tag, conversiones de Ads, eventos `whatsapp_click:*` ni URLs `wa.me`.
+
+### Pendiente de validar
+
+Textos de casos (incluido Escuela Sónica) y pasos del proceso, redactados a partir de la home anterior.
+
 ## 2026-09-20 — Rediseño de la home ES/EN
 
 - Hero centrado de una pantalla, retrato ampliado y propuesta de una frase. Acciones compactas con más separación.

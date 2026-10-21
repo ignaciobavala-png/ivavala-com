@@ -1,5 +1,7 @@
 /* Single-pass GPU ambient surface. No geometry rebuilding or canvas paths per frame. */
 (()=>{
+ /* Fondo WebGL del anillo retirado (21/10/26): el hero ahora es de dos columnas. */
+ return;
  const reduce=matchMedia('(prefers-reduced-motion: reduce)');
  const canvas=document.createElement('canvas');canvas.id='reactive-light';canvas.setAttribute('aria-hidden','true');document.body.prepend(canvas);
  let gl;
@@ -266,4 +268,78 @@
   sx.addEventListener('pointermove',e=>{if(narrow.matches)return;const r=stage.getBoundingClientRect();tx=Math.max(-1,Math.min(1,(e.clientX-r.left-r.width/2)/r.width*2));ty=Math.max(-1,Math.min(1,(e.clientY-r.top-r.height/2)/r.height*2));if(!raf)raf=requestAnimationFrame(loop)});
   sx.addEventListener('pointerleave',()=>{tx=ty=0;if(!raf)raf=requestAnimationFrame(loop)});
  }
+})();
+
+/* Proceso: los cristales detras de las tarjetas siguen el scroll (--p de 0 a 1). */
+(function(){
+  var st=document.querySelector('.pr-stage');
+  if(!st||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  var t=0;
+  function u(){t=0;var r=st.getBoundingClientRect(),h=window.innerHeight;
+    st.style.setProperty('--p',Math.max(0,Math.min(1,(h-r.top)/(h+r.height))).toFixed(3))}
+  window.addEventListener('scroll',function(){if(!t)t=requestAnimationFrame(u)},{passive:true});
+  u();
+})();
+
+/* Hero: las ventanas rotan de lugar (la del frente pasa al fondo). Se frena
+   si la pestaña no se ve o si el usuario pidió menos movimiento. */
+(()=>{
+ const w=[...document.querySelectorAll('.hero2-stage .hwin')];
+ if(w.length<3||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ let t;
+ const step=()=>w.forEach(e=>{e.dataset.s=(+e.dataset.s+2)%3});
+ const go=()=>{clearInterval(t);t=setInterval(step,4200)};
+ document.addEventListener('visibilitychange',()=>document.hidden?clearInterval(t):go());
+ go();
+})();
+
+/* Fondo vivo: gradiente de seda en WebGL (ruido deformado) con tonos cobalto,
+   violeta y celeste. Reacciona al mouse y al scroll. Se renderiza a media
+   resolución y a ~30 fps; si no hay WebGL queda el fondo CSS. */
+(()=>{
+ const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const cv=document.createElement('canvas');cv.id='flow-bg';cv.setAttribute('aria-hidden','true');
+ const gl=cv.getContext('webgl',{alpha:false,antialias:false,depth:false,stencil:false,powerPreference:'low-power'});
+ if(!gl)return;
+ const vs='attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
+ const fs=`precision mediump float;uniform vec2 R;uniform float T,S;uniform vec2 M;
+ float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+ float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}
+ float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*n(p);p=p*2.02+vec2(3.1,1.7);a*=.5;}return v;}
+ void main(){
+  vec2 uv=gl_FragCoord.xy/R;vec2 p=(uv-.5)*vec2(R.x/R.y,1.)*1.7;p.y+=S*.35;
+  float t=T*.07;
+  vec2 q=vec2(fbm(p+t),fbm(p+vec2(5.2,1.3)-t));
+  vec2 r=vec2(fbm(p+3.*q+vec2(1.7,9.2)+t*1.3),fbm(p+3.*q+vec2(8.3,2.8)-t));
+  float f=fbm(p+3.*r);
+  vec2 mp=(M-.5)*vec2(R.x/R.y,1.)*1.7;float m=exp(-length(p-mp)*1.6);f+=m*.22;
+  vec3 base=vec3(.965,.969,.984),cob=vec3(.145,.278,.96),vio=vec3(.49,.36,1.),sky=vec3(.22,.74,.97);
+  vec3 c=base;
+  c=mix(c,cob,smoothstep(.35,.95,f)*.5);
+  c=mix(c,vio,smoothstep(.45,1.,r.x)*.38);
+  c=mix(c,sky,smoothstep(.5,1.,q.y)*.42);
+  float silk=pow(abs(sin(f*26.)),30.)*.10;c=mix(c,vec3(1.),silk);
+  float fade=mix(1.,.45,clamp(S*1.4,0.,1.));
+  c=mix(base,c,fade*.9);
+  gl_FragColor=vec4(c,1.);}`;
+ const sh=(t,s)=>{const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(o));return o};
+ let pr;try{pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,vs));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(pr);if(!gl.getProgramParameter(pr,gl.LINK_STATUS))throw new Error('link');}catch(e){console.warn('[flow-bg]',e);return}
+ gl.useProgram(pr);const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+ const a=gl.getAttribLocation(pr,'a');gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,2,gl.FLOAT,false,0,0);
+ const uR=gl.getUniformLocation(pr,'R'),uT=gl.getUniformLocation(pr,'T'),uS=gl.getUniformLocation(pr,'S'),uM=gl.getUniformLocation(pr,'M');
+ document.body.prepend(cv);document.body.classList.add('flow-on');
+ let mx=.7,my=.6,tx=.7,ty=.6,sc=0,last=0,raf;
+ const size=()=>{const k=.5;cv.width=Math.max(2,innerWidth*k|0);cv.height=Math.max(2,innerHeight*k|0);gl.viewport(0,0,cv.width,cv.height)};
+ size();addEventListener('resize',size);
+ addEventListener('pointermove',e=>{tx=e.clientX/innerWidth;ty=1-e.clientY/innerHeight},{passive:true});
+ const draw=ms=>{
+  raf=requestAnimationFrame(draw);if(ms-last<33)return;last=ms;
+  mx+=(tx-mx)*.06;my+=(ty-my)*.06;sc+=((scrollY/innerHeight)-sc)*.08;
+  gl.uniform2f(uR,cv.width,cv.height);gl.uniform1f(uT,ms/1000);gl.uniform1f(uS,sc);gl.uniform2f(uM,mx,my);
+  gl.drawArrays(gl.TRIANGLES,0,3);
+  if(reduce){cancelAnimationFrame(raf)}
+ };
+ document.addEventListener('visibilitychange',()=>{cancelAnimationFrame(raf);if(!document.hidden)raf=requestAnimationFrame(draw)});
+ raf=requestAnimationFrame(draw);
+ cv.addEventListener('webglcontextlost',e=>{e.preventDefault();cancelAnimationFrame(raf);cv.remove();document.body.classList.remove('flow-on')});
 })();
