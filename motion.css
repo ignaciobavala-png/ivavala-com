@@ -584,3 +584,35 @@ body.flow-on::after{opacity:.35}
 @media(max-width:900px){.mind-chips{position:static!important;display:flex;flex-wrap:wrap;justify-content:center;gap:8px;order:3;padding:0 0 12px;pointer-events:auto}.mind-chip{position:static!important;max-width:none;animation:none;border-radius:999px;padding:9px 14px}}
 @media(max-width:700px){.mind{min-height:660px}.mind-send{padding:0 16px}.mind-in{padding:12px 14px;font-size:1rem}.mind-a{max-height:30vh}}
 @media(prefers-reduced-motion:reduce){.mind-a .w{animation:none;opacity:1;filter:none;transform:none}.mind-dot,.mind-chip{animation:none}}
+
+.mind-btn{white-space:nowrap;text-align:center}
+@media(max-width:560px){.mind-act{flex-direction:column;align-items:stretch;width:100%;max-width:340px}.mind-btn{width:100%}}
+
+/* ── Confían en nosotros: cinturón de nombres que pasan ──────────────────── */
+.tr-belt{overflow:hidden;padding:14px 0;-webkit-mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent)}
+.tr-track{display:flex;width:max-content;animation:tr-slide 46s linear infinite;will-change:transform}
+.tr-belt:hover .tr-track,.tr-belt:focus-within .tr-track{animation-play-state:paused}
+.tr-track ul{display:flex;flex-shrink:0;align-items:center;list-style:none;margin:0;padding:0}
+.tr-track li{display:flex;align-items:center}
+.tr-track li::after{content:"";width:9px;height:9px;margin:0 clamp(26px,4vw,52px);border-radius:2px;background:var(--accent);transform:rotate(45deg);opacity:.55}
+.tr-track a{font-family:var(--display);font-size:clamp(1.7rem,3.6vw,3rem);font-weight:600;letter-spacing:-.04em;white-space:nowrap;color:var(--text);opacity:.78;text-decoration:none;transition:opacity .2s,color .2s}
+.tr-track a:hover{opacity:1;color:var(--accent);text-decoration:none}
+@keyframes tr-slide{to{transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){.tr-track{animation:none;flex-wrap:wrap;width:auto}.tr-track ul:nth-child(2){display:none}.tr-belt{-webkit-mask-image:none;mask-image:none}}
+
+/* ── Tipografía: Unbounded (ancha, tech) + grano de película ─────────────── */
+@font-face{font-family:"Unbounded";font-style:normal;font-weight:200 900;font-display:swap;src:url(/fonts/unbounded-wght-latin.woff2) format("woff2")}
+:root:root{--display:"Unbounded","Space Grotesk",system-ui,sans-serif}
+.hero-title{font-weight:600;letter-spacing:-.045em;line-height:1.08}
+.hero2 .hero-title{font-size:clamp(1.9rem,3.5vw,3.5rem)}
+.hero-title .hl:nth-child(2) .hli{background:repeating-linear-gradient(180deg,var(--accent) 0 2px,color-mix(in srgb,var(--accent) 70%,#7c5cff) 2px 3px);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sec-head h2{font-weight:500;letter-spacing:-.055em;font-size:clamp(2.1rem,5.2vw,4.4rem)}
+.pr b{font-size:clamp(1.3rem,11.5cqw,3rem);letter-spacing:-.05em}
+.sx-name{letter-spacing:-.05em}
+.mind-a{font-weight:500;letter-spacing:-.045em;font-size:clamp(1.15rem,2.1vw,1.7rem)}
+.mind-a.long{font-size:clamp(1rem,1.5vw,1.2rem);font-family:var(--sans);letter-spacing:0;font-weight:400}
+.tr-track a{font-size:clamp(1.3rem,2.8vw,2.3rem);letter-spacing:-.05em}
+.cap-k{font-size:clamp(1.4rem,2.6vw,2.2rem);letter-spacing:-.05em}
+.svc-foot{font-size:clamp(1rem,1.7vw,1.35rem);letter-spacing:-.04em}
+@media(max-width:900px){.header.hero2 .hero-title,.hero2 .hero-title{font-size:clamp(1.65rem,7.4vw,2.6rem);max-width:none}}
+html::after{content:"";position:fixed;inset:0;z-index:70;pointer-events:none;opacity:.09;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .06 0 0 0 0 .09 0 0 0 0 .16 0 0 0 1.4 -.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:200px 200px}

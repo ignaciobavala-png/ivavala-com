@@ -307,19 +307,19 @@
  float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}
  float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<4;i++){v+=a*n(p);p=p*2.02+vec2(3.1,1.7);a*=.5;}return v;}
  void main(){
-  vec2 uv=gl_FragCoord.xy/R;vec2 p=(uv-.5)*vec2(R.x/R.y,1.)*1.7;p.y+=S*.35;
+  vec2 uv=gl_FragCoord.xy/R;float pk=R.x<R.y?2.7:1.7;float Q=R.x<R.y?1.2:1.;vec2 p=(uv-.5)*vec2(R.x/R.y,1.)*pk;p.y+=S*.35;
   float t=T*.07;
   vec2 q=vec2(fbm(p+t),fbm(p+vec2(5.2,1.3)-t));
   vec2 r=vec2(fbm(p+3.*q+vec2(1.7,9.2)+t*1.3),fbm(p+3.*q+vec2(8.3,2.8)-t));
   float f=fbm(p+3.*r);
-  vec2 mp=(M-.5)*vec2(R.x/R.y,1.)*1.7;float m=exp(-length(p-mp)*1.6);f+=m*.22;
+  vec2 mp=(M-.5)*vec2(R.x/R.y,1.)*pk;float m=exp(-length(p-mp)*1.6);f+=m*.22;
   vec3 base=vec3(.965,.969,.984),cob=vec3(.145,.278,.96),vio=vec3(.49,.36,1.),sky=vec3(.22,.74,.97);
   vec3 c=base;
-  c=mix(c,cob,smoothstep(.35,.95,f)*.5);
-  c=mix(c,vio,smoothstep(.45,1.,r.x)*.38);
-  c=mix(c,sky,smoothstep(.5,1.,q.y)*.42);
+  c=mix(c,cob,min(1.,smoothstep(.35,.95,f)*.33*Q));
+  c=mix(c,vio,min(1.,smoothstep(.45,1.,r.x)*.26*Q));
+  c=mix(c,sky,min(1.,smoothstep(.5,1.,q.y)*.3*Q));
   float silk=pow(abs(sin(f*26.)),30.)*.10;c=mix(c,vec3(1.),silk);
-  float fade=mix(1.,.45,clamp(S*1.4,0.,1.));
+  float fade=mix(1.,Q>1.?.8:.5,clamp(S*1.4,0.,1.));
   c=mix(base,c,fade*.9);
   gl_FragColor=vec4(c,1.);}`;
  const sh=(t,s)=>{const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(o));return o};
