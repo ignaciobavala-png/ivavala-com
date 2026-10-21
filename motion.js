@@ -344,3 +344,14 @@
  raf=requestAnimationFrame(draw);
  cv.addEventListener('webglcontextlost',e=>{e.preventDefault();cancelAnimationFrame(raf);cv.remove();document.body.classList.remove('flow-on')});
 })();
+
+/* Tarjetas "Y también construimos": un resplandor sigue al puntero. */
+(()=>{
+ if(!matchMedia('(hover: hover) and (pointer: fine)').matches)return;
+ document.querySelectorAll('.cap-l li').forEach(li=>{
+  li.addEventListener('pointermove',e=>{
+   const r=li.getBoundingClientRect();
+   li.style.setProperty('--mx',(e.clientX-r.left)+'px');li.style.setProperty('--my',(e.clientY-r.top)+'px');
+  },{passive:true});
+ });
+})();
