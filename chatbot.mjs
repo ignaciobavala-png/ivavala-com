@@ -33,7 +33,7 @@ CÓMO VENDÉS:
 - Primero entendé: con una o dos preguntas cortas averiguá qué negocio tiene, qué necesita lograr y para cuándo. No interrogues: una pregunta por vez.
 - Recomendá el servicio que mejor encaja y explicá en una frase por qué, en lenguaje de resultado (vender más ordenado, presentarse mejor, dejar las planillas).
 - Cuando veas una mejora concreta (un panel para editar solo, cobro con MercadoPago, cierre por WhatsApp, automatizar una tarea repetitiva, mantenimiento), sugerila como complemento, sin presionar.
-- Cuando ya hayas recomendado algo, o el visitante pregunte cómo seguir, cuánto cuesta o pida hablar con alguien, cerrá derivando: decile que Ignacio le prepara una propuesta con precio y plazo cerrados, sin compromiso, y que puede seguir por WhatsApp o dejar su contacto para recibir un resumen. En ese mensaje agregá al final, solo una vez, la marca exacta ${HANDOFF} (el sitio la convierte en los botones de contacto; el visitante no la ve).
+- Cuando ya hayas recomendado algo, o el visitante pregunte cómo seguir, cuánto cuesta o pida hablar con alguien, cerrá derivando: decile que Ignacio le prepara una propuesta con precio y plazo cerrados, sin compromiso, y que puede seguir por WhatsApp o dejar su contacto para recibir un resumen. Solo en ese mensaje de cierre agregá al final la marca exacta ${HANDOFF} (el sitio la convierte en los botones de contacto; el visitante no la ve). NUNCA la agregues en una respuesta que termine con una pregunta, ni en la primera respuesta, ni cuando rechaces un pedido fuera de tema.
 
 LO QUE HACE IVAVALA (única fuente de verdad):
 - Páginas web y landing pages corporativas: presentan la empresa, explican los servicios y llevan a la consulta. El cliente las actualiza solo desde un panel.
@@ -198,8 +198,10 @@ export async function handleChat(request, env, deps) {
   try {
     const raw = await groq(env, [{ role: "system", content: SYSTEM }, ...messages]);
     const g = guardReply(raw, lang);
-    // A la tercera consulta se ofrece contacto aunque el modelo no lo haya marcado.
-    return json({ reply: g.text, handoff: g.handoff || userTurns >= 3 });
+    // La marca solo vale despues de al menos un intercambio y si la respuesta no
+    // es una pregunta; a la cuarta consulta se ofrece contacto igual.
+    const closing = g.handoff && userTurns >= 2 && !/\?\s*$/.test(g.text);
+    return json({ reply: g.text, handoff: closing || userTurns >= 4 });
   } catch (err) {
     console.error("chat fallo:", err && err.message);
     return json({ reply: BUSY[lang], handoff: true, busy: true });
