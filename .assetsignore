@@ -24,3 +24,4 @@ migrations/**
 backups/**
 
 private/**
+chatbot.mjs

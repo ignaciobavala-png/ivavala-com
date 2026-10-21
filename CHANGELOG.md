@@ -1,5 +1,13 @@
 # Cambios del portafolio
 
+## 2026-10-21 (noche) — Asistente de ventas con IA y cierre de Servicios
+
+- Sección de preguntas reemplazada por un asistente: esfera de partículas que escucha, piensa y responde palabra por palabra, integrada al fondo (sin caja). Preguntas sugeridas flotando alrededor. Se retira el acordeón de FAQ.
+- Backend `/api/chat` y `/api/chat/lead` en el Worker (`chatbot.mjs`), contra Groq (`GROQ_API_KEY`, modelo por defecto `openai/gpt-oss-120b`, configurable con `GROQ_MODEL`). Solo vende IVAVALA: prompt cerrado, filtro de inyección previo al modelo, validación de la salida, chequeo de origen, topes por IP y globales, historial saneado.
+- Deriva a Ignacio por WhatsApp o deja contacto: aviso a la casilla por el binding y resumen al visitante por Resend, con Turnstile y límites por IP y por destinatario.
+- "Y también construimos", mantenimiento y cierre de Servicios con más presencia. Contacto con el mismo ancho que el asistente.
+- Pendiente: el JSON-LD FAQPage del `<head>` sigue declarando preguntas que ya no están visibles.
+
 ## 2026-10-21 — Reenfoque a estudio B2B, paleta clara y respaldo visible
 
 - Hero de oferta ("Desarrollo web a medida para empresas y profesionales") en dos columnas: texto y capturas de sitios reales que rotan de lugar. Un solo botón, "Ver tecnología".

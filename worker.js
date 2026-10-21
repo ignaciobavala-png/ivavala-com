@@ -1,4 +1,5 @@
 import { CAMPANA_OCTUBRE } from "./private/campana-octubre-email.mjs";
+import { handleChat, handleChatLead } from "./chatbot.mjs";
 // Redirige HTTP -> HTTPS y www -> apex, sirve robots.txt / sitemap.xml,
 // y mantiene fuera del indice cualquier hostname que no sea el canonico.
 const CANONICAL = "ivavala.com";
@@ -383,8 +384,37 @@ async function handleContacto(request, env, ctx) {
   return json({ ok: true, accepted: true });
 }
 
+
+// Aviso a mi casilla de una conversacion del asistente (mismo binding que el
+// formulario). Reply-To con el mail del visitante cuando lo dejo.
+async function notifyChatLead(env, { subject, body, replyTo }) {
+  const { EmailMessage } = await import("cloudflare:email");
+  const raw = [
+    `From: ${header("Asistente ivavala.com")} <${FROM}>`,
+    `To: <${DEST}>`,
+    ...(replyTo ? [`Reply-To: ${header(oneLine(replyTo.name, 80))} <${replyTo.email}>`] : []),
+    `Subject: ${header(oneLine(subject, 150))}`,
+    `Message-ID: <${crypto.randomUUID()}@ivavala.com>`,
+    `Date: ${new Date().toUTCString()}`,
+    "MIME-Version: 1.0",
+    "Content-Type: text/plain; charset=utf-8",
+    "Content-Transfer-Encoding: base64",
+    "",
+    b64(body).replace(/(.{76})/g, "$1\r\n"),
+  ].join("\r\n");
+  await env.SEND_EMAIL.send(new EmailMessage(FROM, DEST, raw));
+}
+
+const chatDeps = (env, ctx) => ({
+  json, allowRate, rateLimited, ipOf, sweepRates, ctx,
+  turnstileOk: (t, ip) => turnstileOk(t, ip, env),
+  isEmail, isPhone, oneLine, enviarResend,
+  notifyLead: (m) => notifyChatLead(env, m),
+  acuseReply: ACUSE_REPLY,
+});
+
 // ── rate limit y utilidades compartidas ───────────────────────────────
-const RATE = { throw: 5, fish: 8, admin: 5, ev: 80, contacto: 3, mon: 6, monsub: 3, montok: 30 }; // por IP cada 5 minutos
+const RATE = { throw: 5, fish: 8, admin: 5, ev: 80, contacto: 3, mon: 6, monsub: 3, montok: 30, chat: 20, chatg: 250, chatlead: 2, chatmail: 1 }; // por IP cada 5 minutos
 
 const safeEqual = (a, b) => {
   if (typeof a !== "string" || typeof b !== "string" || a.length !== b.length) return false;
@@ -1282,6 +1312,9 @@ export default {
 
     if (url.pathname === "/baja") return bajaRoute(request, env);
     if (url.pathname.startsWith("/api/campaigns/")) return campaignRoute(request, env);
+
+    if (url.pathname === "/api/chat") return handleChat(request, env, chatDeps(env, ctx));
+    if (url.pathname === "/api/chat/lead") return handleChatLead(request, env, chatDeps(env, ctx));
 
     if (url.pathname === "/api/contacto") {
       if (request.method !== "POST") return json({ error: "method_not_allowed" }, 405);
