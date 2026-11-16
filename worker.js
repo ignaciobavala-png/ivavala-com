@@ -1,4 +1,6 @@
 import { CAMPANA_OCTUBRE } from "./private/campana-octubre-email.mjs";
+import { CAMPANA_HOTELES } from "./private/campana-hoteles-verano.mjs";
+import { CAMPANA_PROFESIONALES } from "./private/campana-profesionales-landing.mjs";
 import { handleChat, handleChatLead, handleChatBrief } from "./chatbot.mjs";
 // Redirige HTTP -> HTTPS y www -> apex, sirve robots.txt / sitemap.xml,
 // y mantiene fuera del indice cualquier hostname que no sea el canonico.
@@ -234,16 +236,18 @@ async function enviarResend(env, { to, bcc, subject, text, html, replyTo, header
 
 // El acuse que hoy no existe: el formulario promete respuesta en 24 horas
 // habiles y despues no le llega nada a la persona hasta que contesto a mano.
-function buildAcuse({ nombre, tipo, mensaje }) {
+//
+// Sin nada de lo que escribio el visitante (ni nombre, ni tipo, ni mensaje):
+// el mail sale al destinatario que el visitante elige, y si se repitiera su
+// texto cualquiera podria usar el formulario para mandarle lo que quiera a un
+// tercero desde hola@ivavala.com. Texto fijo = no sirve como relay de spam.
+function buildAcuse() {
   return [
-    nombre ? `Hola ${nombre},` : "Hola,",
+    "Hola,",
     "",
-    "Recibí tu mensaje. Te respondo dentro de las 24 horas hábiles.",
+    "Recibí tu mensaje desde ivavala.com. Te respondo dentro de las 24 horas hábiles.",
     "",
-    "Esto es lo que me llegó:",
-    `  Necesitás: ${tipo}`,
-    "",
-    mensaje ? mensaje.split("\n").map((l) => "  " + l).join("\n") : "  (sin mensaje)",
+    "Si no fuiste vos quien escribió, ignorá este mail.",
     "",
     "Si es urgente, escribime por WhatsApp: https://wa.me/5491127343775",
     "",
@@ -375,7 +379,7 @@ async function handleContacto(request, env, ctx) {
     const acuse = enviarResend(env, {
       to: email,
       subject: "Recibí tu mensaje — Ignacio Vavala",
-      text: buildAcuse({ nombre: nombreDado, tipo, mensaje }),
+      text: buildAcuse(),
       replyTo: ACUSE_REPLY,
     }).catch((err) => console.error("acuse resend fallo:", err && err.message));
     if (ctx && ctx.waitUntil) ctx.waitUntil(acuse);
@@ -1110,7 +1114,7 @@ async function monitorRoute(request, env, ctx) {
 // El link de baja lleva el mail y una firma HMAC: sin la firma cualquiera
 // podria dar de baja a otro armando la URL a mano. La firma no vence, porque
 // un link de baja tiene que seguir andando aunque el mail se abra meses despues.
-const CAMPAIGNS = { [CAMPANA_OCTUBRE.id]: CAMPANA_OCTUBRE };
+const CAMPAIGNS = { [CAMPANA_OCTUBRE.id]: CAMPANA_OCTUBRE, [CAMPANA_HOTELES.id]: CAMPANA_HOTELES, [CAMPANA_PROFESIONALES.id]: CAMPANA_PROFESIONALES };
 const CAMPAIGN_PACE_MS = 600; // Resend acepta 2 pedidos por segundo por defecto.
 
 async function unsubSig(env, email) {
@@ -1183,11 +1187,11 @@ async function bajaRoute(request, env) {
 async function campaignMail(env, campaign, email) {
   const u = await unsubUrl(env, email, campaign.id);
   const { html, text } = campaign.build({ unsubUrl: u });
-  // BCC a mi casilla en cada envio: regla de los correos comerciales, para
-  // ver como le llego a cada uno.
+  // Sin BCC a mi casilla (se saco el 09/11/2026): con tandas diarias llenaba
+  // la bandeja y cada copia gastaba cuota de Resend (100/dia en el plan free).
+  // Para ver como llega un mail se usa {"test":true}.
   return {
     to: email,
-    bcc: DEST,
     subject: campaign.subject,
     html,
     text,
@@ -1266,12 +1270,38 @@ async function campaignRoute(request, env) {
   return json({ campaign: campaign.id, ...out, counts: { sent: out.sent.length, skipped: out.skipped.length, failed: out.failed.length } });
 }
 
+// Cabeceras de seguridad en todas las respuestas. Sin Content-Security-Policy
+// a proposito: con gtag (conversiones de Ads) y Turnstile una CSP mal armada
+// rompe la medicion sin que se note; X-Frame-Options cubre el clickjacking.
+const SEC_HEADERS = {
+  "strict-transport-security": "max-age=31536000",
+  "x-content-type-options": "nosniff",
+  "x-frame-options": "SAMEORIGIN",
+  "referrer-policy": "strict-origin-when-cross-origin",
+  "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=()",
+};
+
+function withSecurity(res) {
+  // Response.redirect y los assets traen headers inmutables: se copia.
+  const out = new Response(res.body, res);
+  for (const [k, v] of Object.entries(SEC_HEADERS)) {
+    if (!out.headers.has(k)) out.headers.set(k, v);
+  }
+  return out;
+}
+
 export default {
   async scheduled(controller, env, ctx) {
     ctx.waitUntil(monitorCron(env));
   },
 
   async fetch(request, env, ctx) {
+    return withSecurity(await route(request, env, ctx));
+  },
+};
+
+async function route(request, env, ctx) {
+  {
     const url = new URL(request.url);
     const proto = request.headers.get("x-forwarded-proto") || url.protocol.replace(":", "");
     const isCanonical = url.hostname === CANONICAL;
@@ -1337,5 +1367,5 @@ export default {
     if (url.pathname === "/sitemap.xml") return text(SITEMAP, "application/xml");
 
     return env.ASSETS.fetch(request);
-  },
-};
+  }
+}
