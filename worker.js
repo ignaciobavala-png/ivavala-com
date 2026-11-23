@@ -102,6 +102,7 @@ const SITEMAP = `<?xml version="1.0" encoding="UTF-8"?>
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>${ORIGIN}/</loc>
+    <lastmod>2026-11-23</lastmod>
     <xhtml:link rel="alternate" hreflang="es" href="${ORIGIN}/"/>
     <xhtml:link rel="alternate" hreflang="en" href="${ORIGIN}/en/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="${ORIGIN}/"/>
@@ -110,6 +111,7 @@ const SITEMAP = `<?xml version="1.0" encoding="UTF-8"?>
   </url>
   <url>
     <loc>${ORIGIN}/en/</loc>
+    <lastmod>2026-11-23</lastmod>
     <xhtml:link rel="alternate" hreflang="es" href="${ORIGIN}/"/>
     <xhtml:link rel="alternate" hreflang="en" href="${ORIGIN}/en/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="${ORIGIN}/"/>
@@ -135,16 +137,6 @@ const SITEMAP = `<?xml version="1.0" encoding="UTF-8"?>
     <lastmod>2026-11-23</lastmod>
     <xhtml:link rel="alternate" hreflang="es" href="${ORIGIN}/privacidad/"/>
     <xhtml:link rel="alternate" hreflang="en" href="${ORIGIN}/en/privacy/"/>
-  </url>
-  <url>
-    <loc>${ORIGIN}/link-whatsapp/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>${ORIGIN}/monitor-web/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
   </url>
   <url>
     <loc>${ORIGIN}/en/proyectos/</loc>

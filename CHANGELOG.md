@@ -12,7 +12,9 @@
   privacidad.
 - `agenda.js` (v=4): el plan del modal también se toma del texto del link cuando el botón no está
   dentro de una card `.pl`.
-- `robots.txt`: se agrega `Disallow: /api/`. `sitemap.xml`: suma la privacidad, con `lastmod`.
+- `robots.txt`: se agrega `Disallow: /api/`. `sitemap.xml`: suma la privacidad, `lastmod` en las
+  homes (es y en) y se sacan `/link-whatsapp/` y `/monitor-web/` (herramientas aparte, no parte de
+  la mono-página; siguen accesibles por link).
   `llms.txt`: precios, mantenimiento, seña, cómo agendar y WhatsApp.
 - Pendiente: GA4 (falta el ID de medición `G-…`).
 
