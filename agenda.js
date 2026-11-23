@@ -160,7 +160,7 @@
   e.preventDefault();
   var plan='';
   if(p){var card=p.closest('.pl'),n=card&&card.querySelector('.pl-name');plan=n?n.textContent:''}
-  else{try{var m=decodeURIComponent((a.getAttribute('href')||'').split('text=')[1]||'').match(/^Plan:(.+?)(?: \(|$)/m);plan=m?m[1]:''}catch(x){}}
+  if(!plan){try{var t=decodeURIComponent(((p||a).getAttribute('href')||'').split('text=')[1]||''),m=t.match(/^Plan:(.+?)(?: \(|$)/m)||t.match(/el plan (.+?) \(/);plan=m?m[1]:''}catch(x){}}
   open(plan);
  },true);
 })();

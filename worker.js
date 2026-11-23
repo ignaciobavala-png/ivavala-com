@@ -19,6 +19,7 @@ User-agent: *
 Content-Signal: search=yes,ai-input=yes
 Allow: /
 Disallow: /panel
+Disallow: /api/
 
 Sitemap: ${ORIGIN}/sitemap.xml
 `;
@@ -30,7 +31,24 @@ const LLMS = `# Ignacio Vavala
 
 > Desarrollador web full-stack. Construye sitios y sistemas a medida, se hace
 > cargo del mantenimiento y trabaja en remoto con cualquier huso horario.
-> Espanol e ingles. Contacto: ignacio@ivavala.com
+> Espanol e ingles. Contacto: ignacio@ivavala.com · WhatsApp +54 9 11 2734-3775
+
+## Precios (pesos argentinos, precio cerrado, para profesionales y pymes)
+
+- Landing: $700.000. Una pagina a medida, con WhatsApp y formulario, en linea
+  en 1 a 2 semanas.
+- Landing con backend: $1.500.000. Panel para cargar productos, precios y
+  stock; pedidos por WhatsApp.
+- Comercio grande: desde $2.500.000. Asistente con IA, usuarios y permisos;
+  alcance y precio final se definen en la videollamada.
+- Mantenimiento: 3 meses incluidos; despues $50.000/mes, sin contrato.
+- Se abona una sena del 30% al arrancar y el saldo al entregar.
+
+## Como contratar
+
+- Videollamada gratuita de 20 minutos, sin compromiso, de lunes a viernes de
+  9 a 18 hs (hora de Argentina, UTC-3). Se agenda en ${ORIGIN}/ y llega una
+  invitacion con link de Meet.
 
 ## Que hace
 
@@ -66,6 +84,10 @@ const LLMS = `# Ignacio Vavala
 
 - ${ORIGIN}/ — inicio (espanol)
 - ${ORIGIN}/en/ — inicio (ingles)
+- ${ORIGIN}/paginas-web/ — paginas web a medida para pymes y profesionales
+- ${ORIGIN}/tienda-online/ — tienda online y catalogo con panel propio
+- ${ORIGIN}/sistemas-a-medida/ — sistemas de gestion que reemplazan planillas
+- ${ORIGIN}/privacidad/ — politica de privacidad
 - ${ORIGIN}/proyectos/ — proyectos en produccion, filtrables por tipo
 - ${ORIGIN}/link-whatsapp/ — generador de link de WhatsApp con mensaje,
   QR y cartel para imprimir (normaliza numeros argentinos: 54 9, sin 0 ni 15)
@@ -104,6 +126,30 @@ const SITEMAP = `<?xml version="1.0" encoding="UTF-8"?>
     <xhtml:link rel="alternate" hreflang="x-default" href="${ORIGIN}/proyectos/"/>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>${ORIGIN}/paginas-web/</loc>
+    <lastmod>2026-11-23</lastmod>
+  </url>
+  <url>
+    <loc>${ORIGIN}/tienda-online/</loc>
+    <lastmod>2026-11-23</lastmod>
+  </url>
+  <url>
+    <loc>${ORIGIN}/sistemas-a-medida/</loc>
+    <lastmod>2026-11-23</lastmod>
+  </url>
+  <url>
+    <loc>${ORIGIN}/privacidad/</loc>
+    <lastmod>2026-11-23</lastmod>
+    <xhtml:link rel="alternate" hreflang="es" href="${ORIGIN}/privacidad/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="${ORIGIN}/en/privacy/"/>
+  </url>
+  <url>
+    <loc>${ORIGIN}/en/privacy/</loc>
+    <lastmod>2026-11-23</lastmod>
+    <xhtml:link rel="alternate" hreflang="es" href="${ORIGIN}/privacidad/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="${ORIGIN}/en/privacy/"/>
   </url>
   <url>
     <loc>${ORIGIN}/link-whatsapp/</loc>
