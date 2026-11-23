@@ -205,7 +205,12 @@ export async function handleChat(request, env, deps) {
   }
 
   try {
-    const raw = await groq(env, [{ role: "system", content: SYSTEM }, ...messages]);
+    // El prompt es largo y en castellano: sin esta linea el modelo a veces
+    // contesta en castellano a quien escribe desde la version en ingles.
+    const langNote = lang === "en"
+      ? [{ role: "system", content: "The visitor is on the English version of the site. Always reply in English, and give prices in US dollars: Landing USD 420, Landing with backend USD 480, Large business USD 600." }]
+      : [];
+    const raw = await groq(env, [{ role: "system", content: SYSTEM }, ...langNote, ...messages]);
     const g = guardReply(raw, lang);
     // La marca solo vale despues de al menos un intercambio y si la respuesta no
     // es una pregunta; a la cuarta consulta se ofrece contacto igual.
