@@ -391,10 +391,10 @@ async function handleContacto(request, env, ctx) {
 
 // Aviso a mi casilla de una conversacion del asistente (mismo binding que el
 // formulario). Reply-To con el mail del visitante cuando lo dejo.
-async function notifyChatLead(env, { subject, body, replyTo }) {
+async function notifyChatLead(env, { subject, body, replyTo, from }) {
   const { EmailMessage } = await import("cloudflare:email");
   const raw = [
-    `From: ${header("Asistente ivavala.com")} <${FROM}>`,
+    `From: ${header(from || "Asistente ivavala.com")} <${FROM}>`,
     `To: <${DEST}>`,
     ...(replyTo ? [`Reply-To: ${header(oneLine(replyTo.name, 80))} <${replyTo.email}>`] : []),
     `Subject: ${header(oneLine(subject, 150))}`,
@@ -409,6 +409,122 @@ async function notifyChatLead(env, { subject, body, replyTo }) {
   await env.SEND_EMAIL.send(new EmailMessage(FROM, DEST, raw));
 }
 
+// ── agenda de videollamadas ───────────────────────────────────────────────
+// Sin Google Calendar: la disponibilidad es fija (lunes a viernes, 9 a 18 hs
+// de Argentina, turnos de 30 min) y lo ya reservado vive en la tabla bookings.
+// Argentina no tiene horario de verano, asi que UTC-3 es constante todo el año.
+const AR_OFFSET_H = 3;
+const AGENDA_FIRST_H = 9;
+const AGENDA_LAST_END_H = 18;
+const AGENDA_STEP_MIN = 30;
+const AGENDA_DAYS = 21;
+const AGENDA_LEAD_MS = 3 * 3600 * 1000; // no se reserva con menos de 3 hs de aviso
+
+// Todos los inicios posibles desde ahora, como ISO UTC sin milisegundos.
+function agendaSlots(now = Date.now()) {
+  const out = [];
+  const arNow = new Date(now - AR_OFFSET_H * 3600 * 1000); // getters UTC = hora de Argentina
+  const y = arNow.getUTCFullYear(), m = arNow.getUTCMonth(), d = arNow.getUTCDate();
+  for (let i = 0; i <= AGENDA_DAYS; i++) {
+    const dayAr = new Date(Date.UTC(y, m, d + i));
+    const dow = dayAr.getUTCDay();
+    if (dow === 0 || dow === 6) continue;
+    for (let min = AGENDA_FIRST_H * 60; min + AGENDA_STEP_MIN <= AGENDA_LAST_END_H * 60; min += AGENDA_STEP_MIN) {
+      const t = dayAr.getTime() + min * 60000 + AR_OFFSET_H * 3600 * 1000;
+      if (t >= now + AGENDA_LEAD_MS) out.push(new Date(t).toISOString().replace(".000Z", "Z"));
+    }
+  }
+  return out;
+}
+
+async function handleAgendaGet(db) {
+  const all = agendaSlots();
+  if (!all.length) return json({ slots: [] });
+  const { results } = await db
+    .prepare("SELECT slot FROM bookings WHERE slot >= ?")
+    .bind(all[0])
+    .all();
+  const taken = new Set((results || []).map((r) => r.slot));
+  return json({ slots: all.filter((s) => !taken.has(s)), tz: "America/Argentina/Buenos_Aires" });
+}
+
+const AR_DAYS = ["domingo", "lunes", "martes", "miercoles", "jueves", "viernes", "sabado"];
+
+async function handleAgendaPost(request, env, ctx) {
+  let data;
+  try {
+    data = await request.json();
+  } catch {
+    return json({ error: "bad_request" }, 400);
+  }
+  if (oneLine(data.hp_c7, 200)) return json({ ok: true });
+
+  const slot = oneLine(data.slot, 30);
+  const contacto = oneLine(data.contacto, 150);
+  const nombre = oneLine(data.nombre, 100);
+  const plan = oneLine(data.plan, 80);
+  const nota = String(data.nota || "").trim().slice(0, 1000);
+  const lang = data.lang === "en" ? "en" : "es";
+  const attribution = cleanAttribution(data.attribution);
+
+  if (!nombre || (!isEmail(contacto) && !isPhone(contacto))) return json({ error: "invalid" }, 422);
+  if (!agendaSlots().includes(slot)) return json({ error: "slot_invalid" }, 409);
+
+  const db = env.portafolio_db;
+  if (!db) return json({ error: "db_unavailable" }, 503);
+  sweepRates(db, ctx);
+  const rate = await allowRate(db, ipOf(request), "agenda");
+  if (!rate.ok) return rateLimited(rate);
+  if (!(await turnstileOk(data.turnstile, ipOf(request), env))) return json({ error: "captcha" }, 403);
+
+  // La reserva va primero: el UNIQUE decide quien se queda con el horario.
+  try {
+    await db
+      .prepare("INSERT INTO bookings (slot, name, contact, plan, note, lang) VALUES (?, ?, ?, ?, ?, ?)")
+      .bind(slot, nombre, contacto, plan, nota, lang)
+      .run();
+  } catch (err) {
+    if (/unique/i.test(String(err && err.message))) return json({ error: "taken" }, 409);
+    console.error("agenda insert fallo:", err && err.message);
+    return json({ error: "server" }, 500);
+  }
+
+  const ar = new Date(new Date(slot).getTime() - AR_OFFSET_H * 3600 * 1000);
+  const p2 = (n) => String(n).padStart(2, "0");
+  const dia = `${AR_DAYS[ar.getUTCDay()]} ${p2(ar.getUTCDate())}/${p2(ar.getUTCMonth() + 1)}`;
+  const hora = `${p2(ar.getUTCHours())}:${p2(ar.getUTCMinutes())}`;
+  const pago = attribution && ATTR_IDS.some((k) => attribution[k]);
+  const body = [
+    `Turno: ${dia} a las ${hora} (hora de Argentina), ${AGENDA_STEP_MIN} min`,
+    `Nombre:   ${nombre}`,
+    `Contacto: ${contacto}`,
+    `Plan:     ${plan || "(no eligio)"}`,
+    `Idioma:   ${lang}`,
+    "",
+    nota || "(sin nota)",
+    ...(attribution ? ["", "Origen:", ...Object.entries(attribution).map(([k, v]) => `  ${k}: ${v}`)] : []),
+    "",
+    "—",
+    "Agendado desde ivavala.com",
+  ].join("\r\n");
+
+  try {
+    await notifyChatLead(env, {
+      from: "Agenda ivavala.com",
+      subject: `${pago ? "[Ads] " : ""}Turno ${dia} ${hora} — ${nombre}`,
+      body,
+      replyTo: isEmail(contacto) ? { name: nombre, email: contacto } : null,
+    });
+  } catch (err) {
+    // Sin aviso el turno no existe para mi: se libera el horario y la persona
+    // ve el error (con salida por WhatsApp) en vez de quedar agendada al aire.
+    console.error("agenda mail fallo:", err && err.message);
+    await db.prepare("DELETE FROM bookings WHERE slot = ?").bind(slot).run();
+    return json({ error: "send_failed" }, 502);
+  }
+  return json({ ok: true, accepted: true });
+}
+
 const chatDeps = (env, ctx) => ({
   json, allowRate, rateLimited, ipOf, sweepRates, ctx,
   turnstileOk: (t, ip) => turnstileOk(t, ip, env),
@@ -418,7 +534,7 @@ const chatDeps = (env, ctx) => ({
 });
 
 // ── rate limit y utilidades compartidas ───────────────────────────────
-const RATE = { throw: 5, fish: 8, admin: 5, ev: 80, contacto: 3, mon: 6, monsub: 3, montok: 30, chat: 20, chatg: 250, chatlead: 2, chatmail: 1, chatbrief: 4 }; // por IP cada 5 minutos
+const RATE = { throw: 5, fish: 8, admin: 5, ev: 80, contacto: 3, mon: 6, monsub: 3, montok: 30, chat: 20, chatg: 250, chatlead: 2, chatmail: 1, chatbrief: 4, agenda: 3 };// por IP cada 5 minutos
 
 const safeEqual = (a, b) => {
   if (typeof a !== "string" || typeof b !== "string" || a.length !== b.length) return false;
@@ -1350,6 +1466,16 @@ async function route(request, env, ctx) {
     if (url.pathname === "/api/chat") return handleChat(request, env, chatDeps(env, ctx));
     if (url.pathname === "/api/chat/brief") return handleChatBrief(request, env, chatDeps(env, ctx));
     if (url.pathname === "/api/chat/lead") return handleChatLead(request, env, chatDeps(env, ctx));
+
+    if (url.pathname === "/api/agenda") {
+      if (request.method === "GET") {
+        const db = env.portafolio_db;
+        if (!db) return json({ error: "db_unavailable" }, 503);
+        return handleAgendaGet(db);
+      }
+      if (request.method !== "POST") return json({ error: "method_not_allowed" }, 405);
+      return handleAgendaPost(request, env, ctx);
+    }
 
     if (url.pathname === "/api/contacto") {
       if (request.method !== "POST") return json({ error: "method_not_allowed" }, 405);

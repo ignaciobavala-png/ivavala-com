@@ -1,5 +1,22 @@
 # Cambios del portafolio
 
+## 2026-11-23 — Agenda de videollamadas propia (sin Google Calendar)
+
+- Los botones "Agendar videollamada" (planes y asistente) abren un modal con días y horarios
+  libres en vez de mandar a WhatsApp. Sin JS siguen siendo el link a WhatsApp de siempre.
+- Disponibilidad fija: lunes a viernes, 9 a 18 hs de Argentina (UTC-3), turnos de 30 min, hasta
+  21 días adelante y con 3 hs de aviso mínimo. Si el visitante está en otro huso, ve su hora
+  local debajo de cada horario.
+- Al confirmar, el worker guarda el turno en D1 (`bookings`, `slot` UNIQUE: dos personas no pueden
+  tomar el mismo horario) y manda el aviso a mi casilla por el binding `send_email`, con
+  Reply-To al mail del visitante si dejó uno. Si el mail falla, se libera el horario y la persona
+  ve el error con salida a WhatsApp.
+- `GET/POST /api/agenda` con Turnstile, honeypot y rate limit (3 cada 5 min por IP).
+- Conversión de Ads al agendar. Migración `0007_bookings.sql`: **falta aplicarla en remoto**
+  (`wrangler d1 migrations apply portafolio-db --remote`) antes de deployar.
+- Pendiente a propósito: Google Calendar (para bloquear horarios con eventos reales) y mail de
+  confirmación al visitante.
+
 ## 2026-11-23 — Precios publicados, asistente que guía a la videollamada y rubros
 
 Contexto: con la pauta de octubre, 104 personas llegaron a Contacto y 0 escribieron. El
