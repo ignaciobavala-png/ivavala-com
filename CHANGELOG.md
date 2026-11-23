@@ -2,6 +2,10 @@
 
 ## 2026-11-23 — Agenda: .ics en el aviso, invitación con Meet y fuera "Tecnología"
 
+- "También hago" (es y en): las cuatro cards quedan solo con ícono, número y título; se saca la
+  descripción de cada una (`.cap-d`) y se baja la altura mínima de las cards (de 250–300 px a
+  170–200 px en escritorio, 170 px en tablet) para que no queden vacías. `motion.css` a v=63.
+
 - El mail de aviso de cada turno ahora trae un `.ics` (adjunto y como `text/calendar`): Gmail lo
   muestra como tarjeta de evento con "Agregar al calendario". Incluye el link de Meet, el contacto
   y la nota, y una alarma 15 min antes.
