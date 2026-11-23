@@ -436,6 +436,13 @@ html{scroll-padding-top:92px}
 .pl-mant{margin-top:1rem;padding:1rem 1.2rem;border-radius:10px;background:rgba(37,71,245,.07);border:1px solid rgba(37,71,245,.18);color:var(--dim);font-size:.92rem;line-height:1.6}
 .pl-mant b{color:var(--text)}
 .pl-price small{display:block;font-size:.38em;font-weight:600;letter-spacing:.02em;line-height:1.2;color:var(--dim)}
+.pl-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin:1.6rem 0 .4rem;padding:0;counter-reset:none}
+.pl-steps li{position:relative;display:flex;flex-direction:column;gap:.35rem;padding:0 1.6rem 0 0}
+.pl-steps li+li{padding-left:1.6rem;border-left:1px solid var(--border)}
+.pl-steps b{font-family:var(--mono);font-size:.74rem;font-weight:700;letter-spacing:.1em;color:var(--accent)}
+.pl-steps strong{font-family:var(--display);font-size:clamp(1.2rem,2vw,1.55rem);font-weight:700;letter-spacing:-.025em;line-height:1.15;color:var(--text)}
+.pl-steps span{font-size:.95rem;line-height:1.5;color:var(--dim)}
+@media (max-width:760px){.pl-steps{grid-template-columns:1fr;gap:1.1rem}.pl-steps li,.pl-steps li+li{padding:0 0 0 1rem;border-left:2px solid var(--accent)}}
 .pl-note{margin-top:1.4rem;padding:1.1rem 1.2rem;border:1px dashed var(--border);border-radius:10px;color:var(--dim);font-size:.9rem;line-height:1.65}
 .pl-note b{color:var(--text)}
 </style>
@@ -535,7 +542,7 @@ html{scroll-padding-top:92px}
 </section>
 <section class="sec" id="precios">
 <div class="sec-head rv"><h2>Precios</h2><p class="sec-meta">precio cerrado, en pesos</p></div>
-<p class="note rv">Eleg&#237;s el plan y hacemos una videollamada de 20 minutos para ver tu proyecto. Si arrancamos, se reserva con una se&#241;a del 30% y el saldo se paga al entregar.</p>
+<ol class="pl-steps rv"><li><b>01</b><strong>Eleg&#237;s el plan</strong><span>El que encaja con tu negocio, con precio cerrado.</span></li><li><b>02</b><strong>Videollamada de 20 minutos</strong><span>Vemos tu proyecto juntos, sin compromiso.</span></li><li><b>03</b><strong>Se&#241;a del 30% y arrancamos</strong><span>El saldo se paga al entregar.</span></li></ol>
 <div class="pl-grid">
 <article class="pl rv" data-plan="landing"><p class="pl-who">Profesionales independientes</p><h3 class="pl-name">Landing</h3><p class="pl-price">$700.000</p><ul class="pl-inc"><li>Una p&#225;gina que es la cara visible de tu negocio</li><li>Dise&#241;o a medida, pensada para el celular</li><li>Bot&#243;n de WhatsApp y formulario de contacto</li><li>Dominio conectado y lista para aparecer en Google</li><li>En l&#237;nea en 1 a 2 semanas</li><li>3 meses de mantenimiento incluidos</li></ul><a class="pl-go" href="https://wa.me/5491127343775?text=Hola%20Ignacio%2C%20vengo%20de%20ivavala.com.%20Me%20interesa%20el%20plan%20Landing%20%28%24700.000%29%20y%20quiero%20agendar%20una%20videollamada." data-plan-call="landing">Agendar videollamada &#8594;</a></article>
 <article class="pl rv is-hot" data-plan="backend"><p class="pl-who">Mayoristas, minoristas y negocios con stock</p><h3 class="pl-name">Landing con backend</h3><p class="pl-price">$1.500.000</p><ul class="pl-inc"><li>Todo lo de Landing</li><li>Panel para cargar productos, precios y fotos vos mismo</li><li>Stock y cat&#225;logo siempre actualizados</li><li>Pedidos que te llegan ordenados por WhatsApp</li><li>Base de datos propia, sin abonos mensuales de plataformas</li></ul><a class="pl-go" href="https://wa.me/5491127343775?text=Hola%20Ignacio%2C%20vengo%20de%20ivavala.com.%20Me%20interesa%20el%20plan%20Landing%20con%20backend%20%28%241.500.000%29%20y%20quiero%20agendar%20una%20videollamada." data-plan-call="backend">Agendar videollamada &#8594;</a></article>
