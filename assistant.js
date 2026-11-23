@@ -16,9 +16,9 @@
 
  // Planes: la misma informacion que la seccion Precios. price en pesos (0 = sin precio publicado).
  var PLANS=EN?{
-  landing:{name:'Landing',price:0,inc:['A page that is the public face of your business','WhatsApp button and contact form','Live in 1 to 2 weeks','3 months of maintenance included']},
-  backend:{name:'Landing with backend',price:0,inc:['Everything in Landing','A panel to upload products, prices and stock yourself','Orders arrive sorted on WhatsApp','Your own database, no platform fees']},
-  comercio:{name:'Large business',price:0,inc:['Everything in Landing with backend','AI assistant answering questions 24/7','Users and permissions for your team','Ready for more products, orders and visits']}
+  landing:{name:'Landing',price:420,inc:['A page that is the public face of your business','WhatsApp button and contact form','Live in 1 to 2 weeks','3 months of maintenance included']},
+  backend:{name:'Landing with backend',price:480,inc:['Everything in Landing','A panel to upload products, prices and stock yourself','Orders arrive sorted on WhatsApp','Your own database, no platform fees']},
+  comercio:{name:'Large business',price:600,inc:['Everything in Landing with backend','AI assistant answering questions 24/7','Users and permissions for your team','Ready for more products, orders and visits']}
  }:{
   landing:{name:'Landing',price:700000,inc:['Una página que es la cara visible de tu negocio','Botón de WhatsApp y formulario de contacto','En línea en 1 a 2 semanas','3 meses de mantenimiento incluidos']},
   backend:{name:'Landing con backend',price:800000,inc:['Todo lo de Landing','Panel para cargar productos, precios y stock vos mismo','Pedidos que te llegan ordenados por WhatsApp','Base de datos propia, sin abonos de plataformas']},
@@ -36,7 +36,7 @@
    {k:'Timing',q:'When do you need it?',o:[['This month','We start right away'],['In 1 or 2 months','We plan it calmly'],['No rush','We look at it together']]}
   ],
   other:'Tell me in one line what you do and what you need, and I’ll tell you which plan fits.',
-  rec:'This is your plan.',recK:'Your plan',noPrice:'Fixed price, confirmed on the call',
+  rec:'This is your plan.',recK:'Your plan',noPrice:'',
   call:'Book a video call →',callNote:'20 minutes with Ignacio to look at your project. No commitment.',
   more:'I have another question',restart:'Start over',
   youK:'Your answers',youQ:'You asked',chatK:'Your question',
@@ -80,7 +80,8 @@
 
  function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
  function track(name){try{if(window.ivEv)window.ivEv(name)}catch(e){}}
- function ars(n){return '$'+Math.round(n).toLocaleString('es-AR')}
+ // Precio segun el idioma: pesos en castellano, dolares en ingles.
+ function ars(n){return EN?'USD '+Math.round(n).toLocaleString('en-US'):'$'+Math.round(n).toLocaleString('es-AR')}
 
  /* ── estructura ─────────────────────────────────────────────── */
  root.classList.add('mind','g2');root.setAttribute('role','region');root.setAttribute('aria-label',T.name);
