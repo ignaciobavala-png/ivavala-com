@@ -1,10 +1,11 @@
-/* Asistente de IVAVALA: una "mente" en vez de una caja de chat. Una esfera de
-   particulas que respira, escucha mientras escribis, piensa mientras espera la
-   respuesta y pulsa mientras la va diciendo; la respuesta aparece palabra por
-   palabra en tipografia grande. Habla con /api/chat (Groq, con limites del lado
-   del servidor) y al final deriva a Ignacio por WhatsApp o deja el contacto
-   para recibir un resumen por mail. Todo texto entra con textContent: nada de
-   HTML del visitante ni del modelo llega al DOM. */
+/* El asistente del visitante en ivavala.com. No es un chat de soporte: es una
+   "mente" (la esfera de particulas) que guia al visitante hasta su plan en tres
+   preguntas con tarjetas (a que se dedica, que tiene hoy, para cuando), le
+   muestra el plan con su precio y lo lleva a agendar la videollamada. Lo que no
+   entra en las tarjetas lo responde la IA (/api/chat, Groq, con limites del lado
+   del servidor), que recibe lo que el visitante ya eligio.
+   Todo texto entra con textContent: nada de HTML del visitante ni del modelo
+   llega al DOM. */
 (function(){
  var root=document.getElementById('chat');
  if(!root)return;
@@ -12,92 +13,198 @@
  var WA='https://wa.me/5491127343775';
  var TS_KEY='0x4AAAAAAEd2UwMVyDyHqSFZ';
  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
- var T=EN?{
-  tag:'IVAVALA · assistant',
-  st:{idle:'ready',listen:'listening',think:'thinking',speak:'answering'},
-  hello:'Hi. Ask me anything about your project.',
-  helloSub:'Websites, online stores, custom systems. I answer in seconds.',
-  ph:['How much does an online store cost?','Can you replace my spreadsheets?','What happens after you deliver?','I need a website for my business'],
-  chips:['How much does it cost?','How long does it take?','What does included maintenance mean?','Do I need texts and photos ready?','How do we start?'],
-  send:'Ask',note:'AI assistant: it can make mistakes. Ignacio confirms the final proposal.',
-  err:'Something failed. Message Ignacio on WhatsApp and he’ll reply today.',
-  you:'You asked',wa:'Chat on WhatsApp →',mail:'Have him write to me',
-  contact:'Your email or WhatsApp',name:'Name (optional)',go:'Send me the brief',
-  bad:'Enter a valid email or WhatsApp number.',sending:'Sending…',
-  done:'Done. Ignacio got the conversation and will write to you. If you left an email, the brief is on its way.',
-  waText:'Hi Ignacio, I come from the assistant on ivavala.com. I need: ',
-  reset:'New question',brief:'Build my project brief',briefing:'Building your brief…',briefTitle:'Your project brief',copy:'Copy',copied:'Copied',dl:'Download',briefErr:'Could not build it now. Try again or write to Ignacio.',go2:'Send me the brief',done2:'Done. Ignacio got your brief and will write to you.'
+
+ // Planes: la misma informacion que la seccion Precios. price en pesos (0 = sin precio publicado).
+ var PLANS=EN?{
+  landing:{name:'Landing',price:0,inc:['A page that is the public face of your business','WhatsApp button and contact form','Live in 1 to 2 weeks','3 months of maintenance included']},
+  backend:{name:'Landing with backend',price:0,inc:['Everything in Landing','A panel to upload products, prices and stock yourself','Orders arrive sorted on WhatsApp','Your own database, no platform fees']},
+  comercio:{name:'Large business',price:0,inc:['Everything in Landing with backend','AI assistant answering questions 24/7','Users and permissions for your team','Ready for more products, orders and visits']}
  }:{
-  tag:'IVAVALA · asistente',
-  st:{idle:'listo',listen:'escuchando',think:'pensando',speak:'respondiendo'},
-  hello:'Hola. Preguntame lo que quieras sobre tu proyecto.',
-  helloSub:'Páginas web, tiendas online, sistemas a medida. Respondo en segundos.',
-  ph:['¿Cuánto cuesta una tienda online?','¿Puedo dejar de usar planillas?','¿Qué pasa después de la entrega?','Necesito una web para mi negocio'],
-  chips:['¿Cuánto cuesta?','¿Cuánto tarda?','¿Qué es mantenimiento incluido?','¿Necesito textos y fotos listos?','¿Cómo empezamos?'],
-  send:'Preguntar',note:'Asistente con IA: puede equivocarse. La propuesta final la confirma Ignacio.',
-  err:'Algo falló. Escribile a Ignacio por WhatsApp y te responde hoy.',
-  you:'Preguntaste',wa:'Hablar por WhatsApp →',mail:'Que me escriba',
-  contact:'Tu mail o WhatsApp',name:'Nombre (opcional)',go:'Enviarme el brief',
-  bad:'Ingresá un mail o un WhatsApp válido.',sending:'Enviando…',
-  done:'Listo. Ignacio recibió la conversación y te escribe. Si dejaste un mail, el brief va en camino.',
-  waText:'Hola Ignacio, vengo del asistente de ivavala.com. Necesito: ',
-  reset:'Nueva pregunta',brief:'Armar el brief de mi proyecto',briefing:'Armando tu brief…',briefTitle:'El brief de tu proyecto',copy:'Copiar',copied:'Copiado',dl:'Descargar',briefErr:'No pude armarlo ahora. Probá de nuevo o escribile a Ignacio.',go2:'Enviarme el brief',done2:'Listo. Ignacio recibió tu brief y te escribe.'
+  landing:{name:'Landing',price:700000,inc:['Una página que es la cara visible de tu negocio','Botón de WhatsApp y formulario de contacto','En línea en 1 a 2 semanas','3 meses de mantenimiento incluidos']},
+  backend:{name:'Landing con backend',price:800000,inc:['Todo lo de Landing','Panel para cargar productos, precios y stock vos mismo','Pedidos que te llegan ordenados por WhatsApp','Base de datos propia, sin abonos de plataformas']},
+  comercio:{name:'Comercio grande',price:1000000,inc:['Todo lo de Landing con backend','Asistente con IA que responde consultas las 24 horas','Usuarios y permisos para tu equipo','Preparado para más productos, pedidos y visitas']}
  };
- var MAX=12,history=[],busy=false,tsId=null,state='idle',phI=0;
+
+ var T=EN?{
+  name:'Your assistant',
+  st:{idle:'online',think:'thinking',speak:'answering'},
+  rail:['Your business','Today','Timing','Your plan'],
+  steps:[
+   {k:'Your business',q:'Hi, I’m your assistant. I’ll help you find the right plan for your business in under a minute. What do you do?',
+    o:[['Independent professional','Doctors, lawyers, accountants, coaches','landing'],['I sell products and manage stock','Wholesale, retail, shops','backend'],['Large business','High volume, a team, more traffic','comercio'],['Something else','Tell me and I’ll point you','otro']]},
+   {k:'Today',q:'What do you have online today?',o:[['Nothing yet','We start from scratch'],['Just Instagram or social media','We add a site that sells'],['A website that doesn’t work for me','We rebuild it properly']]},
+   {k:'Timing',q:'When do you need it?',o:[['This month','We start right away'],['In 1 or 2 months','We plan it calmly'],['No rush','We look at it together']]}
+  ],
+  other:'Tell me in one line what you do and what you need, and I’ll tell you which plan fits.',
+  rec:'This is your plan.',recK:'Your plan',noPrice:'Fixed price, confirmed on the call',
+  call:'Book a video call →',callNote:'20 minutes with Ignacio to look at your project. No commitment.',
+  more:'I have another question',restart:'Start over',
+  youK:'Your answers',youQ:'You asked',chatK:'Your question',
+  ph:'Or type your question…',send:'Ask',
+  note:'AI assistant: it can make mistakes. Ignacio confirms the final proposal.',
+  err:'Something failed. Message Ignacio on WhatsApp and he’ll reply today.',
+  mail:'Have him write to me',
+  contact:'Your email or WhatsApp',nameF:'Name (optional)',go:'Send',
+  bad:'Enter a valid email or WhatsApp number.',sending:'Sending…',
+  sent:'Done. Ignacio got the conversation and will write to you.',
+  waCall:'Hi Ignacio, I come from ivavala.com and I want to book a video call.',
+  ctx:'What I already answered: ',plan:'Plan',
+  brief:'Build my project brief',briefing:'Building your brief…',briefTitle:'Your project brief',copy:'Copy',copied:'Copied',dl:'Download',briefErr:'Could not build it now. Try again or write to Ignacio.'
+ }:{
+  name:'Tu asistente',
+  st:{idle:'en línea',think:'pensando',speak:'respondiendo'},
+  rail:['Tu negocio','Hoy','Tiempos','Tu plan'],
+  steps:[
+   {k:'Tu negocio',q:'Hola, soy tu asistente. Te ayudo a encontrar el plan justo para tu negocio en menos de un minuto. ¿A qué te dedicás?',
+    o:[['Soy profesional independiente','Médicos, abogados, contadores, coaches','landing'],['Vendo productos y manejo stock','Mayoristas, minoristas, tiendas','backend'],['Tengo un comercio grande','Mucho movimiento, equipo, más volumen','comercio'],['Otra cosa','Contame y te oriento','otro']]},
+   {k:'Hoy',q:'¿Qué tenés hoy en internet?',o:[['Nada todavía','Arrancamos de cero'],['Solo Instagram o redes','Sumamos una web que vende'],['Una web que no me sirve','La rehacemos bien']]},
+   {k:'Tiempos',q:'¿Para cuándo lo necesitás?',o:[['Este mes','Arrancamos ya'],['En 1 o 2 meses','Lo planificamos con tiempo'],['Sin apuro','Lo vemos juntos']]}
+  ],
+  other:'Contame en una línea a qué te dedicás y qué necesitás, y te digo qué plan te sirve.',
+  rec:'Este es tu plan.',recK:'Tu plan',noPrice:'',
+  call:'Agendar videollamada →',callNote:'20 minutos con Ignacio para ver tu proyecto. Sin compromiso.',
+  more:'Tengo otra pregunta',restart:'Empezar de nuevo',
+  youK:'Tus respuestas',youQ:'Preguntaste',chatK:'Tu pregunta',
+  ph:'O escribí tu pregunta…',send:'Preguntar',
+  note:'Asistente con IA: puede equivocarse. La propuesta final la confirma Ignacio.',
+  err:'Algo falló. Escribile a Ignacio por WhatsApp y te responde hoy.',
+  mail:'Que me escriba',
+  contact:'Tu mail o WhatsApp',nameF:'Nombre (opcional)',go:'Enviar',
+  bad:'Ingresá un mail o un WhatsApp válido.',sending:'Enviando…',
+  sent:'Listo. Ignacio recibió la conversación y te escribe.',
+  waCall:'Hola Ignacio, vengo de ivavala.com y quiero agendar una videollamada.',
+  ctx:'Lo que ya respondí: ',plan:'Plan',
+  brief:'Armar el brief de mi proyecto',briefing:'Armando tu brief…',briefTitle:'El brief de tu proyecto',copy:'Copiar',copied:'Copiado',dl:'Descargar',briefErr:'No pude armarlo ahora. Probá de nuevo o escribile a Ignacio.'
+ };
+ var MAX=12,history=[],answers=[],plan=null,busy=false,tsId=null,state='idle',ctxSent=false,step=0;
 
  function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
+ function track(name){try{if(window.ivEv)window.ivEv(name)}catch(e){}}
+ function ars(n){return '$'+Math.round(n).toLocaleString('es-AR')}
 
  /* ── estructura ─────────────────────────────────────────────── */
- root.classList.add('mind');root.setAttribute('role','region');root.setAttribute('aria-label',T.tag);
+ root.classList.add('mind','g2');root.setAttribute('role','region');root.setAttribute('aria-label',T.name);
+ var rail=el('ol','g2-rail');
+ var railItems=T.rail.map(function(r,i){var li=el('li');li.append(el('span','g2-rn',String(i+1).padStart(2,'0')),el('span','g2-rl',r));rail.append(li);return li});
+ var stage=el('div','g2-stage');
+ var side=el('div','g2-side');
  var cv=el('canvas','mind-orb');cv.setAttribute('aria-hidden','true');
- var stage=el('div','mind-stage');
- var qEl=el('p','mind-q');
- var ans=el('div','mind-a');ans.setAttribute('role','status');ans.setAttribute('aria-live','polite');
- var act=el('div','mind-act');
- stage.append(qEl,ans,act);
- var chips=el('div','mind-chips');
+ var who=el('div','g2-who');var stEl=el('span','g2-st',T.st.idle);who.append(el('b',null,T.name),stEl);
+ side.append(cv,who);
+ var main=el('div','g2-main');
+ var kick=el('p','g2-k');
+ var youQ=el('p','g2-you');
+ var text=el('div','g2-text');text.setAttribute('role','status');text.setAttribute('aria-live','polite');
+ var opts=el('div','g2-opts');
+ var out=el('div','g2-out');
+ main.append(kick,youQ,text,opts,out);
+ stage.append(side,main);
+ var crumbs=el('div','g2-crumbs');
  var form=el('form','mind-form');form.setAttribute('novalidate','');
  var hp=el('input');hp.type='text';hp.name='hp';hp.tabIndex=-1;hp.autocomplete='off';hp.className='mind-hp';hp.setAttribute('aria-hidden','true');
- var inp=el('input','mind-in');inp.type='text';inp.maxLength=500;inp.autocomplete='off';inp.setAttribute('aria-label',T.ph[0]);inp.placeholder=T.ph[0];
+ var inp=el('input','mind-in');inp.type='text';inp.maxLength=400;inp.autocomplete='off';inp.setAttribute('aria-label',T.ph);inp.placeholder=T.ph;
  var sendBtn=el('button','mind-send',T.send);sendBtn.type='submit';
  form.append(hp,inp,sendBtn);
+ var note=el('p','mind-note',T.note);
  var ts=el('div');ts.id='chat-ts';
- root.append(cv,stage,chips,form,ts);
+ root.append(rail,stage,crumbs,form,note,ts);
 
- /* ── estado ─────────────────────────────────────────────────── */
- function setState(s){state=s;root.dataset.s=s}
+ function setState(s){state=s;root.dataset.s=s;stEl.textContent=T.st[s]||T.st.idle}
  setState('idle');
+ function setRail(n){railItems.forEach(function(li,i){li.className=i<n?'done':i===n?'on':''})}
 
- function say(text,small){
-  ans.textContent='';ans.classList.toggle('long',text.length>200);
-  var words=String(text).split(/\s+/),i=0;
+ /* ── texto grande, palabra por palabra ──────────────────────── */
+ function say(s){
+  text.textContent='';text.classList.toggle('long',s.length>160);
+  if(reduce){text.textContent=s;return 0}
+  var words=String(s).split(/\s+/);
+  words.forEach(function(w,k){var sp=el('span','w',w);sp.style.animationDelay=(k*32)+'ms';text.append(sp,document.createTextNode(' '))});
   setState('speak');
-  var frag=document.createDocumentFragment();
-  words.forEach(function(w,k){
-   var s=el('span','w',w);s.style.animationDelay=(reduce?0:k*38)+'ms';
-   frag.append(s,document.createTextNode(' '));
-  });
-  ans.append(frag);
-  var total=reduce?0:words.length*38+420;
-  setTimeout(function(){if(!busy)setState(inp===document.activeElement&&inp.value?'listen':'idle')},total);
+  var total=words.length*32+400;
+  setTimeout(function(){if(!busy)setState('idle')},total);
   return total;
  }
- function hello(){
-  qEl.textContent='';act.textContent='';
-  ans.textContent='';ans.classList.remove('long');
-  ans.append(el('span','w hello',T.hello));
+ function clearOut(){opts.textContent='';out.textContent='';youQ.textContent=''}
+
+ /* ── respuestas elegidas, tocables para volver ──────────────── */
+ function drawCrumbs(){
+  crumbs.textContent='';
+  if(!answers.length)return;
+  crumbs.append(el('span','g2-ck',T.youK));
+  answers.forEach(function(a,i){
+   var b=el('button','g2-crumb',a);b.type='button';
+   b.addEventListener('click',function(){if(busy)return;answers=answers.slice(0,i);if(i===0)plan=null;ctxSent=false;showStep(i)});
+   crumbs.append(b);
+  });
  }
- hello();
 
- chips.append.apply(chips,T.chips.map(function(q){
-  var c=el('button','mind-chip',q);c.type='button';
-  c.addEventListener('click',function(){ask(q)});return c;
- }));
-
- setInterval(function(){if(document.activeElement!==inp&&!inp.value){phI=(phI+1)%T.ph.length;inp.placeholder=T.ph[phI]}},3800);
- inp.addEventListener('input',function(){if(!busy)setState(inp.value?'listen':'idle')});
- inp.addEventListener('focus',function(){if(!busy&&inp.value)setState('listen')});
- inp.addEventListener('blur',function(){if(!busy)setState('idle')});
+ /* ── flujo guiado ───────────────────────────────────────────── */
+ function showStep(i){
+  step=i;setRail(i);clearOut();drawCrumbs();
+  var s=T.steps[i];
+  kick.textContent=String(i+1).padStart(2,'0')+' · '+s.k;
+  var d=say(s.q);
+  setTimeout(function(){
+   if(step!==i)return;
+   s.o.forEach(function(o,k){
+    var b=el('button','g2-opt');b.type='button';
+    b.append(el('span','g2-on',String(k+1).padStart(2,'0')),el('span','g2-ot',o[0]),el('span','g2-os',o[1]),el('span','g2-oa','→'));
+    b.style.animationDelay=(k*70)+'ms';
+    b.addEventListener('click',function(){pick(i,o)});
+    opts.append(b);
+   });
+  },reduce?0:Math.min(d,900));
+ }
+ function pick(i,o){
+  answers[i]=o[0];answers=answers.slice(0,i+1);
+  if(i===0){
+   track('advisor:start');
+   if(o[2]==='otro'){plan=null;drawCrumbs();clearOut();setRail(3);kick.textContent=T.chatK;say(T.other);inp.focus({preventScroll:true});return}
+   plan=o[2];
+  }
+  if(i<T.steps.length-1)showStep(i+1);
+  else recommend();
+ }
+ function callLink(){
+  var p=plan&&PLANS[plan];
+  var lines=[T.waCall];
+  if(p)lines.push(T.plan+': '+p.name+(p.price?' ('+ars(p.price)+')':''));
+  if(answers.length)lines.push(answers.join(' · '));
+  return WA+'?text='+encodeURIComponent(lines.join('\n'));
+ }
+ function countUp(node,to){
+  if(reduce||!to){node.textContent=to?ars(to):'';return}
+  var t0=performance.now(),dur=900;
+  (function f(now){var k=Math.min(1,(now-t0)/dur),e=1-Math.pow(1-k,3);node.textContent=ars(to*e);if(k<1)requestAnimationFrame(f)})(t0);
+ }
+ function recommend(){
+  setRail(3);clearOut();drawCrumbs();
+  kick.textContent='04 · '+T.recK;
+  var p=PLANS[plan];
+  say(T.rec);
+  var c=el('div','g2-plan');
+  var top=el('div','g2-plan-top');
+  top.append(el('b','g2-plan-n',p.name));
+  var price=el('span','g2-plan-p');top.append(price);
+  c.append(top);
+  if(!p.price&&T.noPrice)c.append(el('p','g2-plan-x',T.noPrice));
+  var ul=el('ul','g2-plan-i');p.inc.forEach(function(x,k){var li=el('li',null,x);li.style.animationDelay=(250+k*90)+'ms';ul.append(li)});
+  c.append(ul);
+  var call=el('a','g2-call',T.call);call.href=callLink();call.target='_blank';call.rel='noopener noreferrer';
+  call.addEventListener('click',function(){track('advisor:call:'+plan)});
+  var with_=el('p','g2-plan-x g2-with');
+  var face=el('img');face.src='/img/yo.webp';face.alt='Ignacio Vavala';face.width=28;face.height=28;
+  with_.append(face,el('span',null,T.callNote));
+  c.append(call,with_);
+  out.append(c);
+  countUp(price,p.price);
+  var row=el('div','g2-row');
+  var more=el('button','g2-link',T.more);more.type='button';more.addEventListener('click',function(){inp.focus()});
+  var again=el('button','g2-link',T.restart);again.type='button';again.addEventListener('click',restart);
+  row.append(more,again);out.append(row);
+  track('advisor:plan:'+plan);
+ }
+ function restart(){answers=[];plan=null;history=[];ctxSent=false;showStep(0)}
 
  /* ── brief del proyecto ─────────────────────────────────────── */
  function buildBrief(btn,card){
@@ -125,30 +232,27 @@
    });
    row.append(cp,dl);card.append(h,pre,row);card.hidden=false;
    btn.hidden=true;
-   card.scrollIntoView({block:'nearest',behavior:reduce?'auto':'smooth'});
   })
-  .catch(function(){btn.disabled=false;btn.textContent=T.brief;qEl.textContent=T.briefErr});
+  .catch(function(){btn.disabled=false;btn.textContent=T.brief;say(T.briefErr)});
  }
 
- /* ── derivacion ─────────────────────────────────────────────── */
- function waLink(){
-  var first='';
-  for(var i=0;i<history.length;i++){if(history[i].role==='user'){first=history[i].content;break}}
-  return WA+'?text='+encodeURIComponent(T.waText+first.slice(0,180));
- }
+ /* ── derivacion despues de una pregunta libre ───────────────── */
  function handoff(){
-  act.textContent='';
-  var a=el('a','mind-btn p',T.wa);a.href=waLink();a.target='_blank';a.rel='noopener noreferrer';
+  var box=el('div','g2-hand');
+  var call=el('a','g2-call',T.call);call.href=callLink();call.target='_blank';call.rel='noopener noreferrer';
+  call.addEventListener('click',function(){track('advisor:call:'+(plan||'chat'))});
   var m=el('button','mind-btn',T.mail);m.type='button';
+  var br=el('button','mind-btn',T.brief);br.type='button';
   var f=el('form','mind-lead');f.setAttribute('novalidate','');f.hidden=true;
   var c=el('input');c.type='text';c.placeholder=T.contact;c.setAttribute('aria-label',T.contact);c.autocomplete='email';
-  var n=el('input');n.type='text';n.placeholder=T.name;n.setAttribute('aria-label',T.name);n.autocomplete='name';n.maxLength=80;
+  var n=el('input');n.type='text';n.placeholder=T.nameF;n.setAttribute('aria-label',T.nameF);n.autocomplete='name';n.maxLength=80;
   var b=el('button',null,T.go);b.type='submit';
   var st=el('p','mind-st');
   f.append(c,n,b,st);
-  var br=el('button','mind-btn',T.brief);br.type='button';
   var card=el('div','mind-brief');card.hidden=true;
-  act.append(br,a,m,f,card);
+  var row=el('div','g2-hand-r');row.append(m,br);
+  box.append(call,row,f,card);
+  out.append(box);
   br.addEventListener('click',function(){buildBrief(br,card)});
   m.addEventListener('click',function(){f.hidden=false;m.hidden=true;c.focus()});
   f.addEventListener('submit',function(e){
@@ -162,7 +266,11 @@
     fetch('/api/chat/lead',{method:'POST',headers:{'Content-Type':'application/json'},
      body:JSON.stringify({contacto:v,nombre:n.value.trim(),messages:history.slice(-12),lang:EN?'en':'es',turnstile:token||'',hp_c7:''})})
     .then(function(r){return r.ok?r.json():Promise.reject(r.status)})
-    .then(function(){st.className='mind-st ok';st.textContent=T.done;c.disabled=n.disabled=true})
+    .then(function(){
+     st.className='mind-st ok';st.textContent=T.sent;c.disabled=n.disabled=true;track('advisor:lead');
+     // Conversion de Ads del formulario: era del formulario de contacto, que se fue.
+     try{if(window.gtag)gtag('event','conversion',{send_to:'AW-18493149456/p45_CJibm5AdEJCinPJE',value:1.0,currency:'ARS'})}catch(e){}
+    })
     .catch(fail);
    };
    if(window.turnstile){
@@ -176,15 +284,24 @@
   });
  }
 
- /* ── pregunta / respuesta ───────────────────────────────────── */
+ /* ── pregunta libre a la IA ─────────────────────────────────── */
  function ask(q){
   q=String(q||'').trim();
   if(!q||busy)return;
   if(history.filter(function(m){return m.role==='user'}).length>=MAX)return;
-  busy=true;inp.value='';sendBtn.disabled=true;chips.classList.add('off');
-  history.push({role:'user',content:q});
-  qEl.textContent=T.you+': '+q;act.textContent='';
-  ans.textContent='';ans.classList.remove('long');
+  busy=true;inp.value='';sendBtn.disabled=true;
+  clearOut();setRail(3);
+  kick.textContent=T.chatK;youQ.textContent=T.youQ+': '+q;text.textContent='';
+  // La primera pregunta libre lleva lo que ya eligio con las tarjetas, asi la
+  // IA no vuelve a preguntarlo. En pantalla se ve solo la pregunta.
+  var content=q;
+  if(!ctxSent&&answers.length){
+   var p=plan&&PLANS[plan];
+   content=T.ctx+answers.join('; ')+(p?'; '+T.plan+': '+p.name:'')+'. '+q;
+   ctxSent=true;
+  }
+  history.push({role:'user',content:content});
+  track('advisor:ask');
   setState('think');
   fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},
    body:JSON.stringify({messages:history.slice(-12),lang:EN?'en':'es',hp:hp.value})})
@@ -193,79 +310,73 @@
    if(!o.ok||!o.j||!o.j.reply){say(T.err);handoff();return}
    history.push({role:'assistant',content:o.j.reply});
    say(o.j.reply);
-   if(o.j.handoff)handoff();
+   if(o.j.handoff||plan)handoff();
   })
   .catch(function(){say(T.err);handoff()})
-  .then(function(){busy=false;sendBtn.disabled=false;if(innerWidth>700)inp.focus({preventScroll:true})});
+  .then(function(){busy=false;sendBtn.disabled=false});
  }
  form.addEventListener('submit',function(e){e.preventDefault();ask(inp.value)});
+
+ // Arranca cuando la seccion entra en pantalla, para que la primera pregunta
+ // se escriba frente al visitante y no mientras esta arriba en la pagina.
+ var started=false;
+ function start(){if(started)return;started=true;showStep(0)}
+ if('IntersectionObserver' in window){
+  var io=new IntersectionObserver(function(en){if(en[0].isIntersecting){start();io.disconnect()}},{threshold:.25});
+  io.observe(root);
+ }else start();
 
  /* ── la esfera ──────────────────────────────────────────────── */
  var ctx=cv.getContext('2d');
  if(!ctx)return;
- var N=innerWidth<700?800:1500,P=[],i;
+ var N=innerWidth<700?520:1100,P=[],i;
  var G=Math.PI*(3-Math.sqrt(5));
  for(i=0;i<N;i++){
   var y=1-2*(i+.5)/N,r=Math.sqrt(1-y*y),th=G*i;
   P.push({x:Math.cos(th)*r,y:y,z:Math.sin(th)*r,s:Math.random()*6.28,h:(y+1)/2});
  }
- var W=0,H=0,dpr=1,mx=0,my=0,tmx=0,tmy=0,ang=0,t0=performance.now(),visible=true,raf=0;
- // parametros por estado; se interpolan para que los cambios sean suaves
- var TG={idle:{sp:.16,amp:.07,br:.95,rad:1,gl:.38},listen:{sp:.28,amp:.11,br:1.15,rad:1.04,gl:.5},think:{sp:1.5,amp:.26,br:1.25,rad:.94,gl:.62},speak:{sp:.38,amp:.16,br:1.2,rad:1.02,gl:.55}};
- var cur={sp:.16,amp:.07,br:.95,rad:1,gl:.38};
+ var W=0,H=0,dpr=1,mx=0,my=0,tmx=0,tmy=0,ang=0,t0=performance.now(),visible=true;
+ var TG={idle:{sp:.18,amp:.07,br:.95,rad:1,gl:.4},think:{sp:1.5,amp:.26,br:1.25,rad:.94,gl:.65},speak:{sp:.4,amp:.16,br:1.2,rad:1.03,gl:.56}};
+ var cur={sp:.18,amp:.07,br:.95,rad:1,gl:.4};
  function size(){
-  var b=root.getBoundingClientRect();dpr=Math.min(devicePixelRatio||1,2);
+  var b=cv.getBoundingClientRect();dpr=Math.min(devicePixelRatio||1,2);
   W=Math.max(2,b.width);H=Math.max(2,b.height);
-  cv.width=W*dpr|0;cv.height=H*dpr|0;cv.style.width=W+'px';cv.style.height=H+'px';
+  cv.width=W*dpr|0;cv.height=H*dpr|0;
  }
  size();addEventListener('resize',size);
  root.addEventListener('pointermove',function(e){var b=root.getBoundingClientRect();tmx=((e.clientX-b.left)/b.width-.5)*2;tmy=((e.clientY-b.top)/b.height-.5)*2},{passive:true});
- function col(h,a){
-  // cian -> azul -> violeta segun la altura en la esfera
-  var hue=218+h*50;return 'hsla('+hue+',88%,'+(52-h*8)+'%,'+a+')';
- }
+ function col(h,a){var hue=218+h*50;return 'hsla('+hue+',88%,'+(52-h*8)+'%,'+a+')'}
  function frame(now){
-  raf=requestAnimationFrame(frame);
+  requestAnimationFrame(frame);
   if(!visible)return;
   var dt=Math.min(.05,(now-t0)/1000);t0=now;
-  var g=TG[state],k=Math.min(1,dt*4);
+  var g=TG[state]||TG.idle,k=Math.min(1,dt*4);
   for(var key in cur)cur[key]+=(g[key]-cur[key])*k;
   mx+=(tmx-mx)*.05;my+=(tmy-my)*.05;
   ang+=dt*cur.sp;
-  // pulso al hablar: la esfera "late" al ritmo de las palabras
-  var pulse=state==='speak'?1+Math.sin(now/115)*.035+Math.sin(now/47)*.012:state==='think'?1+Math.sin(now/180)*.02:1;
-  var wide=W>720;
-  var R=Math.min(W*(wide?.22:.34),H*(wide?.30:.22))*cur.rad*pulse;
-  var cx=W/2,cy=wide?H*.37:H*.25,time=now/1000;
-  ctx.setTransform(dpr,0,0,dpr,0,0);
-  ctx.clearRect(0,0,W,H);
-  // halo
-  var gr=ctx.createRadialGradient(cx,cy,R*.1,cx,cy,R*2.1);
-  gr.addColorStop(0,'rgba(37,71,245,'+cur.gl*.34+')');gr.addColorStop(.5,'rgba(124,92,255,'+cur.gl*.12+')');gr.addColorStop(1,'rgba(37,71,245,0)');
+  var pulse=state==='speak'?1+Math.sin(now/115)*.03+Math.sin(now/47)*.01:state==='think'?1+Math.sin(now/180)*.02:1;
+  var R=Math.min(W,H)*.36*cur.rad*pulse,cx=W/2,cy=H/2,time=now/1000;
+  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
+  var gr=ctx.createRadialGradient(cx,cy,R*.1,cx,cy,R*1.9);
+  gr.addColorStop(0,'rgba(37,71,245,'+cur.gl*.3+')');gr.addColorStop(.55,'rgba(124,92,255,'+cur.gl*.1+')');gr.addColorStop(1,'rgba(37,71,245,0)');
   ctx.fillStyle=gr;ctx.fillRect(0,0,W,H);
-  var co=ctx.createRadialGradient(cx,cy,0,cx,cy,R*.9);
-  co.addColorStop(0,'rgba(255,255,255,'+cur.gl*1.3+')');co.addColorStop(1,'rgba(255,255,255,0)');
-  ctx.fillStyle=co;ctx.fillRect(0,0,W,H);
   var ca=Math.cos(ang+mx*.6),sa=Math.sin(ang+mx*.6),cb=Math.cos(.35+my*.4),sb=Math.sin(.35+my*.4);
   for(var j=0;j<N;j++){
    var p=P[j];
    var n=Math.sin(p.x*2.3+time*.9+p.s)*Math.cos(p.y*1.9-time*.7)+Math.sin(p.z*2.6+time*1.1)*.6;
    var d=1+cur.amp*n/1.6;
-   var x=p.x*d,y=p.y*d,z=p.z*d;
+   var x=p.x*d,yy=p.y*d,z=p.z*d;
    var x1=x*ca-z*sa,z1=x*sa+z*ca;
-   var y2=y*cb-z1*sb,z2=y*sb+z1*cb;
-   var sc=3/(3+z2);
-   var depth=(z2+1)/2;
-   var a=Math.min(1,(.16+.84*depth)*cur.br*.85);
-   ctx.fillStyle=col(p.h,a);
-   var s=(.9+2*depth)*sc*(wide?1:.8);
-   ctx.beginPath();ctx.arc(cx+x1*R*sc,cy+y2*R*sc,s,0,6.283);ctx.fill();
+   var y2=yy*cb-z1*sb,z2=yy*sb+z1*cb;
+   var sc=3/(3+z2),depth=(z2+1)/2;
+   ctx.fillStyle=col(p.h,Math.min(1,(.16+.84*depth)*cur.br*.85));
+   ctx.beginPath();ctx.arc(cx+x1*R*sc,cy+y2*R*sc,(.8+1.8*depth)*sc*(W<300?.7:1),0,6.283);ctx.fill();
   }
  }
  if('IntersectionObserver' in window){
-  new IntersectionObserver(function(en){visible=en[0].isIntersecting}).observe(root);
+  new IntersectionObserver(function(en){visible=en[0].isIntersecting}).observe(cv);
  }
  document.addEventListener('visibilitychange',function(){visible=!document.hidden});
- if(reduce){TG.idle.sp=0;TG.listen.sp=0;TG.think.sp=0;TG.speak.sp=0}
- raf=requestAnimationFrame(frame);
+ if(reduce){TG.idle.sp=TG.think.sp=TG.speak.sp=0}
+ requestAnimationFrame(frame);
 })();

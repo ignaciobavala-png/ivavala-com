@@ -506,7 +506,7 @@ const countryName = (code) => {
 // puede llenar desde afuera con nombres inventados.
 const EVENTS = new Set([
   "view",
-  "sec:servicios", "sec:trabajo", "sec:componentes", "sec:herramientas", "sec:stack", "sec:faq", "sec:contacto",
+  "sec:servicios", "sec:precios", "sec:trabajo", "sec:componentes", "sec:herramientas", "sec:stack", "sec:faq", "sec:contacto",
   "svc:click", "work:click", "pieza:click",
   "service_view:web", "service_view:ecommerce", "service_view:custom", "service_view:events",
   "flor:jugar", "flor:final", "flor:share",
@@ -517,6 +517,10 @@ const EVENTS = new Set([
   "tool:wa:link", "tool:wa:copy", "tool:wa:snippet", "tool:wa:cartel", "tool:wa:qr",
   "tool:mon:check", "tool:mon:sub", "tool:mon:confirm", "tool:mon:off",
   "cta:tool", "tool:click",
+  "call:landing", "call:backend", "call:comercio",
+  "advisor:start", "advisor:ask", "advisor:lead",
+  "advisor:plan:landing", "advisor:plan:backend", "advisor:plan:comercio",
+  "advisor:call:landing", "advisor:call:backend", "advisor:call:comercio", "advisor:call:chat",
 ]);
 
 // Del referrer se guarda solo el host: alcanza para saber de donde llega la
