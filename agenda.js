@@ -37,7 +37,7 @@
  function track(n){try{if(navigator.sendBeacon)navigator.sendBeacon('/api/e',new Blob([JSON.stringify({n:n,p:location.pathname,l:EN?'en':'es',r:document.referrer||''})],{type:'application/json'}))}catch(e){}}
  function attribution(){try{return JSON.parse(localStorage.getItem('ivv_attr')||'null')}catch(e){return null}}
 
- var link=document.createElement('link');link.rel='stylesheet';link.href='/agenda.css?v=1';document.head.appendChild(link);
+ var link=document.createElement('link');link.rel='stylesheet';link.href='/agenda.css?v=2';document.head.appendChild(link);
 
  var dlg,days,times,pickEl,form,st,go,planName='',days_by={},keys=[],slot=null,tsId=null,built=false,okBox,body;
 

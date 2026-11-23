@@ -1,5 +1,5 @@
 /* Modal de agenda de videollamada. Usa las variables de la home. */
-.ag{border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:12px;padding:0;width:min(520px,calc(100vw - 24px));max-height:calc(100svh - 24px);overflow:auto;font-family:var(--sans)}
+.ag{margin:auto;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:12px;padding:0;width:min(520px,calc(100vw - 24px));max-height:calc(100svh - 24px);overflow:auto;font-family:var(--sans)}
 .ag::backdrop{background:rgba(4,10,16,.72)}
 .ag-in{padding:1.4rem 1.4rem 1.2rem;display:flex;flex-direction:column;gap:1rem}
 .ag-top{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem}
