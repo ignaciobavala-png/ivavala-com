@@ -821,3 +821,37 @@ html::after{content:"";position:fixed;inset:0;z-index:70;pointer-events:none;opa
 .vx-plan b{white-space:nowrap}
 .vx-plan span{min-width:0}
 .vx-plan b small{display:block;font:600 .62rem var(--mono);letter-spacing:.12em;text-transform:uppercase;text-align:right;color:var(--dim)}
+
+/* ── Tu asistente en el celular: minimo ─────────────────────────────────────
+   Pasos como barrita de segmentos, avatar chico, sin bajadas ni numeros en las
+   opciones, y la pregunta libre plegada (se abre con .ask). */
+.g2-asklink{display:none}
+@media(max-width:700px){
+ .g2-rail{gap:5px;margin:0 0 1rem}
+ .g2-rail li,.g2-rail li+li{flex:1;height:4px;padding:0;border:0;border-radius:4px;background:var(--border)}
+ .g2-rail li.on,.g2-rail li.done{background:var(--accent)}
+ .g2-rail .g2-rn,.g2-rail .g2-rl,.g2-rail li.on .g2-rl{display:none}
+ .g2-side{justify-content:flex-start;gap:10px}
+ .g2-side .mind-orb{width:52px;max-width:52px}
+ .g2-who{flex-direction:row;align-items:center}
+ .g2-st,.g2-k{display:none}
+ .g2-text{min-height:0;margin-top:.4rem;font-size:1.32rem;line-height:1.2}
+ .g2-opts{gap:8px;margin-top:1rem}
+ .g2-opt{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-radius:14px}
+ .g2-on,.g2-os{display:none}
+ .g2-ot{font-size:.98rem}
+ .g2-plan{margin-top:1rem;padding:18px 16px 16px}
+ .g2-plan-i{margin:.7rem 0 1rem}
+ .g2-plan-i li{font-size:.86rem}
+ .g2-crumbs{justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;margin:1rem 0 .4rem;padding-bottom:4px;scrollbar-width:none}
+ .g2-crumbs::-webkit-scrollbar{display:none}
+ .g2-ck{display:none}
+ .g2-crumb{flex-shrink:0;padding:6px 12px;font-size:.78rem}
+ .g2-asklink{display:block;margin:.6rem auto 0;padding:6px 10px;border:0;background:none;color:var(--accent);font:600 .86rem var(--sans);cursor:pointer}
+ .mind.g2.ask .g2-asklink{display:none}
+ .mind.g2 .mind-form,.mind.g2 .mind-note{display:none}
+ .mind.g2.ask .mind-form{display:flex;margin-top:.6rem}
+ .mind.g2.ask .mind-note{display:block}
+ #contacto .direct{margin-top:.8rem;font-size:.85rem}
+}
+@media(max-width:700px){.mind.g2:has(.g2-plan) .g2-asklink{display:none}}

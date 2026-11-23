@@ -30,7 +30,7 @@
   st:{idle:'online',think:'thinking',speak:'answering'},
   rail:['Your business','Today','Timing','Your plan'],
   steps:[
-   {k:'Your business',q:'Hi, I’m your assistant. I’ll help you find the right plan for your business in under a minute. What do you do?',
+   {k:'Your business',m:'Hi, I’m your assistant. What do you do?',q:'Hi, I’m your assistant. I’ll help you find the right plan for your business in under a minute. What do you do?',
     o:[['Independent professional','Doctors, lawyers, accountants, coaches','landing'],['I sell products and manage stock','Wholesale, retail, shops','backend'],['Large business','High volume, a team, more traffic','comercio'],['Something else','Tell me and I’ll point you','otro']]},
    {k:'Today',q:'What do you have online today?',o:[['Nothing yet','We start from scratch'],['Just Instagram or social media','We add a site that sells'],['A website that doesn’t work for me','We rebuild it properly']]},
    {k:'Timing',q:'When do you need it?',o:[['This month','We start right away'],['In 1 or 2 months','We plan it calmly'],['No rush','We look at it together']]}
@@ -40,7 +40,7 @@
   call:'Book a video call →',callNote:'20 minutes with Ignacio to look at your project. No commitment.',
   more:'I have another question',restart:'Start over',
   youK:'Your answers',youQ:'You asked',chatK:'Your question',
-  ph:'Or type your question…',send:'Ask',
+  askLink:'Another question? Type it',ph:'Or type your question…',send:'Ask',
   note:'AI assistant: it can make mistakes. Ignacio confirms the final proposal.',
   err:'Something failed. Message Ignacio on WhatsApp and he’ll reply today.',
   mail:'Have him write to me',
@@ -55,7 +55,7 @@
   st:{idle:'en línea',think:'pensando',speak:'respondiendo'},
   rail:['Tu negocio','Hoy','Tiempos','Tu plan'],
   steps:[
-   {k:'Tu negocio',q:'Hola, soy tu asistente. Te ayudo a encontrar el plan justo para tu negocio en menos de un minuto. ¿A qué te dedicás?',
+   {k:'Tu negocio',m:'Hola, soy tu asistente. ¿A qué te dedicás?',q:'Hola, soy tu asistente. Te ayudo a encontrar el plan justo para tu negocio en menos de un minuto. ¿A qué te dedicás?',
     o:[['Soy profesional independiente','Médicos, abogados, contadores, coaches','landing'],['Vendo productos y manejo stock','Mayoristas, minoristas, tiendas','backend'],['Tengo un comercio grande','Mucho movimiento, equipo, más volumen','comercio'],['Otra cosa','Contame y te oriento','otro']]},
    {k:'Hoy',q:'¿Qué tenés hoy en internet?',o:[['Nada todavía','Arrancamos de cero'],['Solo Instagram o redes','Sumamos una web que vende'],['Una web que no me sirve','La rehacemos bien']]},
    {k:'Tiempos',q:'¿Para cuándo lo necesitás?',o:[['Este mes','Arrancamos ya'],['En 1 o 2 meses','Lo planificamos con tiempo'],['Sin apuro','Lo vemos juntos']]}
@@ -65,7 +65,7 @@
   call:'Agendar videollamada →',callNote:'20 minutos con Ignacio para ver tu proyecto. Sin compromiso.',
   more:'Tengo otra pregunta',restart:'Empezar de nuevo',
   youK:'Tus respuestas',youQ:'Preguntaste',chatK:'Tu pregunta',
-  ph:'O escribí tu pregunta…',send:'Preguntar',
+  askLink:'¿Otra duda? Escribime tu pregunta',ph:'O escribí tu pregunta…',send:'Preguntar',
   note:'Asistente con IA: puede equivocarse. La propuesta final la confirma Ignacio.',
   err:'Algo falló. Escribile a Ignacio por WhatsApp y te responde hoy.',
   mail:'Que me escriba',
@@ -79,6 +79,12 @@
  var MAX=12,history=[],answers=[],plan=null,busy=false,tsId=null,state='idle',ctxSent=false,step=0;
 
  function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
+ // En el celular el asistente es minimo: saludo corto, sin bajadas y la
+ // pregunta libre plegada hasta que el visitante la pide.
+ function isMob(){return matchMedia('(max-width:700px)').matches}
+ function openAsk(){root.classList.add('ask');inp.focus({preventScroll:true})}
+ // Al cambiar de paso en el celular, el asistente vuelve arriba de la pantalla.
+ function keep(){if(!isMob())return;var r=root.getBoundingClientRect();if((r.top<0||r.top>innerHeight*.35)&&root.scrollIntoView)root.scrollIntoView({block:'start',behavior:reduce?'auto':'smooth'})}
  function track(name){try{if(window.ivEv)window.ivEv(name)}catch(e){}}
  // Precio segun el idioma: pesos en castellano, dolares en ingles.
  function ars(n){return EN?'USD '+Math.round(n).toLocaleString('en-US'):'$'+Math.round(n).toLocaleString('es-AR')}
@@ -106,9 +112,10 @@
  var inp=el('input','mind-in');inp.type='text';inp.maxLength=400;inp.autocomplete='off';inp.setAttribute('aria-label',T.ph);inp.placeholder=T.ph;
  var sendBtn=el('button','mind-send',T.send);sendBtn.type='submit';
  form.append(hp,inp,sendBtn);
+ var askBtn=el('button','g2-asklink',T.askLink);askBtn.type='button';askBtn.addEventListener('click',openAsk);
  var note=el('p','mind-note',T.note);
  var ts=el('div');ts.id='chat-ts';
- root.append(rail,stage,crumbs,form,note,ts);
+ root.append(rail,stage,crumbs,askBtn,form,note,ts);
 
  function setState(s){state=s;root.dataset.s=s;stEl.textContent=T.st[s]||T.st.idle}
  setState('idle');
@@ -144,7 +151,7 @@
   step=i;setRail(i);clearOut();drawCrumbs();
   var s=T.steps[i];
   kick.textContent=String(i+1).padStart(2,'0')+' · '+s.k;
-  var d=say(s.q);
+  var d=say((isMob()&&s.m)||s.q);
   setTimeout(function(){
    if(step!==i)return;
    s.o.forEach(function(o,k){
@@ -160,11 +167,12 @@
   answers[i]=o[0];answers=answers.slice(0,i+1);
   if(i===0){
    track('advisor:start');
-   if(o[2]==='otro'){plan=null;drawCrumbs();clearOut();setRail(3);kick.textContent=T.chatK;say(T.other);inp.focus({preventScroll:true});return}
+   if(o[2]==='otro'){plan=null;drawCrumbs();clearOut();setRail(3);kick.textContent=T.chatK;say(T.other);openAsk();keep();return}
    plan=o[2];
   }
   if(i<T.steps.length-1)showStep(i+1);
   else recommend();
+  keep();
  }
  function callLink(){
   var p=plan&&PLANS[plan];
@@ -203,7 +211,7 @@
   out.append(c);
   countUp(price,p.price,p.from?(EN?'from ':'desde '):'');
   var row=el('div','g2-row');
-  var more=el('button','g2-link',T.more);more.type='button';more.addEventListener('click',function(){inp.focus()});
+  var more=el('button','g2-link',T.more);more.type='button';more.addEventListener('click',openAsk);
   var again=el('button','g2-link',T.restart);again.type='button';again.addEventListener('click',restart);
   row.append(more,again);out.append(row);
   track('advisor:plan:'+plan);
