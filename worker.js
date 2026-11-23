@@ -200,7 +200,7 @@ const json = (obj, status, extra) =>
 const ACUSE_FROM = "Ignacio Vavala <hola@ivavala.com>";
 const ACUSE_REPLY = DEST;
 
-async function enviarResend(env, { to, bcc, subject, text, html, replyTo, headers, tags }) {
+async function enviarResend(env, { to, bcc, subject, text, html, replyTo, headers, tags, attachments }) {
   // En local no hay key: el mail se imprime en la consola de wrangler dev y
   // el flujo sigue, asi se puede probar el monitor de punta a punta.
   if (!env.RESEND_API_KEY && env.ENV === "dev") {
@@ -225,6 +225,7 @@ async function enviarResend(env, { to, bcc, subject, text, html, replyTo, header
       ...(replyTo ? { reply_to: replyTo } : {}),
       ...(headers ? { headers } : {}),
       ...(tags ? { tags } : {}),
+      ...(attachments ? { attachments } : {}),
     }),
     signal: AbortSignal.timeout(8000),
   });
@@ -391,9 +392,10 @@ async function handleContacto(request, env, ctx) {
 
 // Aviso a mi casilla de una conversacion del asistente (mismo binding que el
 // formulario). Reply-To con el mail del visitante cuando lo dejo.
-async function notifyChatLead(env, { subject, body, replyTo, from }) {
+async function notifyChatLead(env, { subject, body, replyTo, from, ics }) {
   const { EmailMessage } = await import("cloudflare:email");
-  const raw = [
+  const wrap = (str) => b64(str).replace(/(.{76})/g, "$1\r\n");
+  const head = [
     `From: ${header(from || "Asistente ivavala.com")} <${FROM}>`,
     `To: <${DEST}>`,
     ...(replyTo ? [`Reply-To: ${header(oneLine(replyTo.name, 80))} <${replyTo.email}>`] : []),
@@ -401,11 +403,39 @@ async function notifyChatLead(env, { subject, body, replyTo, from }) {
     `Message-ID: <${crypto.randomUUID()}@ivavala.com>`,
     `Date: ${new Date().toUTCString()}`,
     "MIME-Version: 1.0",
-    "Content-Type: text/plain; charset=utf-8",
-    "Content-Transfer-Encoding: base64",
-    "",
-    b64(body).replace(/(.{76})/g, "$1\r\n"),
-  ].join("\r\n");
+  ];
+  let raw;
+  if (ics) {
+    // text/calendar con method: Gmail lo muestra como tarjeta de evento con
+    // "Agregar al calendario", ademas de dejarlo como adjunto.
+    const bd = "=_ivv_" + crypto.randomUUID();
+    raw = [
+      ...head,
+      `Content-Type: multipart/mixed; boundary="${bd}"`,
+      "",
+      `--${bd}`,
+      "Content-Type: text/plain; charset=utf-8",
+      "Content-Transfer-Encoding: base64",
+      "",
+      wrap(body),
+      `--${bd}`,
+      `Content-Type: text/calendar; charset=utf-8; method=${ics.method}; name="turno.ics"`,
+      'Content-Disposition: attachment; filename="turno.ics"',
+      "Content-Transfer-Encoding: base64",
+      "",
+      wrap(ics.text),
+      `--${bd}--`,
+      "",
+    ].join("\r\n");
+  } else {
+    raw = [
+      ...head,
+      "Content-Type: text/plain; charset=utf-8",
+      "Content-Transfer-Encoding: base64",
+      "",
+      wrap(body),
+    ].join("\r\n");
+  }
   await env.SEND_EMAIL.send(new EmailMessage(FROM, DEST, raw));
 }
 
@@ -435,6 +465,74 @@ function agendaSlots(now = Date.now()) {
     }
   }
   return out;
+}
+
+const MEET_URL = "https://meet.google.com/hsy-kjhg-zsh";
+
+// iCalendar: lineas de a lo sumo 75 octetos (se pliegan con CRLF + espacio) y
+// texto escapado. REQUEST = invitacion; PUBLISH = evento suelto para mi.
+const icsEsc = (v) => String(v).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+const icsFold = (line) => {
+  const enc = new TextEncoder();
+  let out = "", cur = "", n = 0;
+  for (const ch of line) {
+    const len = enc.encode(ch).length;
+    if (n + len > 74) { out += cur + "\r\n "; cur = ""; n = 0; }
+    cur += ch; n += len;
+  }
+  return out + cur;
+};
+const icsDate = (ms) => new Date(ms).toISOString().replace(/[-:]|\.\d{3}/g, "");
+
+function buildIcs({ slot, method, summary, description }) {
+  const start = new Date(slot).getTime();
+  const lines = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//ivavala.com//agenda//ES",
+    "CALSCALE:GREGORIAN",
+    `METHOD:${method}`,
+    "BEGIN:VEVENT",
+    `UID:${slot}@ivavala.com`,
+    `DTSTAMP:${icsDate(Date.now())}`,
+    `DTSTART:${icsDate(start)}`,
+    `DTEND:${icsDate(start + AGENDA_STEP_MIN * 60000)}`,
+    `SUMMARY:${icsEsc(summary)}`,
+    `DESCRIPTION:${icsEsc(description)}`,
+    `LOCATION:${MEET_URL}`,
+    `URL:${MEET_URL}`,
+    `ORGANIZER;CN=Ignacio Vavala:mailto:${DEST}`,
+    "STATUS:CONFIRMED",
+    "SEQUENCE:0",
+    "BEGIN:VALARM",
+    "TRIGGER:-PT15M",
+    "ACTION:DISPLAY",
+    "DESCRIPTION:Videollamada en 15 minutos",
+    "END:VALARM",
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ];
+  return lines.map(icsFold).join("\r\n") + "\r\n";
+}
+
+// Invitacion al visitante (solo si dejo mail). Texto fijo: nada de lo que
+// escribio vuelve en el mail, para que el formulario no sirva de relay.
+function buildInvite({ lang, dia, hora, slot }) {
+  const en = lang === "en";
+  const ics = buildIcs({
+    slot,
+    method: "REQUEST",
+    summary: en ? "Video call with Ignacio Vavala" : "Videollamada con Ignacio Vavala",
+    description: (en ? "Join: " : "Entrá acá: ") + MEET_URL,
+  });
+  const text = en
+    ? ["Hi,", "", `Your video call is booked for ${dia} at ${hora} (Argentina time, UTC-3). It lasts 20 minutes.`, "", `Join with Google Meet: ${MEET_URL}`, "", "The calendar invitation is attached. If something comes up, reply to this email.", "", "If it wasn't you who booked, ignore this email.", "", "Ignacio Vavala", "https://ivavala.com"]
+    : ["Hola,", "", `Tu videollamada quedó agendada para el ${dia} a las ${hora} (hora de Argentina, UTC-3). Dura 20 minutos.`, "", `Entrás con Google Meet: ${MEET_URL}`, "", "Te adjunto la invitación para tu calendario. Si surge algo, respondé este mail.", "", "Si no fuiste vos quien agendó, ignorá este mail.", "", "Ignacio Vavala", "https://ivavala.com"];
+  return {
+    subject: en ? `Your video call with Ignacio — ${dia} ${hora}` : `Tu videollamada con Ignacio — ${dia} ${hora}`,
+    text: text.join("\n"),
+    ics,
+  };
 }
 
 async function handleAgendaGet(db) {
@@ -496,6 +594,7 @@ async function handleAgendaPost(request, env, ctx) {
   const pago = attribution && ATTR_IDS.some((k) => attribution[k]);
   const body = [
     `Turno: ${dia} a las ${hora} (hora de Argentina), ${AGENDA_STEP_MIN} min`,
+    `Meet:     ${MEET_URL}`,
     `Nombre:   ${nombre}`,
     `Contacto: ${contacto}`,
     `Plan:     ${plan || "(no eligio)"}`,
@@ -514,6 +613,15 @@ async function handleAgendaPost(request, env, ctx) {
       subject: `${pago ? "[Ads] " : ""}Turno ${dia} ${hora} — ${nombre}`,
       body,
       replyTo: isEmail(contacto) ? { name: nombre, email: contacto } : null,
+      ics: {
+        method: "PUBLISH",
+        text: buildIcs({
+          slot,
+          method: "PUBLISH",
+          summary: `Videollamada con ${nombre}`,
+          description: [`Plan: ${plan || "(no eligio)"}`, `Contacto: ${contacto}`, nota ? `Nota: ${nota}` : "", `Meet: ${MEET_URL}`].filter(Boolean).join("\n"),
+        }),
+      },
     });
   } catch (err) {
     // Sin aviso el turno no existe para mi: se libera el horario y la persona
@@ -521,6 +629,20 @@ async function handleAgendaPost(request, env, ctx) {
     console.error("agenda mail fallo:", err && err.message);
     await db.prepare("DELETE FROM bookings WHERE slot = ?").bind(slot).run();
     return json({ error: "send_failed" }, 502);
+  }
+
+  // La invitacion al visitante va aparte, como el acuse del formulario: si
+  // Resend falla, el turno ya esta guardado y avisado, y nunca tumba la reserva.
+  if (env.RESEND_API_KEY && isEmail(contacto)) {
+    const inv = buildInvite({ lang, dia, hora, slot });
+    const send = enviarResend(env, {
+      to: contacto,
+      subject: inv.subject,
+      text: inv.text,
+      replyTo: ACUSE_REPLY,
+      attachments: [{ filename: "invitacion.ics", content: b64(inv.ics), content_type: "text/calendar; method=REQUEST; charset=utf-8" }],
+    }).catch((err) => console.error("invitacion resend fallo:", err && err.message));
+    if (ctx && ctx.waitUntil) ctx.waitUntil(send);
   }
   return json({ ok: true, accepted: true });
 }

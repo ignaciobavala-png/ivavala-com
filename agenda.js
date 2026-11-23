@@ -13,7 +13,7 @@
   go:'Confirm booking',sending:'Booking…',none:'No free times right now.',load:'Loading times…',
   bad:'Add your name and a valid email or WhatsApp number.',pick:'Pick a day and a time first.',
   taken:'Someone just took that time. Pick another one.',err:'Could not book it. Try again or write on WhatsApp:',
-  okH:'Booked!',ok1:'I got your booking and will confirm it with you by the contact you left.',
+  okH:'Booked!',ok1:'I got your booking. If you left an email, the calendar invitation with the Meet link is on its way.',
   yours:'your time',close:'Close',wa:'WhatsApp',slotWord:'Selected',
   waMsg:'Hi Ignacio, I come from ivavala.com and I want to book a video call.',locale:'en-US'
  }:{
@@ -22,7 +22,7 @@
   go:'Confirmar turno',sending:'Agendando…',none:'No hay horarios libres por ahora.',load:'Cargando horarios…',
   bad:'Poné tu nombre y un mail o WhatsApp válido.',pick:'Elegí primero un día y un horario.',
   taken:'Alguien acaba de tomar ese horario. Elegí otro.',err:'No pude agendarlo. Probá de nuevo o escribime por WhatsApp:',
-  okH:'¡Listo, quedó agendado!',ok1:'Recibí tu turno y te lo confirmo por el contacto que dejaste.',
+  okH:'¡Listo, quedó agendado!',ok1:'Recibí tu turno. Si dejaste un mail, te llega la invitación al calendario con el link de Meet.',
   yours:'tu hora',close:'Cerrar',wa:'WhatsApp',slotWord:'Elegido',
   waMsg:'Hola Ignacio, vengo de ivavala.com y quiero agendar una videollamada.',locale:'es-AR'
  };

@@ -1,5 +1,18 @@
 # Cambios del portafolio
 
+## 2026-11-23 — Agenda: .ics en el aviso, invitación con Meet y fuera "Tecnología"
+
+- El mail de aviso de cada turno ahora trae un `.ics` (adjunto y como `text/calendar`): Gmail lo
+  muestra como tarjeta de evento con "Agregar al calendario". Incluye el link de Meet, el contacto
+  y la nota, y una alarma 15 min antes.
+- Si el visitante dejó mail, recibe por Resend una invitación con texto fijo (sin repetir nada de lo
+  que escribió), el día y la hora, y un `.ics` de invitación. Si Resend falla, la reserva no se cae.
+  Sin mail (solo WhatsApp) no hay invitación.
+- Link de Meet fijo en `MEET_URL` (`worker.js`); sin Google Calendar API, la sala es la misma para
+  todos los turnos.
+- Home (es y en): se saca la sección "Tecnología" (stack) junto con su CSS: la mayoría de los
+  clientes no conoce esas herramientas y no ayudan a decidir.
+
 ## 2026-11-23 — Agenda de videollamadas propia (sin Google Calendar)
 
 - Los botones "Agendar videollamada" (planes y asistente) abren un modal con días y horarios
