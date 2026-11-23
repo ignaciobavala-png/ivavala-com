@@ -132,7 +132,7 @@
     if(o.s===409){fail(L.taken);load();slot=null;pickEl.hidden=true;return}
     if(o.s>=400||!o.j.ok){fail();return}
     body.hidden=true;okBox.hidden=false;track('agenda:booked');
-    try{if(window.gtag)gtag('event','conversion',{send_to:'AW-18493149456/p45_CJibm5AdEJCinPJE',value:1.0,currency:'ARS'})}catch(x){}
+    try{if(window.gtag)gtag('event','conversion',{send_to:'AW-18493149456/p45_CJibm5AdEJCinPJE',value:1.0,currency:'ARS'});gtag('event','booking_confirmed')}catch(x){}
    }).catch(function(){fail()});
   };
   if(window.turnstile){

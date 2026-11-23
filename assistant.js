@@ -281,7 +281,7 @@
     .then(function(){
      st.className='mind-st ok';st.textContent=T.sent;c.disabled=n.disabled=true;track('advisor:lead');
      // Conversion de Ads del formulario: era del formulario de contacto, que se fue.
-     try{if(window.gtag)gtag('event','conversion',{send_to:'AW-18493149456/p45_CJibm5AdEJCinPJE',value:1.0,currency:'ARS'})}catch(e){}
+     try{if(window.gtag)gtag('event','conversion',{send_to:'AW-18493149456/p45_CJibm5AdEJCinPJE',value:1.0,currency:'ARS'});gtag('event','generate_lead',{method:'chat'})}catch(e){}
     })
     .catch(fail);
    };

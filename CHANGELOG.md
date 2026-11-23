@@ -16,7 +16,7 @@
   homes (es y en) y se sacan `/link-whatsapp/` y `/monitor-web/` (herramientas aparte, no parte de
   la mono-página; siguen accesibles por link).
   `llms.txt`: precios, mantenimiento, seña, cómo agendar y WhatsApp.
-- Pendiente: GA4 (falta el ID de medición `G-…`).
+- GA4: propiedad nueva de ivavala (`G-7QGFPLEEK1`) cargada junto a la etiqueta de Ads en todas las páginas; eventos `whatsapp_click`, `generate_lead` (chat) y `booking_confirmed`. Privacidad menciona Analytics.
 
 ## 2026-11-23 — Agenda: .ics en el aviso, invitación con Meet y fuera "Tecnología"
 

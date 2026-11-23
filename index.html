@@ -446,6 +446,7 @@ html{scroll-padding-top:92px}
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', 'AW-18493149456');
+  gtag('config', 'G-7QGFPLEEK1');
 </script>
 <script>
 // Atribucion del anuncio (gclid/gbraid/wbraid + utm_*): se guarda al llegar y
@@ -774,7 +775,7 @@ watch(hero,'hero');watch(form,'form');
       // Conversion de Ads por clic en WhatsApp (otra accion que la del
       // formulario). Este es el unico listener que la manda; la marca en el
       // evento corta cualquier segundo paso del mismo clic.
-      if(!e.__waConv){ e.__waConv = 1; try{ gtag('event','conversion',{send_to:'AW-18493149456/27xPCOGooJkdEJCinPJE'}); }catch(err){} }
+      if(!e.__waConv){ e.__waConv = 1; try{ gtag('event','conversion',{send_to:'AW-18493149456/27xPCOGooJkdEJCinPJE'}); gtag('event','whatsapp_click'); }catch(err){} }
     }
     else if(t.closest('a[href^="mailto:"]')) ev('out:mail');
     else if(t.closest('a[href*="github.com"]')) ev('out:github');
