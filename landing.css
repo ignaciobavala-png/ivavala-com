@@ -1,45 +1,46 @@
 /* Paginas chicas de la web (landings para anuncios y privacidad). Mismas
    variables y tipografias que la home; sin JS propio, el agendado lo pone
    /agenda.js sobre los botones .pl-go. */
+@font-face{font-family:'Unbounded';font-style:normal;font-weight:200 900;font-display:swap;src:url(/fonts/unbounded-wght-latin.woff2) format('woff2')}
 @font-face{font-family:'Space Grotesk';font-style:normal;font-weight:300 700;font-display:swap;src:url(/fonts/space-grotesk-300-700-normal-latin.woff2) format('woff2')}
 @font-face{font-family:'Geist Mono';font-style:normal;font-weight:100 900;font-display:swap;src:url(/fonts/geist-mono-100-900-normal-latin.woff2) format('woff2')}
-:root{--display:"Space Grotesk",system-ui,sans-serif;--mono:"Geist Mono",ui-monospace,Menlo,Consolas,monospace;--sans:-apple-system,BlinkMacSystemFont,"avenir next",avenir,helvetica,"segoe ui",roboto,arial,sans-serif;--bg:#0a1622;--bg2:#0f2130;--card:#101d2b;--text:#e8f1f5;--dim:#9bb0be;--accent:#3ddbd9;--accent2:#ff9d8a;--link:#3ddbd9;--border:#1c3040;--input-bg:#08111b;--btn-text:#0a1622}
+:root{--display:"Unbounded","Space Grotesk",system-ui,sans-serif;--mono:"Geist Mono",ui-monospace,Menlo,Consolas,monospace;--sans:-apple-system,BlinkMacSystemFont,"avenir next",avenir,helvetica,"segoe ui",roboto,arial,sans-serif;--bg:#f6f7fb;--bg2:#e9edfb;--card:#fff;--text:#0f172a;--dim:#55607a;--accent:#2547f5;--accent2:#c2410c;--link:#2547f5;--border:#dfe3ee;--input-bg:#fff;--btn-text:#fff;color-scheme:light}
 *{margin:0;box-sizing:border-box}
-html{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;-webkit-text-size-adjust:100%}
+html{background:radial-gradient(ellipse 70% 45% at 15% 0%,#dfe4ff 0,transparent 65%),radial-gradient(ellipse 60% 40% at 90% 12%,#e9defa 0,transparent 60%),var(--bg);background-attachment:fixed;color:var(--text);font-family:var(--sans);line-height:1.6;-webkit-text-size-adjust:100%}
 body{min-height:100vh}
 a{color:var(--link)}
 .lp-nav{display:flex;justify-content:space-between;align-items:center;gap:1rem;max-width:960px;margin:0 auto;padding:1.1rem 1.25rem}
-.lp-brand{font-family:var(--display);font-weight:700;letter-spacing:.04em;color:var(--text);text-decoration:none}
+.lp-brand{font-family:var(--display);font-weight:700;letter-spacing:-.03em;color:var(--text);text-decoration:none}
 .lp-nav a.lp-back{font-family:var(--mono);font-size:.74rem;color:var(--dim);text-decoration:none}
 .lp-nav a.lp-back:hover{color:var(--accent)}
 main{max-width:960px;margin:0 auto;padding:0 1.25rem 3rem}
 .lp-hero{padding:2.2rem 0 2rem}
 .lp-k{font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.9rem}
-h1{font-family:var(--display);font-size:clamp(2rem,6vw,3.4rem);line-height:1.08;font-weight:600;letter-spacing:-.01em}
+h1{font-family:var(--display);font-size:clamp(1.7rem,4.6vw,3rem);line-height:1.12;font-weight:600;letter-spacing:-.045em}
 .lp-lead{max-width:40rem;margin-top:1.1rem;font-size:1.08rem;color:var(--dim)}
 .lp-cta{display:flex;flex-wrap:wrap;gap:.7rem;margin-top:1.6rem}
-.lp-btn{display:inline-block;font-family:var(--mono);font-size:.78rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;text-decoration:none;border-radius:6px;padding:.95rem 1.3rem;border:1px solid var(--accent)}
+.lp-btn{display:inline-block;box-shadow:0 8px 22px rgba(37,71,245,.22);font-family:var(--mono);font-size:.78rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;text-decoration:none;border-radius:10px;padding:.95rem 1.3rem;border:1px solid var(--accent)}
 .lp-btn.pl-go,.lp-btn.main{background:var(--accent);color:var(--btn-text)}
-.lp-btn.alt{background:none;color:var(--accent)}
+.lp-btn.alt{background:#fff;color:var(--accent);box-shadow:none}
 .lp-btn:hover{filter:brightness(1.12)}
 .lp-trust{display:flex;flex-wrap:wrap;gap:.5rem 1.4rem;margin-top:1.4rem;font-family:var(--mono);font-size:.72rem;color:var(--dim)}
 .lp-trust span::before{content:"✓ ";color:var(--accent)}
 section{padding:1.8rem 0;border-top:1px solid var(--border)}
-h2{font-family:var(--display);font-size:clamp(1.3rem,3.4vw,1.8rem);font-weight:600;margin-bottom:1rem}
-h3{font-family:var(--display);font-size:1.05rem;margin-bottom:.35rem}
+h2{font-family:var(--display);font-size:clamp(1.3rem,3vw,1.9rem);font-weight:500;letter-spacing:-.05em;margin-bottom:1rem}
+h3{font-family:var(--display);font-size:1rem;font-weight:600;letter-spacing:-.03em;margin-bottom:.35rem}
 .lp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:.9rem}
-.lp-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.1rem 1.15rem}
+.lp-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.2rem 1.25rem;box-shadow:0 10px 30px rgba(37,71,245,.07)}
 .lp-card p{color:var(--dim);font-size:.93rem}
-.lp-price{font-family:var(--display);font-size:2rem;font-weight:700;margin:.2rem 0 .6rem}
+.lp-price{font-family:var(--display);font-size:2.2rem;font-weight:600;letter-spacing:-.05em;margin:.2rem 0 .6rem}
 .lp-price small{font-family:var(--mono);font-size:.7rem;font-weight:400;color:var(--dim);margin-right:.35rem}
 .lp-card ul{list-style:none;display:grid;gap:.4rem;font-size:.92rem;color:var(--dim);margin-bottom:1rem}
 .lp-card li::before{content:"✓ ";color:var(--accent)}
 .lp-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr));gap:.9rem;list-style:none}
-.lp-steps li{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1rem}
+.lp-steps li{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.1rem;box-shadow:0 10px 30px rgba(37,71,245,.07)}
 .lp-steps b{font-family:var(--mono);color:var(--accent);font-size:.75rem}
 .lp-steps strong{display:block;margin:.2rem 0}
 .lp-steps span{color:var(--dim);font-size:.9rem}
-details{border:1px solid var(--border);border-radius:8px;background:var(--card);margin-bottom:.6rem}
+details{border:1px solid var(--border);border-radius:12px;background:var(--card);margin-bottom:.6rem}
 summary{cursor:pointer;padding:.85rem 1rem;font-weight:600}
 details p{padding:0 1rem 1rem;color:var(--dim);font-size:.94rem}
 .lp-note{color:var(--dim);font-size:.85rem;margin-top:.9rem}

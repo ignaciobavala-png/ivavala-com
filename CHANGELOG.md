@@ -5,15 +5,15 @@
 - Política de privacidad en `/privacidad/` y `/en/privacy/` (datos que se recogen, destinatarios:
   Cloudflare, Resend/Gmail, Groq y Google Ads; cookies; plazo de 24 meses; derechos según Ley
   25.326). Enlazada desde la sección de contacto de las dos homes y desde el footer de las landings.
-- Tres landings para anuncios, una por intención: `/paginas-web/` (Landing, $700.000),
-  `/tienda-online/` (Landing con backend, $1.500.000) y `/sistemas-a-medida/` (Comercio grande,
-  desde $2.500.000). Cada una con H1 propio, precio, qué incluye, FAQ con datos estructurados
-  (`Service` + `FAQPage`) y botón de agendar. Disparan las dos conversiones de Ads y guardan
-  `gclid`/`utm_*`. Estilos compartidos en `landing.css`.
+- Se probaron tres landings por intención (`/paginas-web/`, `/tienda-online/`,
+  `/sistemas-a-medida/`) y se descartaron: la web es una mono-landing y todos los anuncios van a
+  `ivavala.com`. Las páginas se borraron y no quedan en sitemap ni en `llms.txt`.
+- `landing.css` (tema claro de la home, Unbounded, acento azul) queda solo para las páginas de
+  privacidad.
 - `agenda.js` (v=4): el plan del modal también se toma del texto del link cuando el botón no está
   dentro de una card `.pl`.
-- `robots.txt`: se agrega `Disallow: /api/`. `sitemap.xml`: suma las landings y la privacidad, con
-  `lastmod`. `llms.txt`: precios, mantenimiento, seña, cómo agendar, WhatsApp y las páginas nuevas.
+- `robots.txt`: se agrega `Disallow: /api/`. `sitemap.xml`: suma la privacidad, con `lastmod`.
+  `llms.txt`: precios, mantenimiento, seña, cómo agendar y WhatsApp.
 - Pendiente: GA4 (falta el ID de medición `G-…`).
 
 ## 2026-11-23 — Agenda: .ics en el aviso, invitación con Meet y fuera "Tecnología"

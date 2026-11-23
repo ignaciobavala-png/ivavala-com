@@ -84,9 +84,6 @@ const LLMS = `# Ignacio Vavala
 
 - ${ORIGIN}/ — inicio (espanol)
 - ${ORIGIN}/en/ — inicio (ingles)
-- ${ORIGIN}/paginas-web/ — paginas web a medida para pymes y profesionales
-- ${ORIGIN}/tienda-online/ — tienda online y catalogo con panel propio
-- ${ORIGIN}/sistemas-a-medida/ — sistemas de gestion que reemplazan planillas
 - ${ORIGIN}/privacidad/ — politica de privacidad
 - ${ORIGIN}/proyectos/ — proyectos en produccion, filtrables por tipo
 - ${ORIGIN}/link-whatsapp/ — generador de link de WhatsApp con mensaje,
@@ -126,18 +123,6 @@ const SITEMAP = `<?xml version="1.0" encoding="UTF-8"?>
     <xhtml:link rel="alternate" hreflang="x-default" href="${ORIGIN}/proyectos/"/>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>${ORIGIN}/paginas-web/</loc>
-    <lastmod>2026-11-23</lastmod>
-  </url>
-  <url>
-    <loc>${ORIGIN}/tienda-online/</loc>
-    <lastmod>2026-11-23</lastmod>
-  </url>
-  <url>
-    <loc>${ORIGIN}/sistemas-a-medida/</loc>
-    <lastmod>2026-11-23</lastmod>
   </url>
   <url>
     <loc>${ORIGIN}/privacidad/</loc>
