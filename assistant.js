@@ -17,12 +17,12 @@
  // Planes: la misma informacion que la seccion Precios. price en pesos (0 = sin precio publicado).
  var PLANS=EN?{
   landing:{name:'Landing',price:420,inc:['A page that is the public face of your business','WhatsApp button and contact form','Live in 1 to 2 weeks','3 months of maintenance included']},
-  backend:{name:'Landing with backend',price:480,inc:['Everything in Landing','A panel to upload products, prices and stock yourself','Orders arrive sorted on WhatsApp','Your own database, no platform fees']},
-  comercio:{name:'Large business',price:600,inc:['Everything in Landing with backend','AI assistant answering questions 24/7','Users and permissions for your team','Ready for more products, orders and visits']}
+  backend:{name:'Landing with backend',price:900,inc:['Everything in Landing','A panel to upload products, prices and stock yourself','Orders arrive sorted on WhatsApp','Your own database, no platform fees']},
+  comercio:{name:'Large business',price:1500,from:true,inc:['Everything in Landing with backend','AI assistant answering questions 24/7','Users and permissions for your team','Ready for more products, orders and visits']}
  }:{
   landing:{name:'Landing',price:700000,inc:['Una página que es la cara visible de tu negocio','Botón de WhatsApp y formulario de contacto','En línea en 1 a 2 semanas','3 meses de mantenimiento incluidos']},
-  backend:{name:'Landing con backend',price:800000,inc:['Todo lo de Landing','Panel para cargar productos, precios y stock vos mismo','Pedidos que te llegan ordenados por WhatsApp','Base de datos propia, sin abonos de plataformas']},
-  comercio:{name:'Comercio grande',price:1000000,inc:['Todo lo de Landing con backend','Asistente con IA que responde consultas las 24 horas','Usuarios y permisos para tu equipo','Preparado para más productos, pedidos y visitas']}
+  backend:{name:'Landing con backend',price:1500000,inc:['Todo lo de Landing','Panel para cargar productos, precios y stock vos mismo','Pedidos que te llegan ordenados por WhatsApp','Base de datos propia, sin abonos de plataformas']},
+  comercio:{name:'Comercio grande',price:2500000,from:true,inc:['Todo lo de Landing con backend','Asistente con IA que responde consultas las 24 horas','Usuarios y permisos para tu equipo','Preparado para más productos, pedidos y visitas']}
  };
 
  var T=EN?{
@@ -169,14 +169,17 @@
  function callLink(){
   var p=plan&&PLANS[plan];
   var lines=[T.waCall];
-  if(p)lines.push(T.plan+': '+p.name+(p.price?' ('+ars(p.price)+')':''));
+  if(p)lines.push(T.plan+': '+p.name+(p.price?' ('+money(p)+')':''));
   if(answers.length)lines.push(answers.join(' · '));
   return WA+'?text='+encodeURIComponent(lines.join('\n'));
  }
- function countUp(node,to){
-  if(reduce||!to){node.textContent=to?ars(to):'';return}
+ // "desde" para el plan sin techo de alcance.
+ function money(p){return (p.from?(EN?'from ':'desde '):'')+ars(p.price)}
+ function countUp(node,to,pre){
+  pre=pre||'';
+  if(reduce||!to){node.textContent=to?pre+ars(to):'';return}
   var t0=performance.now(),dur=900;
-  (function f(now){var k=Math.min(1,(now-t0)/dur),e=1-Math.pow(1-k,3);node.textContent=ars(to*e);if(k<1)requestAnimationFrame(f)})(t0);
+  (function f(now){var k=Math.min(1,(now-t0)/dur),e=1-Math.pow(1-k,3);node.textContent=pre+ars(to*e);if(k<1)requestAnimationFrame(f)})(t0);
  }
  function recommend(){
   setRail(3);clearOut();drawCrumbs();
@@ -198,7 +201,7 @@
   with_.append(face,el('span',null,T.callNote));
   c.append(call,with_);
   out.append(c);
-  countUp(price,p.price);
+  countUp(price,p.price,p.from?(EN?'from ':'desde '):'');
   var row=el('div','g2-row');
   var more=el('button','g2-link',T.more);more.type='button';more.addEventListener('click',function(){inp.focus()});
   var again=el('button','g2-link',T.restart);again.type='button';again.addEventListener('click',restart);

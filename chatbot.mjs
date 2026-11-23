@@ -38,10 +38,11 @@ CÓMO VENDÉS:
 
 PRECIOS (cerrados, en pesos argentinos, para profesionales independientes y pymes):
 - Landing: $700.000. Para profesionales independientes. Una página que es la cara visible del negocio, sin backend: diseño a medida, WhatsApp y formulario de contacto, dominio conectado, lista en 1 a 2 semanas, 3 meses de mantenimiento.
-- Landing con backend: $800.000. Para mayoristas, minoristas y negocios con stock: todo lo de Landing más un panel para cargar productos, precios, fotos y stock, y pedidos por WhatsApp.
-- Comercio grande: $1.000.000. Para comercios con más movimiento: todo lo anterior más un asistente con IA que responde consultas, usuarios y permisos para el equipo, y más volumen.
+- Landing con backend: $1.500.000. Para mayoristas, minoristas y negocios con stock: todo lo de Landing más un panel para cargar productos, precios, fotos y stock, y pedidos por WhatsApp.
+- Comercio grande: desde $2.500.000. Para comercios con más movimiento: todo lo anterior más un asistente con IA que responde consultas, usuarios y permisos para el equipo, y más volumen. El alcance y el precio final se definen en la videollamada.
+- Mantenimiento mensual: $50.000 por mes después de los 3 meses incluidos (sitio online, seguridad y hasta 1 hora de cambios por mes, sin contrato).
 - Cómo se arranca: primero una videollamada de 20 minutos con Ignacio, que se pide desde el botón "Agendar videollamada" de cada plan en la sección Precios. Si arrancan, se reserva con una seña del 30% que Ignacio cobra después de la llamada, y el saldo se paga al entregar.
-- Si el visitante escribe en inglés, los precios van en dólares: Landing USD 420, Landing with backend USD 480, Large business USD 600.
+- Si el visitante escribe en inglés, los precios van en dólares: Landing USD 420, Landing with backend USD 900, Large business from USD 1,500, maintenance USD 30/month.
 - Ignacio trabaja solo, no es una agencia: por eso estos precios. Empresas grandes o proyectos que necesitan un equipo se cotizan aparte.
 
 LO QUE HACE IVAVALA (única fuente de verdad):
@@ -208,7 +209,7 @@ export async function handleChat(request, env, deps) {
     // El prompt es largo y en castellano: sin esta linea el modelo a veces
     // contesta en castellano a quien escribe desde la version en ingles.
     const langNote = lang === "en"
-      ? [{ role: "system", content: "The visitor is on the English version of the site. Always reply in English, and give prices in US dollars: Landing USD 420, Landing with backend USD 480, Large business USD 600." }]
+      ? [{ role: "system", content: "The visitor is on the English version of the site. Always reply in English, and give prices in US dollars: Landing USD 420, Landing with backend USD 900, Large business from USD 1,500, maintenance USD 30/month." }]
       : [];
     const raw = await groq(env, [{ role: "system", content: SYSTEM }, ...langNote, ...messages]);
     const g = guardReply(raw, lang);

@@ -764,3 +764,60 @@ html::after{content:"";position:fixed;inset:0;z-index:70;pointer-events:none;opa
 @media(prefers-reduced-motion:reduce){.g2-text .w,.g2-opt,.g2-plan,.g2-plan-i li{animation:none;opacity:1;filter:none;transform:none}}
 .g2-with{display:flex;align-items:center;justify-content:center;gap:8px}
 .g2-with img{width:28px;height:28px;border-radius:50%;object-fit:cover;border:1.5px solid var(--accent)}
+
+/* ── Rubros (index.html y en/index.html, .vx) ───────────────────────────────
+   Bento de cuatro tarjetas de distinto ancho. Cada rubro tiene su tono y un
+   escenario con las capturas reales de sus casos apiladas como ventanas; al
+   pasar el mouse se abren en abanico. Los casos van como miniaturas con nombre
+   y el plan sugerido cierra la tarjeta con el precio destacado. */
+.vx-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:18px;margin-top:1.6rem}
+.vx{--vc:37,71,245;position:relative;isolation:isolate;display:flex;flex-direction:column;grid-column:span 7;overflow:hidden;border-radius:26px;background:linear-gradient(165deg,rgba(255,255,255,.94),rgba(255,255,255,.74));border:1px solid rgba(255,255,255,.8);box-shadow:0 30px 80px rgba(var(--vc),.14),0 1px 0 rgba(255,255,255,.9) inset;transition:box-shadow .5s,transform .5s cubic-bezier(.2,.7,.3,1)}
+.vx:nth-child(2),.vx:nth-child(3){grid-column:span 5}
+.vx[data-tone=violet]{--vc:124,92,255}
+.vx[data-tone=cyan]{--vc:14,165,233}
+.vx[data-tone=amber]{--vc:217,119,6}
+.vx::before{content:"";position:absolute;z-index:-1;width:70%;aspect-ratio:1;right:-18%;top:-30%;border-radius:50%;background:radial-gradient(circle,rgba(var(--vc),.26),rgba(var(--vc),0) 65%);transition:transform .8s cubic-bezier(.2,.7,.3,1)}
+.vx:hover{transform:translateY(-4px);box-shadow:0 40px 100px rgba(var(--vc),.24),0 1px 0 rgba(255,255,255,.9) inset}
+.vx:hover::before{transform:scale(1.15) translate(-6%,6%)}
+.vx-stage{position:relative;height:250px;margin:0 0 4px}
+.vx-stage::after{content:"";position:absolute;left:0;right:0;bottom:0;height:70px;background:linear-gradient(to bottom,rgba(255,255,255,0),rgba(255,255,255,.9));z-index:4;pointer-events:none}
+.vx-win{position:absolute;width:50%;border-radius:12px;overflow:hidden;background:#fff;border:1px solid rgba(15,23,42,.08);box-shadow:0 24px 50px rgba(15,23,42,.18);transition:transform .7s cubic-bezier(.2,.7,.3,1)}
+.vx-win i{display:flex;gap:5px;padding:7px 9px;background:#fff;border-bottom:1px solid rgba(15,23,42,.07)}
+.vx-win s{width:7px;height:7px;border-radius:50%;background:#d6dae6}
+.vx-win img{display:block;width:100%;height:auto;aspect-ratio:16/10;object-fit:cover;object-position:top}
+.vx-win[data-w="0"]{left:5%;top:26%;z-index:1;transform:rotate(-6deg)}
+.vx-win[data-w="1"]{left:25%;top:10%;width:54%;z-index:3;box-shadow:0 30px 60px rgba(var(--vc),.32)}
+.vx-win[data-w="2"]{left:47%;top:28%;z-index:2;transform:rotate(6deg)}
+.vx:hover .vx-win[data-w="0"]{transform:translate(-18px,-4px) rotate(-11deg)}
+.vx:hover .vx-win[data-w="1"]{transform:translateY(-10px) scale(1.04)}
+.vx:hover .vx-win[data-w="2"]{transform:translate(18px,-4px) rotate(11deg)}
+.vx-body{position:relative;z-index:5;display:flex;flex-direction:column;flex:1;padding:0 28px 26px}
+.vx-n{font:700 .72rem var(--mono);letter-spacing:.1em;color:rgb(var(--vc))}
+.vx h3{margin:.3rem 0 .3rem;font:700 clamp(1.4rem,2.2vw,1.85rem)/1.08 var(--display);letter-spacing:-.03em;color:var(--text)}
+.vx-who{margin:0;font-size:.86rem;color:var(--dim)}
+.vx-what{margin:.85rem 0 1.1rem;font-size:.97rem;line-height:1.55;color:var(--text);flex:1}
+.vx-cases{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1.1rem}
+.vx-case{display:inline-flex;align-items:center;gap:8px;padding:4px 12px 4px 4px;border:1px solid rgba(15,23,42,.1);border-radius:999px;background:rgba(255,255,255,.85);color:var(--text);font-size:.8rem;font-weight:500;transition:border-color .2s,color .2s,transform .2s}
+.vx-case img{width:30px;height:20px;border-radius:999px;object-fit:cover;object-position:top}
+.vx-case:hover{border-color:rgb(var(--vc));color:rgb(var(--vc));text-decoration:none;transform:translateY(-1px)}
+.vx-plan{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:16px;background:rgba(var(--vc),.08);border:1px solid rgba(var(--vc),.18);color:var(--text);transition:background .25s}
+.vx-plan:hover{background:rgba(var(--vc),.14);text-decoration:none}
+.vx-plan span{display:flex;flex-direction:column;flex:1;font:600 .95rem var(--display);letter-spacing:-.01em}
+.vx-plan em{font:700 .62rem var(--mono);font-style:normal;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.vx-plan b{font:700 clamp(1.25rem,2vw,1.55rem) var(--display);letter-spacing:-.03em;color:rgb(var(--vc))}
+.vx-plan i{font-style:normal;color:rgb(var(--vc));transition:transform .25s}
+.vx-plan:hover i{transform:translateX(4px)}
+@media(max-width:980px){.vx,.vx:nth-child(2),.vx:nth-child(3){grid-column:span 6}}
+@media(max-width:700px){
+ .vx-grid{grid-template-columns:1fr;gap:14px}
+ .vx,.vx:nth-child(2),.vx:nth-child(3){grid-column:auto}
+ .vx-stage{height:190px}
+ .vx-body{padding:0 20px 20px}
+}
+@media(prefers-reduced-motion:reduce){.vx,.vx::before,.vx-win,.vx-case,.vx-plan i{transition:none}}
+.vx-stage{height:270px;overflow:hidden;margin:0 0 -6px}
+.vx-stage::after{height:90px}
+@media(max-width:700px){.vx-stage{height:200px}}
+.vx-plan b{white-space:nowrap}
+.vx-plan span{min-width:0}
+.vx-plan b small{display:block;font:600 .62rem var(--mono);letter-spacing:.12em;text-transform:uppercase;text-align:right;color:var(--dim)}

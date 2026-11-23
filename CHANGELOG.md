@@ -1,5 +1,64 @@
 # Cambios del portafolio
 
+## 2026-11-23 — Precios publicados, asistente que guía a la videollamada y rubros
+
+Contexto: con la pauta de octubre, 104 personas llegaron a Contacto y 0 escribieron. El
+diagnóstico fue que faltaba una oferta concreta (rubro, producto y precio a la vista), no
+tráfico ni nombre. ivavala.com queda como portafolio personal; la marca de empresa se piensa
+aparte.
+
+### Precios
+
+- Sección Precios con tres planes y aviso de que son para profesionales independientes y pymes
+  (empresas grandes se cotizan aparte):
+  - Landing **$700.000** (USD 420) · profesionales independientes.
+  - Landing con backend **$1.500.000** (USD 900) · mayoristas, minoristas y negocios con stock.
+  - Comercio grande **desde $2.500.000** (desde USD 1.500) · alcance y precio final en la videollamada.
+  - Mantenimiento mensual **$50.000/mes** (USD 30) después de los 3 meses incluidos: sitio online,
+    seguridad y hasta 1 hora de cambios por mes, sin contrato.
+- Por qué estos montos: con los de `finanzas.md` la landing rinde 50–106 USD/h y el backend
+  rendía ~24–32 USD/h a $800.000. El mercado argentino 2026 ubica una landing en $300–700k
+  (senior hasta $1,2M), lo a medida con backend en $1,5–5M y el mantenimiento básico en
+  $25–130k/mes. La landing ya estaba arriba del promedio; los otros dos planes estaban abajo del
+  piso. Los dólares salen del blue del 23/11 (~$1.675), redondeados.
+- Cada plan lleva a **agendar una videollamada** por WhatsApp con el plan escrito. La seña del 30%
+  se cobra después de la llamada con un link de Mercado Pago que manda Ignacio (se probó y se
+  descartó el cobro de seña desde el sitio: obligaba a devolver si el proyecto no convenía).
+
+### Asistente ("tu asistente")
+
+- `assistant.js` reescrito: tres pasos con tarjetas (a qué se dedica, qué tiene hoy, para cuándo),
+  recomendación de plan con precio animado, foto de Ignacio y botón de agendar. Línea de pasos con
+  nombre, respuestas tocables para volver atrás y la esfera de partículas grande como presencia.
+- Se presenta como asistente del visitante, no "de Ignacio". La IA queda para preguntas libres y
+  recibe lo que el visitante ya eligió.
+- Pasa a ser la sección de contacto: "Tu proyecto" y su formulario se retiran (también en `/en/`);
+  la conversión de Ads del formulario se mueve al "Que me escriba" del asistente.
+- `chatbot.mjs`: puede dar los precios publicados, deriva a la videollamada, conoce los casos
+  nuevos y en `/en/` responde en inglés y en dólares (antes a veces contestaba en castellano).
+- Probado con un DOM simulado (jsdom) y clics reales en los dos idiomas y los tres planes.
+
+### Home
+
+- Hero sin precio ("La web de tu negocio, hecha a tu medida") con la foto de Ignacio a 120px al
+  lado de "Soy Ignacio…". Textos en primera persona.
+- Sección **Rubros** en bento: profesionales, tiendas y mayoristas, clubes y eventos, escuelas y
+  estudios. Cada uno con su tono, escenario con capturas reales de sus casos (se abren en abanico
+  al pasar el mouse), casos con miniatura y plan sugerido con precio.
+- Webs sumadas a rubros y a `/proyectos/` (13 en producción): Celulandia, Majo Yoga y cossa.
+- Versión en inglés al día: hero, rubros, precios en dólares y asistente como contacto.
+
+### Medición
+
+- Eventos nuevos en `/api/e`: `sec:precios`, `call:<plan>` y `advisor:*` (inicio, plan
+  recomendado, agendar por plan, pregunta libre, contacto).
+
+### Pendiente
+
+- Link de agenda (Google Calendar) para que el botón no pase por WhatsApp.
+- Captura de cossa: su home minimalista se ve casi vacía en la tarjeta.
+- `private/` se reconstruyó desde el worker publicado (las campañas no estaban en esta PC).
+
 ## 2026-10-21 (noche) — Asistente de ventas con IA y cierre de Servicios
 
 - Sección de preguntas reemplazada por un asistente: esfera de partículas que escucha, piensa y responde palabra por palabra, integrada al fondo (sin caja). Preguntas sugeridas flotando alrededor. Se retira el acordeón de FAQ.
