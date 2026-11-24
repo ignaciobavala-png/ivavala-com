@@ -578,19 +578,6 @@ html{scroll-padding-top:92px}
 <p class="work-foot rv"><a href="/proyectos/">Ver m&#225;s proyectos &#8594;</a></p>
 
 </section>
-<section class="sec" id="herramientas" hidden>
-<div class="sec-head rv"><h2>Herramientas gratis</h2><p class="sec-meta">para tu negocio, sin crear una cuenta</p></div>
-<div class="svc-grid">
-<a class="svc-card rv" href="/link-whatsapp/">
-<span class="svc-top"><span class="idx">01</span><span class="arr" aria-hidden="true">&#8594;</span></span>
-<span class="svc-title">Link y QR de WhatsApp</span><span class="svc-desc">Que te escriban con un toque y el mensaje ya armado. Te llevás el link, el QR y un cartel listo para imprimir y pegar en el mostrador.</span>
-</a>
-<a class="svc-card rv" href="/monitor-web/">
-<span class="svc-top"><span class="idx">02</span><span class="arr" aria-hidden="true">&#8594;</span></span>
-<span class="svc-title">Check web</span><span class="svc-desc">Revisá si tu web responde y cuándo vencen el certificado SSL y el dominio. Te aviso por mail si detecto un problema.</span>
-</a>
-</div>
-</section>
 <section class="sec" id="contacto">
 <div class="sec-head rv"><h2>¿Qu&#233; plan te sirve?</h2><p class="sec-meta">tu asistente te ayuda a elegir en un minuto</p></div>
 <div class="rv" id="chat"></div>
@@ -786,7 +773,6 @@ watch(hero,'hero');watch(form,'form');
     else if(t.closest('.hero-cta a.p')) ev('cta:hero');
     else if(t.closest('.svc-foot a')) ev('cta:svcfoot');
     else if(t.closest('.nav-links a[href="#contacto"],.nav-panel a[href="#contacto"]')) ev('cta:nav');
-    else if(t.closest('#herramientas .svc-card')) ev('tool:click');
     else if(t.closest('.sx-item')) ev('service_view:' + t.closest('.sx-item').getAttribute('data-sx'), true);
     else if(t.closest('.work-card')) ev('work:click');
   }, true);
@@ -839,7 +825,7 @@ watch(hero,'hero');watch(form,'form');
 </script>
 
 <script src="/motion.js?v=28"></script>
-<script src="/assistant.js?v=12" defer></script>
+<script src="/assistant.js?v=13" defer></script>
 <script src="/agenda.js?v=4" defer></script>
 <script src="/carousel.js?v=6"></script>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=tsInit&amp;render=explicit" async defer></script>

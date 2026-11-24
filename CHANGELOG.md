@@ -1,5 +1,18 @@
 # Cambios del portafolio
 
+## 2026-11-23 (noche) — Fuera las herramientas gratis
+
+- Se probó bajar la Landing a $600.000 (USD 360) y se revirtió el mismo día: los precios quedan
+  como estaban ($700.000 / USD 420). Lo único que sobrevive de ese cambio es `assistant.js`
+  con `?v=13` en las dos homes.
+- Se borran `/link-whatsapp/`, `/monitor-web/`, `herramientas.css`, `vendor/qrcode.min.js`, la
+  sección oculta "Herramientas gratis" de la home y el evento `tool:click`; `llms.txt` ya no
+  las lista.
+- `worker.js`: fuera el bloque del monitor (498 líneas), las rutas `/api/monitor*` y el
+  `scheduled`; `wrangler.jsonc` sin el cron de cada 5 minutos. `baseOf` y `readJson` se
+  conservan (las usa el resto del worker). La tabla `monitors` de D1 queda sin uso y no se toca.
+- Las migraciones remotas están al día (incluida la `0007_bookings`).
+
 ## 2026-11-23 — Preparación para Google Ads: privacidad, landings por intención, SEO y llms.txt
 
 - Política de privacidad en `/privacidad/` y `/en/privacy/` (datos que se recogen, destinatarios:
