@@ -1,6 +1,7 @@
 import { CAMPANA_OCTUBRE } from "./private/campana-octubre-email.mjs";
 import { CAMPANA_HOTELES } from "./private/campana-hoteles-verano.mjs";
 import { CAMPANA_PROFESIONALES } from "./private/campana-profesionales-landing.mjs";
+import { CAMPANA_HOTELES_FRIO } from "./private/campana-hoteles-frio.mjs";
 import { handleChat, handleChatLead, handleChatBrief } from "./chatbot.mjs";
 // Redirige HTTP -> HTTPS y www -> apex, sirve robots.txt / sitemap.xml,
 // y mantiene fuera del indice cualquier hostname que no sea el canonico.
@@ -219,7 +220,7 @@ const json = (obj, status, extra) =>
 const ACUSE_FROM = "Ignacio Vavala <hola@ivavala.com>";
 const ACUSE_REPLY = DEST;
 
-async function enviarResend(env, { to, bcc, subject, text, html, replyTo, headers, tags, attachments }) {
+async function enviarResend(env, { from, to, bcc, subject, text, html, replyTo, headers, tags, attachments }) {
   // En local no hay key: el mail se imprime en la consola de wrangler dev y
   // el flujo sigue, asi se puede probar el monitor de punta a punta.
   if (!env.RESEND_API_KEY && env.ENV === "dev") {
@@ -235,7 +236,7 @@ async function enviarResend(env, { to, bcc, subject, text, html, replyTo, header
     },
     // reply_to va en snake_case: es la API HTTP, no el SDK de Node.
     body: JSON.stringify({
-      from: ACUSE_FROM,
+      from: from || ACUSE_FROM,
       to: [to],
       ...(bcc ? { bcc: [bcc] } : {}),
       subject,
@@ -883,7 +884,12 @@ async function readJson(request) {
 // El link de baja lleva el mail y una firma HMAC: sin la firma cualquiera
 // podria dar de baja a otro armando la URL a mano. La firma no vence, porque
 // un link de baja tiene que seguir andando aunque el mail se abra meses despues.
-const CAMPAIGNS = { [CAMPANA_OCTUBRE.id]: CAMPANA_OCTUBRE, [CAMPANA_HOTELES.id]: CAMPANA_HOTELES, [CAMPANA_PROFESIONALES.id]: CAMPANA_PROFESIONALES };
+const CAMPAIGNS = {
+  [CAMPANA_OCTUBRE.id]: CAMPANA_OCTUBRE,
+  [CAMPANA_HOTELES.id]: CAMPANA_HOTELES,
+  [CAMPANA_PROFESIONALES.id]: CAMPANA_PROFESIONALES,
+  [CAMPANA_HOTELES_FRIO.id]: CAMPANA_HOTELES_FRIO,
+};
 const CAMPAIGN_PACE_MS = 600; // Resend acepta 2 pedidos por segundo por defecto.
 
 async function unsubSig(env, email) {
@@ -953,18 +959,21 @@ async function bajaRoute(request, env) {
   );
 }
 
-async function campaignMail(env, campaign, email) {
+// vars: datos por destinatario (hoy solo el nombre del hotel). Las campanas
+// viejas no los usan y siguen con su asunto fijo.
+async function campaignMail(env, campaign, email, vars = {}) {
   const u = await unsubUrl(env, email, campaign.id);
-  const { html, text } = campaign.build({ unsubUrl: u });
+  const { html, text } = campaign.build({ unsubUrl: u, vars });
   // Sin BCC a mi casilla (se saco el 09/11/2026): con tandas diarias llenaba
   // la bandeja y cada copia gastaba cuota de Resend (100/dia en el plan free).
   // Para ver como llega un mail se usa {"test":true}.
   return {
+    ...(campaign.from ? { from: campaign.from } : {}),
     to: email,
-    subject: campaign.subject,
+    subject: campaign.subjectFor ? campaign.subjectFor(vars) : campaign.subject,
     html,
     text,
-    replyTo: DEST,
+    replyTo: campaign.replyTo || DEST,
     tags: [{ name: "campaign", value: campaign.id.replace(/[^A-Za-z0-9_-]/g, "_") }],
     headers: {
       "List-Unsubscribe": `<${u}>`,
@@ -991,7 +1000,12 @@ async function campaignRoute(request, env) {
 
   if (action === "preview") {
     if (request.method !== "GET") return json({ error: "method_not_allowed" }, 405);
-    const mail = await campaignMail(env, campaign, url.searchParams.get("to") || DEST);
+    let mail;
+    try {
+      mail = await campaignMail(env, campaign, url.searchParams.get("to") || DEST, { hotel: url.searchParams.get("hotel") });
+    } catch (err) {
+      return json({ error: String(err && err.message) }, 400);
+    }
     const type = url.searchParams.get("format") === "text" ? "text" : "html";
     return new Response(mail[type], {
       headers: { "content-type": `text/${type === "html" ? "html" : "plain"}; charset=utf-8`, "cache-control": "no-store", "x-robots-tag": "noindex, nofollow" },
@@ -1003,7 +1017,13 @@ async function campaignRoute(request, env) {
   if (body && body.test === true) {
     // La prueba no se registra en campaign_sends: no tiene que impedir que
     // despues le llegue el envio real a la misma casilla.
-    const r = await enviarResend(env, { ...(await campaignMail(env, campaign, DEST)), subject: `[PRUEBA] ${campaign.subject}` });
+    let mail;
+    try {
+      mail = await campaignMail(env, campaign, DEST, { hotel: body.hotel });
+    } catch (err) {
+      return json({ error: String(err && err.message) }, 400);
+    }
+    const r = await enviarResend(env, { ...mail, subject: `[PRUEBA] ${mail.subject}` });
     return json({ test: true, id: r.id });
   }
   if (env.CAMPAIGN_SEND_ENABLED !== campaign.id) return json({ error: "send_not_enabled" }, 409);
@@ -1012,9 +1032,17 @@ async function campaignRoute(request, env) {
 
   const seen = new Set();
   const out = { sent: [], skipped: [], failed: [] };
-  for (const raw of list) {
+  // Cada item puede ser un mail suelto o {email, hotel}. Si la campana pide un
+  // dato (requires) y falta, ese destinatario se saltea antes de reservar fila.
+  for (const item of list) {
+    const raw = item && typeof item === "object" ? item.email : item;
+    const vars = item && typeof item === "object" ? { hotel: item.hotel } : {};
     const email = String(raw || "").trim().toLowerCase();
     if (!isEmail(email)) { out.skipped.push({ email: raw, why: "invalid" }); continue; }
+    if (campaign.requires && campaign.requires.includes("hotel") && !campaign.hotelName(vars.hotel)) {
+      out.skipped.push({ email, why: "missing_hotel" });
+      continue;
+    }
     if (seen.has(email)) { out.skipped.push({ email, why: "duplicate" }); continue; }
     seen.add(email);
     if (await isUnsubscribed(db, email)) { out.skipped.push({ email, why: "unsubscribed" }); continue; }
@@ -1026,7 +1054,7 @@ async function campaignRoute(request, env) {
       .first();
     if (!claim) { out.skipped.push({ email, why: "already_sent" }); continue; }
     try {
-      const r = await enviarResend(env, await campaignMail(env, campaign, email));
+      const r = await enviarResend(env, await campaignMail(env, campaign, email, vars));
       await db.prepare("UPDATE campaign_sends SET resend_id = ? WHERE campaign = ? AND email = ?").bind(r.id, campaign.id, email).run();
       out.sent.push({ email, id: r.id });
     } catch (err) {
